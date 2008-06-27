@@ -1,13 +1,19 @@
+properties {
+  $testMessage = 'Executed Test!'
+  $compileMessage = 'Executed Compile!'
+  $cleanMessage = 'Executed Clean!'
+}
+
 task default -depends Test
 
 task Test -depends Compile, Clean { 
-  Write-Host "Executed Test!"
+  Write-Host $testMessage
 }
 
 task Compile -depends Clean { 
-  Write-Host "Executed Compile!"
+  Write-Host $compileMessage
 }
 
 task Clean { 
-  Write-Host "Executed Clean!"
+  Write-Host $cleanMessage
 }

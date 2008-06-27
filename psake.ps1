@@ -1,4 +1,4 @@
-# psake v0.10
+# psake v0.11
 # Copyright © 2008 James Kovacs
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -29,7 +29,7 @@ param(
 if($help) {
 @"
 psake [buildFile] [tasks] [-framework ver] [-debug]
-  where buildFile is the name of th build file, (default: default.ps1)
+  where buildFile is the name of the build file, (default: default.ps1)
         tasks is a list of tasks to execute from the build file,
         ver is the .NET Framework version to target - 1.0, 1.1, 2.0, 3.0, or 3.5
             3.5 is the default
@@ -141,8 +141,9 @@ function RunBuild {
 
   # Execute the build file to set up the tasks and defaults
   if(test-path $buildFile) {
+    $buildFile = resolve-path $buildFile
     set-location (split-path $buildFile)
-    & (resolve-path $buildFile)
+    & $buildFile
   } else {
     throw "Error: Could not find the build file, $buildFile."
   }
