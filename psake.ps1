@@ -1,4 +1,4 @@
-# psake v0.11
+# psake v0.20
 # Copyright © 2008 James Kovacs
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -23,17 +23,19 @@ param(
   [string[]]$taskList = @(),
   [string]$framework = '3.5',
   [switch]$debug = $false,
-  [switch]$help  = $false
+  [switch]$help  = $false,
+  [switch]$timing = $false
 )
 
 if($help) {
 @"
-psake [buildFile] [tasks] [-framework ver] [-debug]
+psake [buildFile] [tasks] [-framework ver] [-debug] [-timing]
   where buildFile is the name of the build file, (default: default.ps1)
         tasks is a list of tasks to execute from the build file,
-        ver is the .NET Framework version to target - 1.0, 1.1, 2.0, 3.0, or 3.5
-            3.5 is the default
-        debug dumps information the tasks.
+        ver is the .NET Framework version to target - 1.0, 1.1, 2.0, 3.0, or 3.5 (default)
+        debug dumps information on the properties, includes, and tasks, as well as more detailed error information.
+        timing prints a report showing how long each task took to execute
+
 psake -help
   Displays this message.
 "@
@@ -42,12 +44,13 @@ psake -help
 
 $global:tasks = @{}
 $global:properties = @()
+$global:includes = @()
 $script:executedTasks = New-Object System.Collections.Stack
 $script:callStack = New-Object System.Collections.Stack
 $originalEnvPath = $env:path
 $originalDirectory = Get-Location
 
-function task([string]$name, [scriptblock]$action = $null, [string[]]$depends = @()) {
+function task([string]$name, [scriptblock]$action = $null, [scriptblock]$precondition = $null, [scriptblock]$postcondition = $null, [switch]$continueOnError = $false, [string[]]$depends = @()) {
   if($name -eq 'default' -and $action -ne $null) {
     throw "Error: default task cannot specify an action"
   }
@@ -55,6 +58,9 @@ function task([string]$name, [scriptblock]$action = $null, [string[]]$depends = 
     Name = $name
     DependsOn = $depends
     Action = $action
+    Precondition = $precondition
+    Postcondition = $postcondition
+    ContinueOnError = $continueOnError
   }
   if($global:tasks.$name -ne $null) { throw "Error: Task, $name, has already been defined." }
   $global:tasks.$name = $newTask
@@ -62,6 +68,11 @@ function task([string]$name, [scriptblock]$action = $null, [string[]]$depends = 
 
 function properties([scriptblock]$propertyBlock) {
   $global:properties += $propertyBlock
+}
+
+function include([string]$include){
+  if (!(test-path $include)) { throw "Error: $include not found."} 	
+  $global:includes += $include
 }
 
 function AssertNotCircular([string]$name) {
@@ -80,13 +91,38 @@ function ExecuteTask([string]$name) {
     ExecuteTask $childTask
   }
   if($name -ne 'default') {
-    Write-Host "Executing task, $name..."
-    if($task.Action -ne $null) {
-      & $task.Action
+    $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+    $precondition = $true
+    if($task.Precondition -ne $null) {
+      $precondition = (& $task.Precondition)
     }
-    Write-Host "`n"
+    "Executing task, $name..."
+    if($task.Action -ne $null) {
+      if($precondition) {
+        trap {
+          if ($task.ContinueOnError) {
+            "Error in Task [$name] $_"
+            continue
+          } else {
+            throw $_
+          }
+        }                
+        & $task.Action
+        $postcondition = $true
+        if($task.Postcondition -ne $null) {
+          $postcondition = (& $task.Postcondition)
+        }
+        if (!$postcondition) {
+          throw "Postcondition failed for $name"
+        }
+      } else {
+        "Precondition was false not executing $name"
+      }
+    }    
+    $stopwatch.stop()
+    $task.Duration = $stopwatch.Elapsed
   }
-  
+
   $poppedTask = $script:callStack.Pop()
   if($poppedTask -ne $name) {
     throw "CallStack was corrupt. Expected $name, but got $poppedTask."
@@ -95,17 +131,22 @@ function ExecuteTask([string]$name) {
 }
 
 function DumpTasks {
-  Write-Host 'Dumping tasks:'
+  'Dumping tasks:'
   foreach($key in $global:tasks.Keys) {
     $task = $global:tasks.$key;
     $task.Name + " depends on " + $task.DependsOn.Length + " other tasks: " + $task.DependsOn;
   }
-  Write-Host "`n"
+  "`n"
 }
 
 function DumpProperties {
-  Write-Host 'Dumping properties:'
+  'Dumping properties:'
   $global:properties
+}
+
+function DumpIncludes {
+  'Dumping includes:'
+  $global:includes
 }
 
 function ConfigureEnvForBuild {
@@ -126,18 +167,40 @@ function ConfigureEnvForBuild {
 }
 
 function Cleanup {
-  $env:path = $originalEnvPath
-  $global:tasks = $null
+  $env:path = $originalEnvPath	
   Set-Location $originalDirectory
+  remove-variable tasks -scope "global" 
+  remove-variable properties -scope "global"
+  remove-variable includes -scope "global"
+}
+
+#borrowed from Jeffrey Snover http://blogs.msdn.com/powershell/archive/2006/12/07/resolve-error.aspx
+function Resolve-Error($ErrorRecord=$Error[0]) {	
+  $ErrorRecord | Format-List * -Force
+  $ErrorRecord.InvocationInfo | Format-List *
+  $Exception = $ErrorRecord.Exception
+  for ($i = 0; $Exception; $i++, ($Exception = $Exception.InnerException)) {
+    "$i" * 80
+    $Exception | Format-List * -Force
+  }
 }
 
 function RunBuild {
   # Faking a finally block
   trap {
-    Write-Host -foregroundcolor Red $_
     Cleanup
+    Write-Host -foregroundcolor Red $_
+    if($debug) {
+      "-" * 80
+      "An Error Occurred. See Error Details Below:"
+      "-" * 80
+      Resolve-Error
+      "-" * 80
+    }
     break
   }
+
+  $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 
   # Execute the build file to set up the tasks and defaults
   if(test-path $buildFile) {
@@ -149,15 +212,19 @@ function RunBuild {
   }
 
   if($debug) {
+    DumpIncludes
     DumpProperties
     DumpTasks
   }
 
   ConfigureEnvForBuild
-  
+
+  # N.B. The initial dot (.) indicates that variables initialized/modified
+  #      in the propertyBlock are available in the parent scope.
+  foreach($includeBlock in $global:includes) {
+    . $includeBlock
+  }
   foreach($propertyBlock in $global:properties) {
-    # N.B. The initial dot (.) indicates that variables initialized/modified
-    #      in the propertyBlock are available in the parent scope.
     . $propertyBlock
   }
 
@@ -167,7 +234,23 @@ function RunBuild {
       ExecuteTask $task
     }
   } elseif ($global:tasks.default -ne $null) {
-    EXecuteTask default
+    ExecuteTask default
+  } else {
+    throw 'default task required'
+  }
+
+  $stopwatch.Stop()
+
+  if ($timing) {
+    "`nBuild Time Report"
+    "Name`tDuration (secs)"
+    foreach($key in $global:tasks.Keys) {
+      $task = $global:tasks.$key
+      if ($task.name -ne "default") {
+        "{0}`t{1}" -F $task.name, $task.Duration
+      }
+    }
+    "Total:`t{0}" -F $stopwatch.Elapsed
   }
 
   # Clear out any global variables
@@ -176,7 +259,7 @@ function RunBuild {
 
 # Avoids printing of error dump with line numbers
 trap {
- # continue
+ continue
 }
 
 RunBuild
