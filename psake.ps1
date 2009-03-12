@@ -243,14 +243,21 @@ function RunBuild {
 
   if ($timing) {
     "`nBuild Time Report"
-    "Name`tDuration (secs)"
-    foreach($key in $global:tasks.Keys) {
-      $task = $global:tasks.$key
-      if ($task.name -ne "default") {
-        "{0}`t{1}" -F $task.name, $task.Duration
-      }
-    }
-    "Total:`t{0}" -F $stopwatch.Elapsed
+	"-" * 70
+    "{0,-50} {1}" -F "Task Name", "Duration (secs)"
+	"-" * 70
+	$list = @()
+	while ($script:executedTasks.Count -gt 0)
+	{
+		$name = $script:executedTasks.Pop()
+		$task = $global:tasks.$name
+		if ($task.name -ne "default") {
+			$list += "{0,-50} {1}" -F $task.Name, $task.Duration
+		}			
+	}
+	[Array]::Reverse($list)
+	$list
+	"{0,-50} {1}" -F "Total:", $stopwatch.Elapsed
   }
 
   # Clear out any global variables
