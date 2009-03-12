@@ -247,8 +247,7 @@ function RunBuild {
     "{0,-50} {1}" -F "Task Name", "Duration (secs)"
 	"-" * 70
 	$list = @()
-	while ($script:executedTasks.Count -gt 0)
-	{
+	while ($script:executedTasks.Count -gt 0) {
 		$name = $script:executedTasks.Pop()
 		$task = $global:tasks.$name
 		if ($task.name -ne "default") {
