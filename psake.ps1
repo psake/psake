@@ -197,7 +197,7 @@ function RunBuild {
       Resolve-Error
       "-" * 80
     }
-    break
+    exit(1)
   }
 
   $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
@@ -261,11 +261,6 @@ function RunBuild {
 
   # Clear out any global variables
   Cleanup
-}
-
-# Avoids printing of error dump with line numbers
-trap {
- continue
 }
 
 RunBuild
