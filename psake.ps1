@@ -1,5 +1,5 @@
-# psake v0.20
-# Copyright © 2008 James Kovacs
+# psake v0.21
+# Copyright © 2009 James Kovacs
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -24,17 +24,19 @@ param(
   [string]$framework = '3.5',
   [switch]$debug = $false,
   [switch]$help  = $false,
-  [switch]$timing = $false
+  [switch]$timing = $false,
+  [switch]$docs = $false
 )
 
 if($help) {
 @"
-psake [buildFile] [tasks] [-framework ver] [-debug] [-timing]
+psake [buildFile] [tasks] [-framework ver] [-debug] [-timing] [-docs]
   where buildFile is the name of the build file, (default: default.ps1)
         tasks is a list of tasks to execute from the build file,
         ver is the .NET Framework version to target - 1.0, 1.1, 2.0, 3.0, or 3.5 (default)
         debug dumps information on the properties, includes, and tasks, as well as more detailed error information.
         timing prints a report showing how long each task took to execute
+        docs prints a list of available tasks
 
 psake -help
   Displays this message.
@@ -50,7 +52,7 @@ $script:callStack = New-Object System.Collections.Stack
 $originalEnvPath = $env:path
 $originalDirectory = Get-Location
 
-function task([string]$name, [scriptblock]$action = $null, [scriptblock]$precondition = $null, [scriptblock]$postcondition = $null, [switch]$continueOnError = $false, [string[]]$depends = @()) {
+function task([string]$name, [scriptblock]$action = $null, [scriptblock]$precondition = $null, [scriptblock]$postcondition = $null, [switch]$continueOnError = $false, [string[]]$depends = @(), [string]$description = $null) {
   if($name -eq 'default' -and $action -ne $null) {
     throw "Error: default task cannot specify an action"
   }
@@ -61,6 +63,7 @@ function task([string]$name, [scriptblock]$action = $null, [scriptblock]$precond
     Precondition = $precondition
     Postcondition = $postcondition
     ContinueOnError = $continueOnError
+    Description = $description
   }
   if($global:tasks.$name -ne $null) { throw "Error: Task, $name, has already been defined." }
   $global:tasks.$name = $newTask
@@ -72,7 +75,7 @@ function properties([scriptblock]$propertyBlock) {
 
 function include([string]$include){
   if (!(test-path $include)) { throw "Error: $include not found."} 	
-  $global:includes += $include
+  $global:includes += (Resolve-Path $include)
 }
 
 function AssertNotCircular([string]$name) {
@@ -130,7 +133,7 @@ function ExecuteTask([string]$name) {
   $script:executedTasks.Push($name)
 }
 
-function DumpTasks {
+function Dump-Tasks {
   'Dumping tasks:'
   foreach($key in $global:tasks.Keys) {
     $task = $global:tasks.$key;
@@ -139,17 +142,17 @@ function DumpTasks {
   "`n"
 }
 
-function DumpProperties {
+function Dump-Properties {
   'Dumping properties:'
   $global:properties
 }
 
-function DumpIncludes {
+function Dump-Includes {
   'Dumping includes:'
   $global:includes
 }
 
-function ConfigureEnvForBuild {
+function Configure-BuildEnvironment {
   $version = $null
   switch ($framework) {
     '1.0' { $version = 'v1.0.3705'  }
@@ -166,7 +169,7 @@ function ConfigureEnvForBuild {
   $env:path = "$frameworkDir;$env:path"
 }
 
-function Cleanup {
+function Cleanup-Environment {
   $env:path = $originalEnvPath	
   Set-Location $originalDirectory
   remove-variable tasks -scope "global" 
@@ -185,10 +188,25 @@ function Resolve-Error($ErrorRecord=$Error[0]) {
   }
 }
 
-function RunBuild {
-  # Faking a finally block
+function Write-Documentation {
+  $list = New-Object System.Collections.ArrayList
+  foreach($key in $global:tasks.Keys) {
+    if($key -eq "default") {
+      continue;
+    }
+    $task = $global:tasks.$key;
+    $content = "" | Select-Object Name, Description
+    $content.Name = $task.Name        
+    $content.Description = $task.Description
+    $index = $list.Add($content);
+  }
+  
+  $list | Sort 'Name' | Format-Table -Auto
+}
+
+function Run-Psake {
   trap {
-    Cleanup
+    Cleanup-Environment
     Write-Host -foregroundcolor Red $_
     if($debug) {
       "-" * 80
@@ -211,13 +229,19 @@ function RunBuild {
     throw "Error: Could not find the build file, $buildFile."
   }
 
-  if($debug) {
-    DumpIncludes
-    DumpProperties
-    DumpTasks
+  if($docs) {
+    Write-Documentation
+    Cleanup-Environment
+    exit(0)
   }
 
-  ConfigureEnvForBuild
+  if($debug) {
+    Dump-Includes
+    Dump-Properties
+    Dump-Tasks
+  }
+
+  Configure-BuildEnvironment
 
   # N.B. The initial dot (.) indicates that variables initialized/modified
   #      in the propertyBlock are available in the parent scope.
@@ -260,7 +284,7 @@ function RunBuild {
   }
 
   # Clear out any global variables
-  Cleanup
+  Cleanup-Environment
 }
 
-RunBuild
+Run-Psake
