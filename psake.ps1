@@ -51,9 +51,13 @@ $script:executedTasks = New-Object System.Collections.Stack
 $script:callStack = New-Object System.Collections.Stack
 $originalEnvPath = $env:path
 $originalDirectory = Get-Location
+$originalErrorActionPreference = $Global:ErrorActionPreference
 
-function task([string]$name, [scriptblock]$action = $null, [scriptblock]$precondition = $null, [scriptblock]$postcondition = $null, [switch]$continueOnError = $false, [string[]]$depends = @(), [string]$description = $null) {
-  if($name -eq 'default' -and $action -ne $null) {
+function task([string]$name=$null, [scriptblock]$action = $null, [scriptblock]$precondition = $null, [scriptblock]$postcondition = $null, [switch]$continueOnError = $false, [string[]]$depends = @(), [string]$description = $null) {
+  if (($name -eq $null) -or ($name.Trim() -eq "")) {
+	throw "Error: task must have a name"	
+  }
+  if($name.ToLower() -eq 'default' -and $action -ne $null) {
     throw "Error: default task cannot specify an action"
   }
   $newTask = @{
@@ -167,11 +171,13 @@ function Configure-BuildEnvironment {
     throw "Error: No .NET Framework installation directory found at $frameworkDir"
   }
   $env:path = "$frameworkDir;$env:path"
+  $global:ErrorActionPreference = "Stop"
 }
 
 function Cleanup-Environment {
   $env:path = $originalEnvPath	
   Set-Location $originalDirectory
+  $global:ErrorActionPreference = $originalErrorActionPreference
   remove-variable tasks -scope "global" 
   remove-variable properties -scope "global"
   remove-variable includes -scope "global"
@@ -202,6 +208,13 @@ function Write-Documentation {
   }
   
   $list | Sort 'Name' | Format-Table -Auto
+}
+
+function exec([string]$command, [string]$parameters) {    
+    & $command $parameters
+    if ($lastExitCode -ne 0) {
+        throw "Failed to execute ""$command"" with parameters ""$parameters"""
+    }
 }
 
 function Run-Psake {
