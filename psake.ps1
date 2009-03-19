@@ -47,10 +47,14 @@ psake -help
 $global:tasks = @{}
 $global:properties = @()
 $global:includes = @()
+$global:psake_version = "0.21"
+$global:psake_buildScript = $buildFile
+$global:psake_frameworkVersion = $framework
+
 $script:executedTasks = New-Object System.Collections.Stack
 $script:callStack = New-Object System.Collections.Stack
-$originalEnvPath = $env:path
-$originalDirectory = Get-Location
+$script:originalEnvPath = $env:path
+$script:originalDirectory = Get-Location
 $originalErrorActionPreference = $Global:ErrorActionPreference
 
 function task([string]$name=$null, [scriptblock]$action = $null, [scriptblock]$precondition = $null, [scriptblock]$postcondition = $null, [switch]$continueOnError = $false, [string[]]$depends = @(), [string]$description = $null) {
@@ -175,12 +179,13 @@ function Configure-BuildEnvironment {
 }
 
 function Cleanup-Environment {
-  $env:path = $originalEnvPath	
-  Set-Location $originalDirectory
+  $env:path = $script:originalEnvPath	
+  Set-Location $script:originalDirectory
   $global:ErrorActionPreference = $originalErrorActionPreference
   remove-variable tasks -scope "global" 
   remove-variable properties -scope "global"
   remove-variable includes -scope "global"
+  remove-variable psake_* -scope "global"  
 }
 
 #borrowed from Jeffrey Snover http://blogs.msdn.com/powershell/archive/2006/12/07/resolve-error.aspx
