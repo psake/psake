@@ -247,12 +247,6 @@ function Run-Psake {
     throw "Error: Could not find the build file, $buildFile."
   }
 
-  if($docs) {
-    Write-Documentation
-    Cleanup-Environment
-    exit(0)
-  }
-
   if($debug) {
     Dump-Includes
     Dump-Properties
@@ -270,6 +264,12 @@ function Run-Psake {
     . $propertyBlock
   }
 
+	if($docs) {
+    Write-Documentation
+    Cleanup-Environment
+    exit(0)
+  }
+  
   # Execute the list of tasks or the default task
   if($taskList.Length -ne 0) {
     foreach($task in $taskList) {
