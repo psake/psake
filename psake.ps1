@@ -284,22 +284,22 @@ function Run-Psake {
 
   $stopwatch.Stop()
 
-  if ($timing) {
-    "`nBuild Time Report"
-	"-" * 70
-    "{0,-50} {1}" -F "Task Name", "Duration (secs)"
-	"-" * 70
+  if ($timing) {	
+	"-"*70
+    "Build Time Report"
+	"-"*70	
 	$list = @()
 	while ($script:executedTasks.Count -gt 0) {
 		$name = $script:executedTasks.Pop()
 		$task = $global:tasks.$name
-		if ($task.name -ne "default") {
-			$list += "{0,-50} {1}" -F $task.Name, $task.Duration
-		}			
+		if($name -eq "default") {
+		  continue;
+		}    
+		$list += "" | Select-Object @{Name="Name";Expression={$name}}, @{Name="Duration";Expression={$task.Duration}}
 	}
 	[Array]::Reverse($list)
-	$list
-	"{0,-50} {1}" -F "Total:", $stopwatch.Elapsed
+	$list += "" | Select-Object @{Name="Name";Expression={"Total:"}}, @{Name="Duration";Expression={$stopwatch.Elapsed}}
+	$list | Format-Table -Auto | Out-String -Stream | ? {$_}  # using "Out-String -Stream" to filter out the blank line that Format-Table prepends 
   }
 
   # Clear out any global variables
