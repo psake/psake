@@ -59,10 +59,10 @@ $originalErrorActionPreference = $Global:ErrorActionPreference
 
 function task([string]$name=$null, [scriptblock]$action = $null, [scriptblock]$precondition = $null, [scriptblock]$postcondition = $null, [switch]$continueOnError = $false, [string[]]$depends = @(), [string]$description = $null) {
   if (($name -eq $null) -or ($name.Trim() -eq "")) {
-	throw "Error: task must have a name"	
+	throw "Error: Task must have a name"	
   }
   if($name.ToLower() -eq 'default' -and $action -ne $null) {
-    throw "Error: default task cannot specify an action"
+    throw "Error: Default task cannot specify an action"
   }
   $newTask = @{
     Name = $name
@@ -88,7 +88,7 @@ function include([string]$include){
 
 function AssertNotCircular([string]$name) {
   if($script:callStack.Contains($name)) {
-    throw "Circular reference found for task, $name"
+    throw "Error: Circular reference found for task, $name"
   }
 }
 
@@ -112,7 +112,9 @@ function ExecuteTask([string]$name) {
       if($precondition) {
         trap {
           if ($task.ContinueOnError) {
+			"-"*70
             "Error in Task [$name] $_"
+			"-"*70
             continue
           } else {
             throw $_
@@ -124,7 +126,7 @@ function ExecuteTask([string]$name) {
           $postcondition = (& $task.Postcondition)
         }
         if (!$postcondition) {
-          throw "Postcondition failed for $name"
+          throw "Error: Postcondition failed for $name"
         }
       } else {
         "Precondition was false not executing $name"
@@ -136,7 +138,7 @@ function ExecuteTask([string]$name) {
 
   $poppedTask = $script:callStack.Pop()
   if($poppedTask -ne $name) {
-    throw "CallStack was corrupt. Expected $name, but got $poppedTask."
+    throw "Error: CallStack was corrupt. Expected $name, but got $poppedTask."
   }
   $script:executedTasks.Push($name)
 }
@@ -194,7 +196,7 @@ function Resolve-Error($ErrorRecord=$Error[0]) {
   $ErrorRecord.InvocationInfo | Format-List *
   $Exception = $ErrorRecord.Exception
   for ($i = 0; $Exception; $i++, ($Exception = $Exception.InnerException)) {
-    "$i" * 80
+    "$i" * 70
     $Exception | Format-List * -Force
   }
 }
@@ -218,7 +220,7 @@ function Write-Documentation {
 function exec([string]$command, [string]$parameters) {    
     & $command $parameters
     if ($lastExitCode -ne 0) {
-        throw "Failed to execute ""$command"" with parameters ""$parameters"""
+        throw "Error: Failed to execute ""$command"" with parameters ""$parameters"""
     }
 }
 
@@ -265,7 +267,7 @@ function Run-Psake {
     . $propertyBlock
   }
 
-	if($docs) {
+  if($docs) {
     Write-Documentation
     Cleanup-Environment
     exit(0)
@@ -279,7 +281,7 @@ function Run-Psake {
   } elseif ($global:tasks.default -ne $null) {
     ExecuteTask default
   } else {
-    throw 'default task required'
+    throw 'Error: default task required'
   }
 
   $stopwatch.Stop()
