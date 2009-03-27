@@ -9,12 +9,8 @@ powershell -nologo -noprofile -command {
 			.\psake.ps1 $buildFile | Out-Null			
 			$testResult.Result = (getResult $buildFile.Name $?)
 			$testResults += $testResult 			
-		}			
-		
-		$testResults | ft -auto
-		
-		$failed = $testResults | ? { $_.Result -eq "Failed" }
-		if ($failed) { exit(1) }
+		}
+		return $testResults
 	}
 	
 	function getResult([string]$fileName, [bool]$buildSucceeded) {		
@@ -36,5 +32,9 @@ powershell -nologo -noprofile -command {
 		}
 	}
 
-	runBuilds
+	$results = runBuilds
+	$results | ft -auto
+		
+	$failed = $Results | ? { $_.Result -eq "Failed" }
+	if ($failed) {exit 1} else {exit 0}	
 }
