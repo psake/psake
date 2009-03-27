@@ -1,4 +1,4 @@
-powershell -nologo -noprofile -outputformat text -command {
+powershell -nologo -noprofile -command {
 	function runBuilds{
 		$buildFiles = dir examples\*.ps1
 		$testResults = @()	
