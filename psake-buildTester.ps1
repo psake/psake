@@ -33,8 +33,8 @@ powershell -nologo -noprofile -output "Text" -command {
 	}
 
 	$results = runBuilds
-	#$results | ft -auto
+	$results | ft -auto
 		
-	$failed = $Results | ? { $_.Result -eq "Failed" }
+	$failed = $results | ? { $_.Result -eq "Failed" }
 	if ($failed) {exit 1} else {exit 0}	
 }
