@@ -46,7 +46,7 @@ psake -help
 
 $global:tasks = @{}
 $global:properties = @()
-$global:includes = New-Object System.Collections.Stack
+$global:includes = New-Object System.Collections.Queue
 $global:psake_version = "0.21"
 $global:psake_buildScript = $buildFile
 $global:psake_frameworkVersion = $framework
@@ -83,7 +83,7 @@ function properties([scriptblock]$propertyBlock) {
 
 function include([string]$include){
   if (!(test-path $include)) { throw "Error: $include not found."} 	
-  $global:includes.Push((Resolve-Path $include));
+  $global:includes.Enqueue((Resolve-Path $include));
 }
 
 function AssertNotCircular([string]$name) {
@@ -260,7 +260,7 @@ function Run-Psake {
   # N.B. The initial dot (.) indicates that variables initialized/modified
   #      in the propertyBlock are available in the parent scope.
   while ($global:includes.Count -gt 0) {
-  	$includeBlock = $global:includes.Pop();
+  	$includeBlock = $global:includes.Dequeue();
   	. $includeBlock;
   }
   foreach($propertyBlock in $global:properties) {
