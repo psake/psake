@@ -1,4 +1,4 @@
-# psake v0.21
+# psake v0.22
 # Copyright © 2009 James Kovacs
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
