@@ -47,7 +47,7 @@ psake -help
 $global:tasks = @{}
 $global:properties = @()
 $global:includes = New-Object System.Collections.Queue
-$global:psake_version = "0.21"
+$global:psake_version = "0.22"
 $global:psake_buildScript = $buildFile
 $global:psake_frameworkVersion = $framework
 
