@@ -1,4 +1,4 @@
-# psake v0.22
+# psake v0.23
 # Copyright © 2009 James Kovacs
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -47,7 +47,7 @@ psake -help
 $global:tasks = @{}
 $global:properties = @()
 $global:includes = New-Object System.Collections.Queue
-$global:psake_version = "0.22"
+$global:psake_version = "0.23"
 $global:psake_buildScript = $buildFile
 $global:psake_frameworkVersion = $framework
 
