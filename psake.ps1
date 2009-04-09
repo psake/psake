@@ -59,7 +59,7 @@ $originalErrorActionPreference = $Global:ErrorActionPreference
 
 function task([string]$name=$null, [scriptblock]$action = $null, [scriptblock]$precondition = $null, [scriptblock]$postcondition = $null, [switch]$continueOnError = $false, [string[]]$depends = @(), [string]$description = $null) {
   if (($name -eq $null) -or ($name.Trim() -eq "")) {
-	throw "Error: Task must have a name"	
+	  throw "Error: Task must have a name"	
   }
   if($name.ToLower() -eq 'default' -and $action -ne $null) {
     throw "Error: Default task cannot specify an action"
