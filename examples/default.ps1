@@ -7,13 +7,13 @@ properties {
 task default -depends Test
 
 task Test -depends Compile, Clean { 
-  Write-Host $testMessage
+  $testMessage
 }
 
 task Compile -depends Clean { 
-  Write-Host $compileMessage
+  $compileMessage
 }
 
 task Clean { 
-  Write-Host $cleanMessage
+  $cleanMessage
 }
