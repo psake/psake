@@ -2,11 +2,16 @@ function runBuilds{
 	$buildFiles = dir examples\*.ps1
 	$testResults = @()	
 	
+    $non_existant_buildfile = "" | select Name, FullName
+    $non_existant_buildfile.Name = "bad-non_existant_buildfile.ps1"
+    $non_existant_buildfile.FullName = "c:\bad-non_existant_buildfile.ps1"
+    $buildFiles += $non_existant_buildfile
+    
 	foreach($buildFile in $buildFiles) {					
 		$testResult = "" | select Name, Result 
 		$testResult.Name = $buildFile.Name
-		Run-psake $buildFile -noexit | Out-Null			
-		$testResult.Result = (getResult $buildFile.Name $global:psake_buildSucceeded)
+		Invoke-psake $buildFile.FullName | Out-Null			
+		$testResult.Result = (getResult $buildFile.Name $psake.build_success)
 		$testResults += $testResult 			
 	}
 	return $testResults
@@ -31,12 +36,17 @@ function getResult([string]$fileName, [bool]$buildSucceeded) {
 	}
 }
 
+Import-Module .\psake.psm1
+
 $results = runBuilds
-$results | ft -auto
-	
+
+Remove-Module psake
+
+$results | Sort 'Name' | Format-Table -Auto 
+
 $failed = $results | ? { $_.Result -eq "Failed" }
 if ($failed) {
-	"One of the builds failed"
+	write-host "One of the builds failed" -ForeGroundColor 'RED'
 	exit 1
 } else {
 	exit 0
