@@ -1,6 +1,4 @@
-.svn
+.git
 package
-images\.svn
 images\psake.pdn
 images\SakeBottle.jpg
-examples\.svn

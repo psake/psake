@@ -1,4 +1,4 @@
-# psake v0.24
+# psake v2.00
 # Copyright © 2009 James Kovacs
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -808,7 +808,7 @@ function Invoke-psake
 		$script:psake.build_success = $false
 		$script:psake.use_exit_on_error = $false
 		$script:psake.log_error = $false
-		$script:psake.version = "0.24"
+		$script:psake.version = "2.00"
 		$script:psake.build_script_file = $null
 		$script:psake.framework_version = $framework
 		
