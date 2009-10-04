@@ -1,4 +1,0 @@
-.git
-package
-images\psake.pdn
-images\SakeBottle.jpg
