@@ -1,5 +1,5 @@
 # psake v2.00
-# Copyright © 2009 James Kovacs
+# Copyright ï¿½ 2009 James Kovacs
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -18,7 +18,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-#-- Private Module Variables
+#Requires -Version 2.0
+
+#-- Private Module Variables (Listed here for quick reference)
 [string]$script:originalEnvPath
 [string]$script:originalDirectory
 [string]$script:formatTaskNameString
@@ -31,7 +33,7 @@
 [system.collections.stack]$script:executedTasks
 [system.collections.stack]$script:callStack
 
-#-- Public Module Variables
+#-- Public Module Variables -- The psake hashtable variable is initialized in the invoke-psake function
 $script:psake = @{}
 Export-ModuleMember -Variable "psake"
 
@@ -249,49 +251,53 @@ function Write-TaskTimeSummary
 function Assert
 {
 <#
-.Synopsis
-    Helper function for "Design by Contract" assertion checking. 
-.Description
-    This is a helper function that makes the code less noisy by eliminating many of the "if" statements
-    that are normally required to verify assumptions in the code.
-.Parameter conditionToCheck 
-	The boolean condition to evaluate	
-	Required
-.Parameter failureMessage
-	The error message used for the exception if the conditionToCheck parameter is false
-	Required 
-.Example
-	Assert $false "This always throws an exception"
+.SYNOPSIS 
+Helper function for "Design by Contract" assertion checking. 
     
-    This example always throws an exception
-.Example
-    Assert (1 -eq 2) "1 doesn't equal 2"  	
+.DESCRIPTION
+This is a helper function that makes the code less noisy by eliminating many of the "if" statements
+that are normally required to verify assumptions in the code.
     
-.ReturnValue
-      
-.Link	
-	Invoke-psake
-    Task
-    Properties
-    Include
-    FormatTaskName
-    TaskSetup
-    TaskTearDown
-.Notes
-    It might be necessary to wrap the condition with paranthesis to force PS to evaluate the condition 
-    so that a boolean value is calculated and passed into the parameter.
+.PARAMETER conditionToCheck 
+The boolean condition to evaluate	
+Required
     
-    Example:
-        Assert 1 -eq 2 "1 doesn't equal 2"
-       
-    PS will pass 1 into the condtionToCheck variable and PS will look for a parameter called "eq" and 
-    throw an exception with the following message "A parameter cannot be found that matches parameter name 'eq'"
+.PARAMETER failureMessage
+The error message used for the exception if the conditionToCheck parameter is false
+Required 
     
-    The solution is to wrap the condition in () so that PS will evaluate it first.
+.EXAMPLE
+Assert $false "This always throws an exception"
     
-        Assert (1 -eq 2) "1 doesn't equal 2"
-  
-#Requires -Version 2.0
+This example always throws an exception
+    
+.EXAMPLE
+Assert ( ($i % 2) -eq 0 ) "%i is not an even number"  	
+
+This exmaple may throw an exception if $i is not an even number
+     
+.LINK	
+Invoke-psake
+Task
+Properties
+Include
+FormatTaskName
+TaskSetup
+TaskTearDown
+    
+.NOTES
+It might be necessary to wrap the condition with paranthesis to force PS to evaluate the condition 
+so that a boolean value is calculated and passed into the 'conditionToCheck' parameter.
+
+Example:
+    Assert 1 -eq 2 "1 doesn't equal 2"
+   
+PS will pass 1 into the condtionToCheck variable and PS will look for a parameter called "eq" and 
+throw an exception with the following message "A parameter cannot be found that matches parameter name 'eq'"
+
+The solution is to wrap the condition in () so that PS will evaluate it first.
+
+    Assert (1 -eq 2) "1 doesn't equal 2"
 #>
 [CmdletBinding(
     SupportsShouldProcess=$False,
@@ -309,72 +315,110 @@ function Assert
 function Task
 {
 <#
-.Synopsis
-    Defines a build task to be executed by psake 
-.Description
-    This function contains parameters that will be used by the psake engine to execute a build task.
-	Note: There must be at least one task called 'default' in the build script 
-.Parameter Name 
-	The name of the task	
-	Required
-.Parameter Action 
-	A scriptblock containing the statements to execute
-	Optional 
-.Parameter PreAction
-	A scriptblock to be executed before the 'Action' scriptblock.
-	Note: This parameter is ignored if the 'Action' scriptblock is not defined.
-	Optional 
-.Parameter PostAction 
-	A scriptblock to be executed after the 'Action' scriptblock.
-	Note: This parameter is ignored if the 'Action' scriptblock is not defined.
-	Optional 
-.Parameter Precondition 
-	A scriptblock that is executed to determine if the task is executed or skipped.
-	This scriptblock should return $true or $false
-	Optional
-.Parameter Postcondition
-	A scriptblock that is executed to determine if the task completed its job correctly.
-	An exception is thrown if the scriptblock returns false.	
-	Optional
-.Parameter ContinueOnError
-	If this switch parameter is set then the task will not cause the build to fail when an exception is thrown
-.Parameter Depends
-	An array of tasks that this task depends on.  They will be executed before the current task is executed.
-.Parameter Description
-	A description of the task.
-.Example
-	task default -depends Test
+.SYNOPSIS
+Defines a build task to be executed by psake 
 	
-	task Test -depends Compile, Clean { 
-	  $testMessage
-	} 	
+.DESCRIPTION
+This function creates a 'task' object that will be used by the psake engine to execute a build task.
+Note: There must be at least one task called 'default' in the build script 
 	
-	The 'default' task is required and should not contain an 'Action' parameter.
-	It uses the 'depends' parameter to specify that 'Test' is a dependency
+.PARAMETER Name 
+The name of the task	
+Required
 	
-	The 'Test' task uses the 'depends' parameter to specify that 'Compile' and 'Clean' are dependencies
-	
-	The 'Action' parameter is defaulted to the script block following the 'Clean'. 
-	
-	The equivalent is shown below:
-	
-	task Test -depends Compile, Clean -Action { 
-	  $testMessage
-	}
-	
-.ReturnValue
-      
-.Link	
-	Invoke-psake    
-    Properties
-    Include
-    FormatTaskName
-    TaskSetup
-    TaskTearDown
-    Assert
-.Notes
-  
-#Requires -Version 2.0
+.PARAMETER Action 
+A scriptblock containing the statements to execute
+Optional 
+
+.PARAMETER PreAction
+A scriptblock to be executed before the 'Action' scriptblock.
+Note: This parameter is ignored if the 'Action' scriptblock is not defined.
+Optional 
+
+.PARAMETER PostAction 
+A scriptblock to be executed after the 'Action' scriptblock.
+Note: This parameter is ignored if the 'Action' scriptblock is not defined.
+Optional 
+
+.PARAMETER Precondition 
+A scriptblock that is executed to determine if the task is executed or skipped.
+This scriptblock should return $true or $false
+Optional
+
+.PARAMETER Postcondition
+A scriptblock that is executed to determine if the task completed its job correctly.
+An exception is thrown if the scriptblock returns $false.	
+Optional
+
+.PARAMETER ContinueOnError
+If this switch parameter is set then the task will not cause the build to fail when an exception is thrown
+
+.PARAMETER Depends
+An array of tasks that this task depends on.  They will be executed before the current task is executed.
+
+.PARAMETER Description
+A description of the task.
+
+.EXAMPLE
+A sample build script is shown below:
+
+task default -depends Test
+
+task Test -depends Compile, Clean { 
+  "This is a test"
+} 	
+
+task Compile -depends Clean {
+	"Compile"
+}
+
+task Clean {
+	"Clean"
+}
+
+The 'default' task is required and should not contain an 'Action' parameter.
+It uses the 'depends' parameter to specify that 'Test' is a dependency
+
+The 'Test' task uses the 'depends' parameter to specify that 'Compile' and 'Clean' are dependencies
+The 'Compile' task depends on the 'Clean' task.
+
+Note: 
+The 'Action' parameter is defaulted to the script block following the 'Clean' task. 
+
+The equivalent 'Test' task is shown below:
+
+task Test -depends Compile, Clean -Action { 
+  $testMessage
+}
+
+The output for the above sample build script is shown below:
+Executing task, Clean...
+Clean
+Executing task, Compile...
+Compile
+Executing task, Test...
+This is a test
+
+Build Succeeded!
+
+----------------------------------------------------------------------
+Build Time Report
+----------------------------------------------------------------------
+Name    Duration
+----    --------
+Clean   00:00:00.0065614
+Compile 00:00:00.0133268
+Test    00:00:00.0225964
+Total:  00:00:00.0782496
+
+.LINK	
+Invoke-psake    
+Properties
+Include
+FormatTaskName
+TaskSetup
+TaskTearDown
+Assert
 #>
 [CmdletBinding(
     SupportsShouldProcess=$False,
@@ -430,33 +474,47 @@ function Task
 function Properties
 {
 <#
-.Synopsis
-    Adds a scriptblock to the module varible "properies"
-.Description
-    A build script may declare a "Properies" function which allows you to define
-	variables that will be available to all the "Task" functions in the build script.
-.Parameter properties 
-	The script block containing all the variable assignment statements
-	Required
-.Example
-	Properties {
-		$build_dir = "c:\build"		
-		$connection_string = "datasource=localhost;initial catalog=northwind;integrated security=sspi"
-	}
+.SYNOPSIS
+Define a scriptblock that contains assignments to variables that will be available to all tasks in the build script
+
+.DESCRIPTION
+A build script may declare a "Properies" function which allows you to define
+variables that will be available to all the "Task" functions in the build script.
+
+.PARAMETER properties 
+The script block containing all the variable assignment statements
+Required
+
+.EXAMPLE
+A sample build script is shown below:
+
+Properties {
+	$build_dir = "c:\build"		
+	$connection_string = "datasource=localhost;initial catalog=northwind;integrated security=sspi"
+}
+
+Task default -depends Test
+
+Task Test -depends Compile, Clean { 
+}
+
+Task Compile -depends Clean { 
+}
+
+Task Clean { 
+}
  
-.ReturnValue
-      
-.Link	
-	Invoke-psake    
-	Task
-    Include
-    FormatTaskName
-    TaskSetup
-    TaskTearDown
-    Assert	
-.Notes
-    You can have more than 1 "Properties" function defined in the script
-#Requires -Version 2.0
+.LINK	
+Invoke-psake    
+Task
+Include
+FormatTaskName
+TaskSetup
+TaskTearDown
+Assert	
+
+.NOTES
+You can have more than 1 "Properties" function defined in the script
 #>
 [CmdletBinding(
     SupportsShouldProcess=$False,
@@ -473,31 +531,46 @@ function Properties
 function Include
 {
 <#
-.Synopsis
-    Adds a scriptblock to the module varible "includes"
-.Description
-    A build script may declare an "includes" function which allows you to define
-	a file containing powershell code to be included and added to the scope of 
-	the currently running build script.
-.Parameter include 
-	A string containing the path and name of the powershell file to include
-	Required
-.Example
-	Include "c:\utils.ps1"
+.SYNOPSIS
+Include the functions or code of another powershell script file into the current build script's scope
+
+.DESCRIPTION
+A build script may declare an "includes" function which allows you to define
+a file containing powershell code to be included and added to the scope of 
+the currently running build script.
+
+.PARAMETER fileNamePathToInclude 
+A string containing the path and name of the powershell file to include
+Required
+
+.EXAMPLE
+A sample build script is shown below:
+
+Include ".\build_utils.ps1"
+
+Task default -depends Test
+
+Task Test -depends Compile, Clean { 
+}
+
+Task Compile -depends Clean { 
+}
+
+Task Clean { 
+}
+
  
-.ReturnValue
-      
-.Link	
-	Invoke-psake    
-	Task
-    Properties
-    FormatTaskName
-    TaskSetup
-    TaskTearDown
-    Assert	
-.Notes
-    You can have more than 1 "Include" function defined in the script
-#Requires -Version 2.0
+.LINK	
+Invoke-psake    
+Task
+Properties
+FormatTaskName
+TaskSetup
+TaskTearDown
+Assert	
+
+.NOTES
+You can have more than 1 "Include" function defined in the script
 #>
 [CmdletBinding(
     SupportsShouldProcess=$False,
@@ -506,74 +579,71 @@ function Include
     DefaultParameterSetName="")]
 	param(
 	[Parameter(Position=0,Mandatory=1)]
-	[string]$include
+	[string]$fileNamePathToInclude
 	)
-	Assert (test-path $include) "Error: Unable to include $include. File not found."
-	$script:includes.Enqueue((Resolve-Path $include));
+	Assert (test-path $fileNamePathToInclude) "Error: Unable to include $fileNamePathToInclude. File not found."
+	$script:includes.Enqueue((Resolve-Path $fileNamePathToInclude));
 }
 
 function FormatTaskName 
 {
 <#
-.Synopsis
-    Allows you to define a format mask that will be used when psake displays
-	the task name
-.Description
-    Allows you to define a format mask that will be used when psake displays
-	the task name.  The default is "Executing task, {0}..."
-.Parameter format 
-	A string containing the format mask to use, it should contain a placeholder ({0})
-	that will be used to substitute the task name.
-	Required
-.Example
-	For the following build script:
-	-------------------------------
-	
-	FormatTaskName "[Task: {0}]"
+.SYNOPSIS
+Allows you to define a format mask that will be used when psake displays
+the task name
 
-	Task default -depends Test
+.DESCRIPTION
+Allows you to define a format mask that will be used when psake displays
+the task name.  The default is "Executing task, {0}..."
+
+.PARAMETER format 
+A string containing the format mask to use, it should contain a placeholder ({0})
+that will be used to substitute the task name.
+Required
+
+.EXAMPLE
+A sample build script is shown below:
+
+FormatTaskName "[Task: {0}]"
+
+Task default -depends Test
+
+Task Test -depends Compile, Clean { 
+}
+
+Task Compile -depends Clean { 
+}
+
+Task Clean { 
+}
 	
-	Task Test -depends Compile, Clean { 
-	}
-	
-	Task Compile -depends Clean { 
-	}
-	
-	Task Clean { 
-	}
-		
-	You should get the following output:
-	------------------------------------
-	
-	[Task: Clean]
-	[Task: Compile]
-	[Task: Test]
-	
-	Build Succeeded
-	
-	----------------------------------------------------------------------
-	Build Time Report
-	----------------------------------------------------------------------
-	Name    Duration
-	----    --------
-	Clean   00:00:00.0043477
-	Compile 00:00:00.0102130
-	Test    00:00:00.0182858
-	Total:  00:00:00.0698071
+You should get the following output:
+------------------------------------
+
+[Task: Clean]
+[Task: Compile]
+[Task: Test]
+
+Build Succeeded
+
+----------------------------------------------------------------------
+Build Time Report
+----------------------------------------------------------------------
+Name    Duration
+----    --------
+Clean   00:00:00.0043477
+Compile 00:00:00.0102130
+Test    00:00:00.0182858
+Total:  00:00:00.0698071
  
-.ReturnValue
-      
-.Link	
-	Invoke-psake    
-	Include
-	Task
-    Properties
-    TaskSetup
-    TaskTearDown
-    Assert	
-.Notes
-    
-#Requires -Version 2.0
+.LINK	
+Invoke-psake    
+Include
+Task
+Properties
+TaskSetup
+TaskTearDown
+Assert	
 #>
 [CmdletBinding(
     SupportsShouldProcess=$False,
@@ -590,67 +660,65 @@ function FormatTaskName
 function TaskSetup 
 {
 <#
-.Synopsis
-    Adds a scriptblock that will be executed before each task
-.Description
-    This function will accept a scriptblock that will be executed before each
-	task in the build script.  
-.Parameter include 
-	A scriptblock to execute
-	Required
-.Example
-	For the following build script:
-	-------------------------------
-	Task default -depends Test
-	
-	Task Test -depends Compile, Clean { 
-	}
-		
-	Task Compile -depends Clean { 
-	}
-		
-	Task Clean { 
-	}
-	
-	TaskSetup {
-		"Running 'TaskSetup' for task $script:currentTaskName"
-	}
+.SYNOPSIS
+Adds a scriptblock that will be executed before each task
 
-	You should get the following output:
-	------------------------------------
+.DESCRIPTION
+This function will accept a scriptblock that will be executed before each
+task in the build script.  
+
+.PARAMETER include 
+A scriptblock to execute
+Required
+
+.EXAMPLE
+A sample build script is shown below:
+
+Task default -depends Test
+
+Task Test -depends Compile, Clean { 
+}
 	
-	Running 'TaskSetup' for task Clean
-	Executing task, Clean...
-	Running 'TaskSetup' for task Compile
-	Executing task, Compile...
-	Running 'TaskSetup' for task Test
-	Executing task, Test...
+Task Compile -depends Clean { 
+}
 	
-	Build Succeeded
-	
-	----------------------------------------------------------------------
-	Build Time Report
-	----------------------------------------------------------------------
-	Name    Duration
-	----    --------
-	Clean   00:00:00.0054018
-	Compile 00:00:00.0123085
-	Test    00:00:00.0236915
-	Total:  00:00:00.0739437
+Task Clean { 
+}
+
+TaskSetup {
+	"Running 'TaskSetup' for task $script:currentTaskName"
+}
+
+You should get the following output:
+------------------------------------
+
+Running 'TaskSetup' for task Clean
+Executing task, Clean...
+Running 'TaskSetup' for task Compile
+Executing task, Compile...
+Running 'TaskSetup' for task Test
+Executing task, Test...
+
+Build Succeeded
+
+----------------------------------------------------------------------
+Build Time Report
+----------------------------------------------------------------------
+Name    Duration
+----    --------
+Clean   00:00:00.0054018
+Compile 00:00:00.0123085
+Test    00:00:00.0236915
+Total:  00:00:00.0739437
  
-.ReturnValue
-      
-.Link	
-	Invoke-psake    
-	Include
-	Task
-    Properties
-    FormatTaskName
-    TaskTearDown
-    Assert	
-.Notes
-    
-#Requires -Version 2.0
+.LINK	
+Invoke-psake    
+Include
+Task
+Properties
+FormatTaskName
+TaskTearDown
+Assert	
 #>
 [CmdletBinding(
     SupportsShouldProcess=$False,
@@ -667,67 +735,65 @@ function TaskSetup
 function TaskTearDown 
 {
 <#
-.Synopsis
-    Adds a scriptblock that will be executed after each task
-.Description
-    This function will accept a scriptblock that will be executed after each
-	task in the build script.  
-.Parameter include 
-	A scriptblock to execute
-	Required
-.Example
-	For the following build script:
-	-------------------------------
-	Task default -depends Test
-	
-	Task Test -depends Compile, Clean { 
-	}
-		
-	Task Compile -depends Clean { 
-	}
-		
-	Task Clean { 
-	}
-	
-	TaskTearDown {
-		"Running 'TaskTearDown' for task $script:currentTaskName"
-	}
+.SYNOPSIS
+Adds a scriptblock that will be executed after each task
 
-	You should get the following output:
-	------------------------------------
+.DESCRIPTION
+This function will accept a scriptblock that will be executed after each
+task in the build script.  
+
+.PARAMETER include 
+A scriptblock to execute
+Required
+
+.EXAMPLE
+A sample build script is shown below:
+
+Task default -depends Test
+
+Task Test -depends Compile, Clean { 
+}
 	
-	Executing task, Clean...
-	Running 'TaskTearDown' for task Clean
-	Executing task, Compile...
-	Running 'TaskTearDown' for task Compile
-	Executing task, Test...
-	Running 'TaskTearDown' for task Test
+Task Compile -depends Clean { 
+}
 	
-	Build Succeeded
-	
-	----------------------------------------------------------------------
-	Build Time Report
-	----------------------------------------------------------------------
-	Name    Duration
-	----    --------
-	Clean   00:00:00.0064555
-	Compile 00:00:00.0218902
-	Test    00:00:00.0309151
-	Total:  00:00:00.0858301
+Task Clean { 
+}
+
+TaskTearDown {
+	"Running 'TaskTearDown' for task $script:currentTaskName"
+}
+
+You should get the following output:
+------------------------------------
+
+Executing task, Clean...
+Running 'TaskTearDown' for task Clean
+Executing task, Compile...
+Running 'TaskTearDown' for task Compile
+Executing task, Test...
+Running 'TaskTearDown' for task Test
+
+Build Succeeded
+
+----------------------------------------------------------------------
+Build Time Report
+----------------------------------------------------------------------
+Name    Duration
+----    --------
+Clean   00:00:00.0064555
+Compile 00:00:00.0218902
+Test    00:00:00.0309151
+Total:  00:00:00.0858301
  
-.ReturnValue
-      
-.Link	
-	Invoke-psake    
-	Include
-	Task
-    Properties
-    FormatTaskName
-    TaskSetup
-    Assert	
-.Notes
-    
-#Requires -Version 2.0
+.LINK	
+Invoke-psake    
+Include
+Task
+Properties
+FormatTaskName
+TaskSetup
+Assert	
 #>
 [CmdletBinding(
     SupportsShouldProcess=$False,
@@ -743,48 +809,60 @@ function TaskTearDown
 function Invoke-psake 
 {
 <#
-.Synopsis
-    Runs a psake build script.
-.Description
-    This function runs a psake build script 
-.Parameter BuildFile 
-	The psake build script to execute (default: default.ps1).	
-.Parameter Framework 
-	The version of the .NET framework you want to build
-	Possible values: '1.0', '1.1', '2.0', '3.0',  '3.5'
-	Default = '3.5'
-.Parameter Docs 
-	Prints a list of tasks and their descriptions	
-	
-.Example
-    Invoke-psake 
-	
-	Runs the 'default' task in the 'default.ps1' build script in the current directory
+.SYNOPSIS
+Runs a psake build script.
 
-.Example
-	Invoke-psake '.\build.ps1'
-	
-	Runs the 'default' task in the '.build.ps1' build script
+.DESCRIPTION
+This function runs a psake build script 
 
-.Example
-	Invoke-psake '.\build.ps1' Tests,Package
-	
-	Runs the 'Tests' and 'Package' tasks in the '.build.ps1' build script
+.PARAMETER BuildFile 
+The psake build script to execute (default: default.ps1).	
 
-.Example
-	Invoke-psake '.\build.ps1' -docs
+.PARAMETER TaskList 
+A comma-separated list of task names to execute
+
+.PARAMETER Framework 
+The version of the .NET framework you want to build
+Possible values: '1.0', '1.1', '2.0', '3.0',  '3.5'
+Default = '3.5'
+
+.PARAMETER Docs 
+Prints a list of tasks and their descriptions	
 	
-	Prints a report of all the tasks and their descriptions and exits
+.EXAMPLE
+Invoke-psake 
 	
-.ReturnValue
-    No return value unless there is an exception and $psake.use_exit_on_error -eq $true
-	then runs exit(1) to set the lastexitcode value in the OS
-	otherwise set the $script:psake.build_success variable to $true or $false depending
+Runs the 'default' task in the 'default.ps1' build script in the current directory
+
+.EXAMPLE
+Invoke-psake '.\build.ps1'
+
+Runs the 'default' task in the '.build.ps1' build script
+
+.EXAMPLE
+Invoke-psake '.\build.ps1' Tests,Package
+
+Runs the 'Tests' and 'Package' tasks in the '.build.ps1' build script
+
+.EXAMPLE
+Invoke-psake '.\build.ps1' -docs
+
+Prints a report of all the tasks and their descriptions and exits
+	
+.OUTPUTS
+    If there is an exception and '$psake.use_exit_on_error' -eq $true
+	then runs exit(1) to set the DOS lastexitcode variable 
+	otherwise set the '$psake.build_success variable' to $true or $false depending
 	on whether an exception was thrown
-	
-.Link	
-.Notes
-#Requires -Version 2.0
+
+.LINK
+Task
+Include
+Properties
+FormatTaskName
+TaskSetup
+TaskTearDown
+Assert	
 #>
 [CmdletBinding(
     SupportsShouldProcess=$False,
