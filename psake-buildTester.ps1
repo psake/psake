@@ -2,6 +2,8 @@ function runBuilds{
 	$buildFiles = dir examples\*.ps1
 	$testResults = @()	
 	
+	#Add a fake build file to the $buildFiles array so that we can verify
+	#that Invoke-psake fails
     $non_existant_buildfile = "" | select Name, FullName
     $non_existant_buildfile.Name = "bad-non_existant_buildfile.ps1"
     $non_existant_buildfile.FullName = "c:\bad-non_existant_buildfile.ps1"

@@ -1,5 +1,5 @@
-# psake v2.01
-# Copyright (C) 2009 James Kovacs
+# psake v2.00
+# Copyright � 2009 James Kovacs
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -35,6 +35,13 @@
 
 #-- Public Module Variables -- The psake hashtable variable is initialized in the invoke-psake function
 $script:psake = @{}
+$script:psake.use_exit_on_error = $false  	# determines if psake uses the "exit()" function when an exception occurs
+$script:psake.log_error = $false			# determines if the exception details are written to a file
+$script:psake.build_success = $false		# indicates that the current build was successful
+$script:psake.version = "2.00"				# contains the current version of psake
+$script:psake.build_script_file = $null		# contains a System.IO.FileInfo for the current build file
+$script:psake.framework_version = ""		# contains the framework version # for the current build 
+		
 Export-ModuleMember -Variable "psake"
 
 #-- Private Module Functions
@@ -248,6 +255,57 @@ function Write-TaskTimeSummary
 }
 
 #-- Public Module Functions
+function Exec
+{
+<#
+.SYNOPSIS 
+Helper function for executing command-line programs.
+    
+.DESCRIPTION
+This is a helper function that runs a scriptblock and checks the PS variable $lastexitcode to see if an error occcured. 
+If an error is detected then an exception is thrown.  This function allows you to run command-line programs without
+having to explicitly check fthe $lastexitcode variable.
+    
+.PARAMETER cmd 
+The scriptblock to execute.  This scriptblock will typically contain the command-line invocation.	
+Required
+    
+.PARAMETER errorMessage
+The error message used for the exception that is thrown.
+Optional 
+    
+.EXAMPLE
+exec { svn info $repository_trunk } "Error executing SVN. Please verify SVN command-line client is installed"
+    
+This example calls the svn command-line client.
+     
+.LINK
+Assert	
+Invoke-psake
+Task
+Properties
+Include
+FormatTaskName
+TaskSetup
+TaskTearDown
+#>
+[CmdletBinding(
+    SupportsShouldProcess=$False,
+    SupportsTransactions=$False, 
+    ConfirmImpact="None",
+    DefaultParameterSetName="")]
+	
+	param(
+      [Parameter(Position=0,Mandatory=1)][scriptblock]$cmd,
+	  [Parameter(Position=1,Mandatory=0)][string]$errorMessage = "Error executing command: " + $cmd
+	)
+     & $cmd
+     if ($lastexitcode -ne 0)
+     {
+          throw $errorMessage
+     }
+}
+
 function Assert
 {
 <#
@@ -854,6 +912,66 @@ Prints a report of all the tasks and their descriptions and exits
 	then runs exit(1) to set the DOS lastexitcode variable 
 	otherwise set the '$psake.build_success variable' to $true or $false depending
 	on whether an exception was thrown
+	
+.NOTES
+When the psake module is loaded a variabled called $psake is created it is a hashtable
+containing some variables that can be used to configure psake:
+
+$psake.use_exit_on_error = $false  	# determines if psake uses the "exit()" function when an exception occurs
+$psake.log_error = $false			# determines if the exception details are written to a file
+$psake.build_success = $false		# indicates that the current build was successful
+$psake.version = "2.00"				# contains the current version of psake
+$psake.build_script_file = $null	# contains a System.IO.FileInfo for the current build file
+$psake.framework_version = ""		# contains the framework version # for the current build 
+
+$psake.use_exit_on_error and $psake.log_error are boolean variables that can be set before you call Invoke-Psake.
+
+You should see the following when you display the contents of the $psake variable right after importing psake
+
+PS projects:\psake> Import-Module .\psake.psm1
+PS projects:\psake> $psake
+
+Name                           Value
+----                           -----
+version                        2.00
+build_script_file
+use_exit_on_error              False
+build_success                  False
+log_error                      False
+framework_version
+
+After a build is executed the following $psake values are updated (build_script_file, build_success, and framework_version)
+
+PS projects:\psake> Invoke-psake .\examples\default.ps1
+Executing task: Clean
+Executed Clean!
+Executing task: Compile
+Executed Compile!
+Executing task: Test
+Executed Test!
+
+Build Succeeded!
+
+----------------------------------------------------------------------
+Build Time Report
+----------------------------------------------------------------------
+Name    Duration
+----    --------
+Clean   00:00:00.0798486
+Compile 00:00:00.0869948
+Test    00:00:00.0958225
+Total:  00:00:00.2712414
+
+PS projects:\psake> $psake
+
+Name                           Value
+----                           -----
+version                        2.00
+build_script_file              C:\Users\Jorge\Documents\Projects\psake\examples\default.ps1
+use_exit_on_error              False
+build_success                  True
+log_error                      False
+framework_version              3.5
 
 .LINK
 Task
@@ -883,14 +1001,10 @@ Assert
 
 	Begin 
 	{	
-		$script:psake.build_success = $false
-		$script:psake.use_exit_on_error = $false
-		$script:psake.log_error = $false
-		$script:psake.version = "2.00"
-		$script:psake.build_script_file = $null
+		$script:psake.build_success = $false		
 		$script:psake.framework_version = $framework
 		
-		$script:formatTaskNameString = "Executing task, {0}..."
+		$script:formatTaskNameString = "Executing task: {0}"
 		$script:taskSetupScriptBlock = $null
 		$script:taskTearDownScriptBlock = $null
 		$script:executedTasks = New-Object System.Collections.Stack
@@ -997,4 +1111,4 @@ Assert
 	}
 }
 
-Export-ModuleMember -Function "Invoke-psake","Task","Properties","Include","FormatTaskName","TaskSetup","TaskTearDown","Assert"
+Export-ModuleMember -Function "Invoke-psake","Task","Properties","Include","FormatTaskName","TaskSetup","TaskTearDown","Assert","Exec"
