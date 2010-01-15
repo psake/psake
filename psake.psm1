@@ -1,4 +1,4 @@
-# psake v2.01
+# psake v2.02
 # Copyright � 2009 James Kovacs
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -38,7 +38,7 @@ $script:psake = @{}
 $script:psake.use_exit_on_error = $false  	# determines if psake uses the "exit()" function when an exception occurs
 $script:psake.log_error = $false			# determines if the exception details are written to a file
 $script:psake.build_success = $false		# indicates that the current build was successful
-$script:psake.version = "2.00"				# contains the current version of psake
+$script:psake.version = "2.02"				# contains the current version of psake
 $script:psake.build_script_file = $null		# contains a System.IO.FileInfo for the current build file
 $script:psake.framework_version = ""		# contains the framework version # for the current build 
 		
@@ -920,7 +920,7 @@ containing some variables that can be used to configure psake:
 $psake.use_exit_on_error = $false  	# determines if psake uses the "exit()" function when an exception occurs
 $psake.log_error = $false			# determines if the exception details are written to a file
 $psake.build_success = $false		# indicates that the current build was successful
-$psake.version = "2.00"				# contains the current version of psake
+$psake.version = "2.02"				# contains the current version of psake
 $psake.build_script_file = $null	# contains a System.IO.FileInfo for the current build file
 $psake.framework_version = ""		# contains the framework version # for the current build 
 
@@ -933,7 +933,7 @@ PS projects:\psake> $psake
 
 Name                           Value
 ----                           -----
-version                        2.00
+version                        2.02
 build_script_file
 use_exit_on_error              False
 build_success                  False
@@ -966,7 +966,7 @@ PS projects:\psake> $psake
 
 Name                           Value
 ----                           -----
-version                        2.00
+version                        2.02
 build_script_file              C:\Users\Jorge\Documents\Projects\psake\examples\default.ps1
 use_exit_on_error              False
 build_success                  True
