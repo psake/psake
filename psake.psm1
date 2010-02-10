@@ -38,7 +38,7 @@ $script:psake = @{}
 $script:psake.use_exit_on_error = $false  	# determines if psake uses the "exit()" function when an exception occurs
 $script:psake.log_error = $false			# determines if the exception details are written to a file
 $script:psake.build_success = $false		# indicates that the current build was successful
-$script:psake.version = "2.02"				# contains the current version of psake
+$script:psake.version = "2.02"			# contains the current version of psake
 $script:psake.build_script_file = $null		# contains a System.IO.FileInfo for the current build file
 $script:psake.framework_version = ""		# contains the framework version # for the current build 
 		
@@ -886,6 +886,9 @@ Default = '3.5'
 
 .PARAMETER Docs 
 Prints a list of tasks and their descriptions	
+
+.PARAMETER Parameters 
+A hashtable containing parameters to be passed into the current build script.
 	
 .EXAMPLE
 Invoke-psake 
@@ -906,6 +909,11 @@ Runs the 'Tests' and 'Package' tasks in the '.build.ps1' build script
 Invoke-psake '.\build.ps1' -docs
 
 Prints a report of all the tasks and their descriptions and exits
+
+.EXAMPLE
+Invoke-psake .\parameters.ps1 -parameters @{"p1"="v1";"p2"="v2"}
+
+Runs the build script called 'parameters.ps1' and passes in parameters 'p1' and 'p2' with values 'v1' and 'v2'
 	
 .OUTPUTS
     If there is an exception and '$psake.use_exit_on_error' -eq $true
@@ -996,7 +1004,9 @@ Assert
 		[Parameter(Position=2,Mandatory=0)]
 	  	[string]$framework = '3.5',	  
 		[Parameter(Position=3,Mandatory=0)]
-	  	[switch]$docs = $false	  
+	  	[switch]$docs = $false,	  
+		[Parameter(Position=4,Mandatory=0)]
+		[System.Collections.Hashtable]$parameters = @{}
 	)
 
 	Begin 
@@ -1015,7 +1025,7 @@ Assert
 		
 		$script:tasks = @{}
 		$script:properties = @()
-		$script:includes = New-Object System.Collections.Queue	
+		$script:includes = New-Object System.Collections.Queue			
 	}
 	
 	Process 
@@ -1051,6 +1061,18 @@ Assert
 			{
 				. $propertyBlock
 			}		
+			
+			foreach($key in $parameters.keys)
+			{
+				if (test-path "variable:\$key")
+				{
+					set-item -path "variable:\$key" -value $parameters.$key
+				}
+				else
+				{
+					new-item -path "variable:\$key" -value $parameters.$key
+				}
+			}
 
 			# Execute the list of tasks or the default task
 			if($taskList.Length -ne 0) 

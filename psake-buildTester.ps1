@@ -12,10 +12,19 @@ function runBuilds{
 	foreach($buildFile in $buildFiles) {					
 		$testResult = "" | select Name, Result 
 		$testResult.Name = $buildFile.Name
-		Invoke-psake $buildFile.FullName | Out-Null			
+		
+		if ($buildFile.Name -eq "parameters.ps1")
+		{
+			Invoke-psake $buildFile.FullName -Parameters @{'p1'='v1'; 'p2'='v2'} | Out-Null			
+		}
+		else
+		{
+			Invoke-psake $buildFile.FullName | Out-Null			
+		}
 		$testResult.Result = (getResult $buildFile.Name $psake.build_success)
 		$testResults += $testResult 			
 	}
+		
 	return $testResults
 }
 
@@ -37,6 +46,8 @@ function getResult([string]$fileName, [bool]$buildSucceeded) {
 		}
 	}
 }
+
+Remove-Module psake -ea SilentlyContinue
 
 Import-Module .\psake.psm1
 
