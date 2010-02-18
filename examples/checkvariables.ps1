@@ -24,7 +24,7 @@ task Verify -description "This task verifies psake's variables" {
 	Assert (!$variable:psake.log_error) 'psake.log_error should be $false'
 	Assert (![string]::IsNullOrEmpty($variable:psake.version)) 'psake.version was null or empty'
 	Assert ($variable:psake.build_script_file -ne $null) '$psake.build_script_file was null' 
-	Assert ($variable:psake.build_script_file.Name -eq "VerifyVariables.ps1") ("psake variable: {0} was not equal to 'VerifyVariables.ps1'" -f $psake.build_script_file.Name)
+	Assert ($variable:psake.build_script_file.Name -eq "checkvariables.ps1") ("psake variable: {0} was not equal to 'VerifyVariables.ps1'" -f $psake.build_script_file.Name)
 	Assert (![string]::IsNullOrEmpty($variable:psake.framework_version)) 'psake variable: $psake.framework_version was null or empty'
 
 	#Verify script-level variables - only available when a script is being run
