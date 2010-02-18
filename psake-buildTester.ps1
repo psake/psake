@@ -55,12 +55,15 @@ $results = runBuilds
 
 Remove-Module psake
 
-$results | Sort 'Name' | Format-Table -Auto 
+""
+$results | Sort 'Name' | % { if ($_.Result -eq "Passed") { write-host ($_.Name + " (Passed)") -ForeGroundColor 'GREEN'} else { write-host ($_.Name + " (Failed)") -ForeGroundColor 'RED'}} 
+""
 
 $failed = $results | ? { $_.Result -eq "Failed" }
-if ($failed) {
+if ($failed) {	
 	write-host "One of the builds failed" -ForeGroundColor 'RED'
 	exit 1
 } else {
+	write-host "All Builds Passed" -ForeGroundColor 'GREEN'
 	exit 0
 }	
