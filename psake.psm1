@@ -126,7 +126,6 @@ function ExecuteTask
 						"-"*70
 						"Error in Task [$taskName] $_"
 						"-"*70
-						#continue
 					} 
 					else 
 					{
