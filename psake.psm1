@@ -21,17 +21,7 @@
 #Requires -Version 2.0
 
 #-- Private Module Variables (Listed here for quick reference)
-[string]$script:originalEnvPath
-[string]$script:originalDirectory
-[string]$script:formatTaskNameString
-[string]$script:currentTaskName
-[hashtable]$script:tasks
-[array]$script:properties	
-[scriptblock]$script:taskSetupScriptBlock
-[scriptblock]$script:taskTearDownScriptBlock
-[system.collections.queue]$script:includes 
-[system.collections.stack]$script:executedTasks
-[system.collections.stack]$script:callStack
+[system.collections.stack]$script:context
 
 #-- Public Module Variables -- The psake hashtable variable is initialized in the invoke-psake function
 $script:psake = @{}
@@ -53,18 +43,18 @@ function ExecuteTask
 	
 	$taskKey = $taskName.Tolower()
 	
-	Assert ($script:tasks.Contains($taskKey)) "task [$taskName] does not exist"
+	Assert ($script:context.Peek().tasks.Contains($taskKey)) "task [$taskName] does not exist"
 
-	if ($script:executedTasks.Contains($taskKey)) 
+	if ($script:context.Peek().executedTasks.Contains($taskKey)) 
 	{ 
 		return 
 	}
   
-  	Assert (!$script:callStack.Contains($taskKey)) "Error: Circular reference found for task, $taskName"
+  	Assert (!$script:context.Peek().callStack.Contains($taskKey)) "Error: Circular reference found for task, $taskName"
 
-	$script:callStack.Push($taskKey)
+	$script:context.Peek().callStack.Push($taskKey)
   
-	$task = $script:tasks.$taskKey
+	$task = $script:context.Peek().tasks.$taskKey
 	
 	$taskName = $task.Name
 	
@@ -94,11 +84,11 @@ function ExecuteTask
 						ExecuteTask $childTask
 					}
 					
-					$script:currentTaskName = $taskName									
+					$script:context.Peek().currentTaskName = $taskName									
 									
-					if ($script:taskSetupScriptBlock -ne $null) 
+					if ($script:context.Peek().taskSetupScriptBlock -ne $null) 
 					{
-						& $script:taskSetupScriptBlock
+						& $script:context.Peek().taskSetupScriptBlock
 					}
 					
 					if ($task.PreAction -ne $null) 
@@ -106,7 +96,7 @@ function ExecuteTask
 						& $task.PreAction
 					}
 					
-					$script:formatTaskNameString -f $taskName
+					$script:context.Peek().formatTaskNameString -f $taskName
 					& $task.Action
 					
 					if ($task.PostAction -ne $null) 
@@ -114,9 +104,9 @@ function ExecuteTask
 						& $task.PostAction
 					}
 					
-					if ($script:taskTearDownScriptBlock -ne $null) 
+					if ($script:context.Peek().taskTearDownScriptBlock -ne $null) 
 					{
-						& $script:taskTearDownScriptBlock
+						& $script:context.Peek().taskTearDownScriptBlock
 					}					
 				}
 				catch
@@ -158,11 +148,11 @@ function ExecuteTask
 		} 		
 	}
 	
-	$poppedTaskKey = $script:callStack.Pop()
+	$poppedTaskKey = $script:context.Peek().callStack.Pop()
 	
 	Assert ($poppedTaskKey -eq $taskKey) "Error: CallStack was corrupt. Expected $taskKey, but got $poppedTaskKey."
 
-	$script:executedTasks.Push($taskKey)
+	$script:context.Peek().executedTasks.Push($taskKey)
 }
 
 function Configure-BuildEnvironment 
@@ -189,9 +179,9 @@ function Configure-BuildEnvironment
 
 function Cleanup-Environment 
 {
-	$env:path = $script:originalEnvPath	
-	Set-Location $script:originalDirectory
-	$global:ErrorActionPreference = $originalErrorActionPreference
+	$env:path = $script:context.Peek().originalEnvPath	
+	Set-Location $script:context.Peek().originalDirectory
+	$global:ErrorActionPreference = $script:context.Peek().originalErrorActionPreference
 }
 
 #borrowed from Jeffrey Snover http://blogs.msdn.com/powershell/archive/2006/12/07/resolve-error.aspx
@@ -216,13 +206,13 @@ function Resolve-Error($ErrorRecord=$Error[0])
 function Write-Documentation 
 {
 	$list = New-Object System.Collections.ArrayList
-	foreach($key in $script:tasks.Keys) 
+	foreach($key in $script:context.Peek().tasks.Keys) 
 	{
 		if($key -eq "default") 
 		{
 		  continue
 		}
-		$task = $script:tasks.$key
+		$task = $script:context.Peek().tasks.$key
 		$content = "" | Select-Object Name, Description
 		$content.Name = $task.Name        
 		$content.Description = $task.Description
@@ -238,10 +228,10 @@ function Write-TaskTimeSummary
 	"Build Time Report"
 	"-"*70	
 	$list = @()
-	while ($script:executedTasks.Count -gt 0) 
+	while ($script:context.Peek().executedTasks.Count -gt 0) 
 	{
-		$taskKey = $script:executedTasks.Pop()
-		$task = $script:tasks.$taskKey
+		$taskKey = $script:context.Peek().executedTasks.Pop()
+		$task = $script:context.Peek().tasks.$taskKey
 		if($taskKey -eq "default") 
 		{
 		  continue
@@ -523,9 +513,9 @@ Assert
 	
 	$taskKey = $name.ToLower()
 	
-	Assert (!$script:tasks.ContainsKey($taskKey)) "Error: Task, $name, has already been defined."
+	Assert (!$script:context.Peek().tasks.ContainsKey($taskKey)) "Error: Task, $name, has already been defined."
 	
-	$script:tasks.$taskKey = $newTask
+	$script:context.Peek().tasks.$taskKey = $newTask
 }
 
 function Properties
@@ -582,7 +572,7 @@ You can have more than 1 "Properties" function defined in the script
 	[Parameter(Position=0,Mandatory=1)]
 	[scriptblock]$properties
 	)
-	$script:properties += $properties
+	$script:context.Peek().properties += $properties
 }
 
 function Include
@@ -639,7 +629,7 @@ You can have more than 1 "Include" function defined in the script
 	[string]$fileNamePathToInclude
 	)
 	Assert (test-path $fileNamePathToInclude) "Error: Unable to include $fileNamePathToInclude. File not found."
-	$script:includes.Enqueue((Resolve-Path $fileNamePathToInclude));
+	$script:context.Peek().includes.Enqueue((Resolve-Path $fileNamePathToInclude));
 }
 
 function FormatTaskName 
@@ -711,7 +701,7 @@ Assert
 	[Parameter(Position=0,Mandatory=1)]
 	[string]$format
 	)
-	$script:formatTaskNameString = $format
+	$script:context.Peek().formatTaskNameString = $format
 }
 
 function TaskSetup 
@@ -743,7 +733,7 @@ Task Clean {
 }
 
 TaskSetup {
-	"Running 'TaskSetup' for task $script:currentTaskName"
+	"Running 'TaskSetup' for task $script:context.Peek().currentTaskName"
 }
 
 You should get the following output:
@@ -786,7 +776,7 @@ Assert
 	[Parameter(Position=0,Mandatory=1)]
 	[scriptblock]$setup
 	)
-	$script:taskSetupScriptBlock = $setup
+	$script:context.Peek().taskSetupScriptBlock = $setup
 }
 
 function TaskTearDown 
@@ -818,7 +808,7 @@ Task Clean {
 }
 
 TaskTearDown {
-	"Running 'TaskTearDown' for task $script:currentTaskName"
+	"Running 'TaskTearDown' for task $script:context.Peek().currentTaskName"
 }
 
 You should get the following output:
@@ -860,7 +850,7 @@ Assert
 	param(
 	[Parameter(Position=0,Mandatory=1)]
 	[scriptblock]$teardown)
-	$script:taskTearDownScriptBlock = $teardown
+	$script:context.Peek().taskTearDownScriptBlock = $teardown
 }
 
 function Invoke-psake 
@@ -1010,21 +1000,28 @@ Assert
 
 	Begin 
 	{	
-		$script:psake.build_success = $false		
-		$script:psake.framework_version = $framework
 		
-		$script:formatTaskNameString = "Executing task: {0}"
-		$script:taskSetupScriptBlock = $null
-		$script:taskTearDownScriptBlock = $null
-		$script:executedTasks = New-Object System.Collections.Stack
-		$script:callStack = New-Object System.Collections.Stack
-		$script:originalEnvPath = $env:path
-		$script:originalDirectory = Get-Location	
-		$originalErrorActionPreference = $global:ErrorActionPreference
+			$script:psake.build_success = $false		
+			$script:psake.framework_version = $framework
 		
-		$script:tasks = @{}
-		$script:properties = @()
-		$script:includes = New-Object System.Collections.Queue			
+			if ($script:context -eq $null)
+			{
+				$script:context = New-Object System.Collections.Stack
+			}
+			
+			$script:context.push(@{
+			"formatTaskNameString" = "Executing task: {0}";
+			"taskSetupScriptBlock" = $null;
+			"taskTearDownScriptBlock" = $null;
+			"executedTasks" = New-Object System.Collections.Stack;
+			"callStack" = New-Object System.Collections.Stack;
+			"originalEnvPath" = $env:path;
+			"originalDirectory" = Get-Location;
+			"originalErrorActionPreference" = $global:ErrorActionPreference;
+			"tasks" = @{};
+			"properties" = @();
+			"includes" = New-Object System.Collections.Queue	;
+			})
 	}
 	
 	Process 
@@ -1051,12 +1048,12 @@ Assert
 
 			# N.B. The initial dot (.) indicates that variables initialized/modified
 			#      in the propertyBlock are available in the parent scope.
-			while ($script:includes.Count -gt 0) 
+			while ($script:context.Peek().includes.Count -gt 0) 
 			{
-				$includeBlock = $script:includes.Dequeue()
+				$includeBlock = $script:context.Peek().includes.Dequeue()
 				. $includeBlock
 			}
-			foreach($propertyBlock in $script:properties) 
+			foreach($propertyBlock in $script:context.Peek().properties) 
 			{
 				. $propertyBlock
 			}		
@@ -1081,7 +1078,7 @@ Assert
 					ExecuteTask $task
 				}
 			} 
-			elseif ($script:tasks.default -ne $null) 
+			elseif ($script:context.Peek().tasks.default -ne $null) 
 			{
 				ExecuteTask default
 			} 
@@ -1129,6 +1126,7 @@ Assert
 	{
 		# Clear out any global variables
 		Cleanup-Environment
+		[void]$script:context.Pop()
 	}
 }
 
