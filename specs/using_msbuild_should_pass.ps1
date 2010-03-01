@@ -1,4 +1,4 @@
 task default -depends DisplayNotice
 task DisplayNotice {
-  msbuild /version
+  exec { msbuild /version }
 }
