@@ -12,10 +12,12 @@ function runBuilds{
   foreach($buildFile in $buildFiles) {
     $testResult = "" | select Name, Result
     $testResult.Name = $buildFile.Name
-    Invoke-psake $buildFile.FullName | Out-Null
+
+    Invoke-psake $buildFile.FullName -Parameters @{'p1'='v1'; 'p2'='v2'} | Out-Null			
     $testResult.Result = (getResult $buildFile.Name $psake.build_success)
     $testResults += $testResult
   }
+
   return $testResults
 }
 
@@ -35,18 +37,23 @@ function getResult([string]$fileName, [bool]$buildSucceeded) {
   }
 }
 
+Remove-Module psake -ea SilentlyContinue
+
 Import-Module .\psake.psm1
 
 $results = runBuilds
 
 Remove-Module psake
 
-$results | Sort 'Name' | Format-Table -Auto 
+""
+$results | Sort 'Name' | % { if ($_.Result -eq "Passed") { write-host ($_.Name + " (Passed)") -ForeGroundColor 'GREEN'} else { write-host ($_.Name + " (Failed)") -ForeGroundColor 'RED'}} 
+""
 
 $failed = $results | ? { $_.Result -eq "Failed" }
-if ($failed) {
+if ($failed) {	
   write-host "One or more of the build files failed" -ForeGroundColor 'RED'
   exit 1
 } else {
+  write-host "All Builds Passed" -ForeGroundColor 'GREEN'
   exit 0
 }
