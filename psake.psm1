@@ -173,15 +173,15 @@ function Configure-BuildEnvironment
   }
   $versionPart = $framework.Substring(0,3)
   $bitnessPart = $framework.Substring(3)
-  $version = $null
+  $versions = $null
   switch ($versionPart) 
   {
-    '1.0' { $version = 'v1.0.3705'  }
-    '1.1' { $version = 'v1.1.4322'  }
-    '2.0' { $version = 'v2.0.50727' }
-    '3.0' { $version = 'v2.0.50727' }
-    '3.5' { $version = 'v3.5'       }
-    '4.0' { $version = 'v4.0.30128' }
+    '1.0' { $versions = @('v1.0.3705')  }
+    '1.1' { $versions = @('v1.1.4322')  }
+    '2.0' { $versions = @('v2.0.50727') }
+    '3.0' { $versions = @('v2.0.50727') }
+    '3.5' { $versions = @('v3.5','v2.0.50727') }
+    '4.0' { $versions = @('v4.0.30128') }
     default { throw "Error: Unknown .NET Framework version, $versionPart, specified in $framework" }
   }
 
@@ -201,11 +201,11 @@ function Configure-BuildEnvironment
       default { throw "Error: Unknown .NET Framework bitness, $bitnessPart, specified in $framework" }
     }
   }
-  $frameworkDir = "$env:windir\Microsoft.NET\$bitness\$version\"
+  $frameworkDirs = $versions | foreach { "$env:windir\Microsoft.NET\$bitness\$_\" }
   
-  Assert (test-path $frameworkDir) "Error: No .NET Framework installation directory found at $frameworkDir"
+  $frameworkDirs | foreach { Assert (test-path $_) "Error: No .NET Framework installation directory found at $_" }
 
-  $env:path = "$frameworkDir;$env:path"
+  $env:path = [string]::Join(';', $frameworkDirs) + ";$env:path"
   #if any error occurs in a PS function then "stop" processing immediately
   # this does not effect any external programs that return a non-zero exit code 
   $global:ErrorActionPreference = "Stop"
