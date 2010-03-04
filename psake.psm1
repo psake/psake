@@ -168,8 +168,13 @@ function ExecuteTask
 
 function Configure-BuildEnvironment
 {
+  if ($framework.Length -ne 3 -and $framework.Length -ne 6) {
+    throw "Error: Invalid .NET Framework version, $framework, specified"
+  }
+  $versionPart = $framework.Substring(0,3)
+  $bitnessPart = $framework.Substring(3)
   $version = $null
-  switch ($framework) 
+  switch ($versionPart) 
   {
     '1.0' { $version = 'v1.0.3705'  }
     '1.1' { $version = 'v1.1.4322'  }
@@ -177,9 +182,26 @@ function Configure-BuildEnvironment
     '3.0' { $version = 'v2.0.50727' }
     '3.5' { $version = 'v3.5'       }
     '4.0' { $version = 'v4.0.30128' }
-    default { throw "Error: Unknown .NET Framework version, $framework" }
+    default { throw "Error: Unknown .NET Framework version, $versionPart, specified in $framework" }
   }
-  $frameworkDir = "$env:windir\Microsoft.NET\Framework\$version\"
+
+  $bitness = 'Framework'
+  if($versionPart -ne '1.0' -and $versionPart -ne '1.1') {
+    switch ($bitnessPart)
+    {
+      'x86' { $bitness = 'Framework' }
+      'x64' { $bitness = 'Framework64' }
+      $null { 
+        if (Test-Path HKLM:Software\Wow6432Node) {
+          $bitness = 'Framework64'
+        } else {
+          $bitness = 'Framework'
+        }
+      }
+      default { throw "Error: Unknown .NET Framework bitness, $bitnessPart, specified in $framework" }
+    }
+  }
+  $frameworkDir = "$env:windir\Microsoft.NET\$bitness\$version\"
   
   Assert (test-path $frameworkDir) "Error: No .NET Framework installation directory found at $frameworkDir"
 
