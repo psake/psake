@@ -174,8 +174,9 @@ function Configure-BuildEnvironment
     '1.0' { $version = 'v1.0.3705'  }
     '1.1' { $version = 'v1.1.4322'  }
     '2.0' { $version = 'v2.0.50727' }
-    '3.0' { $version = 'v2.0.50727' } # .NET 3.0 uses the .NET 2.0 compilers
+    '3.0' { $version = 'v2.0.50727' }
     '3.5' { $version = 'v3.5'       }
+    '4.0' { $version = 'v4.0.30128' }
     default { throw "Error: Unknown .NET Framework version, $framework" }
   }
   $frameworkDir = "$env:windir\Microsoft.NET\Framework\$version\"
