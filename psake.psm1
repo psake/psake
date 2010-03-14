@@ -900,7 +900,10 @@ Default = '3.5'
 Prints a list of tasks and their descriptions 
 
 .PARAMETER Parameters 
-A hashtable containing parameters to be passed into the current build script.
+A hashtable containing parameters to be passed into the current build script.  These parameters will be processed before the 'Properties' function of the script is processed.  This means you can access parameters from within the 'Properties' function!
+
+.PARAMETER Properties
+A hashtable containing properties to be passed into the current build script.  These properties will override matching properties that are found in the 'Properties' function of the script.
 
 .EXAMPLE
 Invoke-psake
@@ -926,6 +929,11 @@ Prints a report of all the tasks and their descriptions and exits
 Invoke-psake .\parameters.ps1 -parameters @{"p1"="v1";"p2"="v2"}
 
 Runs the build script called 'parameters.ps1' and passes in parameters 'p1' and 'p2' with values 'v1' and 'v2'
+	
+.EXAMPLE
+Invoke-psake .\properties.ps1 -properties @{"x"="1";"y"="2"}
+
+Runs the build script called 'properties.ps1' and passes in parameters 'x' and 'y' with values '1' and '2'
 
 .OUTPUTS
     If there is an exception and '$psake.use_exit_on_error' -eq $true
@@ -1010,20 +1018,21 @@ Assert
 
   param(
     [Parameter(Position=0,Mandatory=0)]
-      [string]$buildFile = 'default.ps1',
+		[string]$buildFile = 'default.ps1',
     [Parameter(Position=1,Mandatory=0)]
-      [string[]]$taskList = @(),
+		[string[]]$taskList = @(),
     [Parameter(Position=2,Mandatory=0)]
-      [string]$framework = '3.5',   
+		[string]$framework = '3.5',   
     [Parameter(Position=3,Mandatory=0)]
-        [switch]$docs = $false,	  
-        [Parameter(Position=4,Mandatory=0)]
-        [System.Collections.Hashtable]$parameters = @{}
+		[switch]$docs = $false,	  
+    [Parameter(Position=4,Mandatory=0)]
+		[System.Collections.Hashtable]$parameters = @{},
+	[Parameter(Position=5, Mandatory=0)]
+		[System.Collections.Hashtable]$properties = @{}
   )
 
   Begin 
   { 
-
     $script:psake.build_success = $false		
     $script:psake.framework_version = $framework
 
@@ -1051,105 +1060,118 @@ Assert
   { 
     try 
     {
-      $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+		$stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 
-      # Execute the build file to set up the tasks and defaults
-      Assert (test-path $buildFile) "Error: Could not find the build file, $buildFile."
+		# Execute the build file to set up the tasks and defaults
+		Assert (test-path $buildFile) "Error: Could not find the build file, $buildFile."
 
-      $script:psake.build_script_file = dir $buildFile
-      set-location $script:psake.build_script_file.Directory
-      . $script:psake.build_script_file.FullName
+		$script:psake.build_script_file = dir $buildFile
+		set-location $script:psake.build_script_file.Directory
+		. $script:psake.build_script_file.FullName
 
-      if ($docs) 
-      {
-        Write-Documentation
-        Cleanup-Environment
-        return
-      }
+		if ($docs) 
+		{
+		Write-Documentation
+		Cleanup-Environment
+		return
+		}
 
-      Configure-BuildEnvironment
+		Configure-BuildEnvironment
 
-      # N.B. The initial dot (.) indicates that variables initialized/modified
-      #      in the propertyBlock are available in the parent scope.
-      while ($script:context.Peek().includes.Count -gt 0) 
-      {
-        $includeBlock = $script:context.Peek().includes.Dequeue()
-        . $includeBlock
-      }
-      foreach($propertyBlock in $script:context.Peek().properties) 
-      {
-        . $propertyBlock
-      }
+		# N.B. The initial dot (.) indicates that variables initialized/modified
+		#      in the propertyBlock are available in the parent scope.
+		while ($script:context.Peek().includes.Count -gt 0) 
+		{
+		$includeBlock = $script:context.Peek().includes.Dequeue()
+		. $includeBlock
+		}
+	  
+		foreach($key in $parameters.keys)
+		{
+			if (test-path "variable:\$key")
+			{
+				set-item -path "variable:\$key" -value $parameters.$key | out-null
+			}
+			else
+			{
+				new-item -path "variable:\$key" -value $parameters.$key | out-null
+			}
+		}
+	  
+		foreach($propertyBlock in $script:context.Peek().properties) 
+		{
+			. $propertyBlock
+		}
 
-      foreach($key in $parameters.keys)
-      {
-        if (test-path "variable:\$key")
-        {
-          set-item -path "variable:\$key" -value $parameters.$key
-        }
-        else
-        {
-          new-item -path "variable:\$key" -value $parameters.$key
-        }
-      }
+		foreach($key in $properties.keys)
+		{
+			if (test-path "variable:\$key")
+			{
+				set-item -path "variable:\$key" -value $properties.$key | out-null
+			}				
+		}
 
-      # Execute the list of tasks or the default task
-      if($taskList.Length -ne 0) 
-      {
-        foreach($task in $taskList) 
-        {
-          ExecuteTask $task
-        }
-      } 
-      elseif ($script:context.Peek().tasks.default -ne $null) 
-      {
-        ExecuteTask default
-      } 
-      else 
-      {
-        throw 'Error: default task required'
-      }
+		# Execute the list of tasks or the default task
+		if($taskList.Length -ne 0) 
+		{
+			foreach($task in $taskList) 
+			{
+				ExecuteTask $task
+			}
+		} 
+		elseif ($script:context.Peek().tasks.default -ne $null) 
+		{
+			ExecuteTask default
+		} 
+		else 
+		{
+			throw 'Error: default task required'
+		}
 
-      $stopwatch.Stop()
+		$stopwatch.Stop()
       
-      "`nBuild Succeeded!`n" 
-      
-      Write-TaskTimeSummary   
-      
-      $script:psake.build_success = $true
+		"`nBuild Succeeded!`n" 
+
+		Write-TaskTimeSummary   
+
+		$script:psake.build_success = $true
     } 
     catch
     { 
-      #Append detailed exception to log file
-      if ($script:psake.log_error)
-      {
-        $errorLogFile = "psake-error-log-{0}.log" -f ([DateTime]::Now.ToString("yyyyMMdd"))
-        "-" * 70 >> $errorLogFile
-        "{0}: An Error Occurred. See Error Details Below: " -f [DateTime]::Now >>$errorLogFile
-        "-" * 70 >> $errorLogFile
-        Resolve-Error $_ >> $errorLogFile
-      }
+		#Append detailed exception and script variables to error log file
+		if ($script:psake.log_error)
+		{
+			$errorLogFile = "psake-error-log-{0}.log" -f ([DateTime]::Now.ToString("yyyyMMdd"))
+			"-" * 70 >> $errorLogFile
+			"{0}: An Error Occurred. See Error Details Below: " -f [DateTime]::Now >>$errorLogFile
+			"-" * 70 >> $errorLogFile
+			Resolve-Error $_ >> $errorLogFile
+			"-" * 70 >> $errorLogFile
+			"Script Variables" >> $errorLogFile
+			"-" * 70 >> $errorLogFile			
+			Get-Variable -scope script >> $errorLogFile
+		}
       
-      $buildFileName = Split-Path $buildFile -leaf
-      if (test-path $buildFile) { $buildFileName = $script:psake.build_script_file.Name }   
-      Write-Host -foregroundcolor Red ($buildFileName + ":" + $_)       
+		$buildFileName = Split-Path $buildFile -leaf
+		if (test-path $buildFile) { $buildFileName = $script:psake.build_script_file.Name }   
+		Write-Host -foregroundcolor Red ($buildFileName + ":" + $_)       
 
-      if ($script:psake.use_exit_on_error) 
-      { 
-        exit(1)
-      } 
-      else 
-      {
-        $script:psake.build_success = $false
-      }
+		if ($script:psake.use_exit_on_error) 
+		{ 
+			exit(1)
+		} 
+		else 
+		{
+			$script:psake.build_success = $false
+		}
     }
   } #Process
   
   End 
   {
-    # Clear out any global variables
-    Cleanup-Environment
-    [void]$script:context.Pop()
+	# Clear out any global variables
+	Cleanup-Environment
+	[void]$script:context.Pop()
   }
 }
 

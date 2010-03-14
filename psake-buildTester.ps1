@@ -13,7 +13,7 @@ function runBuilds{
     $testResult = "" | select Name, Result
     $testResult.Name = $buildFile.Name
 
-    Invoke-psake $buildFile.FullName -Parameters @{'p1'='v1'; 'p2'='v2'} | Out-Null			
+    Invoke-psake $buildFile.FullName -Parameters @{'p1'='v1'; 'p2'='v2'} -Properties @{'x'='1'; 'y'='2'} | Out-Null			
     $testResult.Result = (getResult $buildFile.Name $psake.build_success)
     $testResults += $testResult
   }
