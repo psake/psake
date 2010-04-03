@@ -180,11 +180,13 @@ function Configure-BuildEnvironment
     {
       'x86' { $bitness = 'Framework' }
       'x64' { $bitness = 'Framework64' }
-      $null { 
-        if (Test-Path HKLM:Software\Wow6432Node) {
-          $bitness = 'Framework64'
-        } else {
-          $bitness = 'Framework'
+      $null {
+        $ptrSize = [System.IntPtr]::Size
+        switch ($ptrSize)
+        {
+          4 { $bitness = 'Framework' }
+          8 { $bitness = 'Framework64' }
+          default { throw "Error: Unknown pointer size ($ptrSize) returned from System.IntPtr." }
         }
       }
       default { throw "Error: Unknown .NET Framework bitness, $bitnessPart, specified in $framework" }
