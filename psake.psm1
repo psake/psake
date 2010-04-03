@@ -894,8 +894,8 @@ The psake build script to execute (default: default.ps1).
 A comma-separated list of task names to execute
 
 .PARAMETER Framework 
-The version of the .NET framework you want to build
-Possible values: '1.0', '1.1', '2.0', '3.0',  '3.5', '4.0'
+The version of the .NET framework you want to build. You can append x86 or x64 to force a specific framework. If not specified, x86 or x64 will be detected based on the bitness of the PowerShell process.
+Possible values: '1.0', '1.1', '2.0', '2.0x86', '2.0x64', '3.0', '3.0x86', '3.0x64', '3.5', '3.5x86', '3.5x64', '4.0', '4.0x86', '4.0x64'
 Default = '3.5'
 
 .PARAMETER Docs 
