@@ -30,126 +30,126 @@ $script:psake.log_error = $false            # determines if the exception detail
 $script:psake.build_success = $false        # indicates that the current build was successful
 $script:psake.version = "4.00"              # contains the current version of psake
 $script:psake.build_script_file = $null     # contains a System.IO.FileInfo for the current build file
-$script:psake.framework_version = ""        # contains the framework version # for the current build 
-    
+$script:psake.framework_version = ""        # contains the framework version # for the current build
+
 Export-ModuleMember -Variable "psake"
 
 #-- Private Module Functions
-function ExecuteTask 
+function ExecuteTask
 {
   param([string]$taskName)
-  
+
   Assert (![string]::IsNullOrEmpty($taskName)) "Task name should not be null or empty string"
-  
+
   $taskKey = $taskName.ToLower()
-  
+
     Assert ($script:context.Peek().tasks.Contains($taskKey)) "task [$taskName] does not exist"
 
-    if ($script:context.Peek().executedTasks.Contains($taskKey)) 
-  { 
-    return 
+    if ($script:context.Peek().executedTasks.Contains($taskKey))
+  {
+    return
   }
-  
+
   Assert (!$script:context.Peek().callStack.Contains($taskKey)) "Error: Circular reference found for task, $taskName"
 
   $script:context.Peek().callStack.Push($taskKey)
-  
+
   $task = $script:context.Peek().tasks.$taskKey
-  
+
   $taskName = $task.Name
-  
+
   $precondition_is_valid = if ($task.Precondition -ne $null) {& $task.Precondition} else {$true}
-  
-  if (!$precondition_is_valid) 
+
+  if (!$precondition_is_valid)
   {
-    "Precondition was false not executing $name"    
+    "Precondition was false not executing $name"
   }
   else
   {
-    if ($taskKey -ne 'default') 
+    if ($taskKey -ne 'default')
     {
-      $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()     
-      
+      $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+
       if ( ($task.PreAction -ne $null) -or ($task.PostAction -ne $null) )
       {
         Assert ($task.Action -ne $null) "Error: Action parameter must be specified when using PreAction or PostAction parameters"
       }
-      
-      if ($task.Action -ne $null) 
+
+      if ($task.Action -ne $null)
       {
         try
-        {           
-          foreach($childTask in $task.DependsOn) 
+        {
+          foreach($childTask in $task.DependsOn)
           {
             ExecuteTask $childTask
           }
-          
-          $script:context.Peek().currentTaskName = $taskName									
 
-          if ($script:context.Peek().taskSetupScriptBlock -ne $null) 
+          $script:context.Peek().currentTaskName = $taskName
+
+          if ($script:context.Peek().taskSetupScriptBlock -ne $null)
           {
             & $script:context.Peek().taskSetupScriptBlock
           }
 
-          if ($task.PreAction -ne $null) 
+          if ($task.PreAction -ne $null)
           {
             & $task.PreAction
           }
-          
+
           $script:context.Peek().formatTaskNameString -f $taskName
           & $task.Action
-          
-          if ($task.PostAction -ne $null) 
+
+          if ($task.PostAction -ne $null)
           {
             & $task.PostAction
           }
-          
-          if ($script:context.Peek().taskTearDownScriptBlock -ne $null) 
+
+          if ($script:context.Peek().taskTearDownScriptBlock -ne $null)
           {
             & $script:context.Peek().taskTearDownScriptBlock
           }
         }
         catch
         {
-          if ($task.ContinueOnError) 
+          if ($task.ContinueOnError)
           {
             "-"*70
             "Error in Task [$taskName] $_"
             "-"*70
-          } 
-          else 
+          }
+          else
           {
             throw $_
           }
-        }     
+        }
       } # if ($task.Action -ne $null)
       else
       {
         #no Action was specified but we still execute all the dependencies
-        foreach($childTask in $task.DependsOn) 
+        foreach($childTask in $task.DependsOn)
         {
           ExecuteTask $childTask
         }
       }
       $stopwatch.stop()
       $task.Duration = $stopwatch.Elapsed
-    } # if ($name.ToLower() -ne 'default') 
-    else 
-    { 
-      foreach($childTask in $task.DependsOn) 
+    } # if ($name.ToLower() -ne 'default')
+    else
+    {
+      foreach($childTask in $task.DependsOn)
       {
         ExecuteTask $childTask
       }
     }
-    
-    if ($task.Postcondition -ne $null) 
-    {     
+
+    if ($task.Postcondition -ne $null)
+    {
       Assert (& $task.Postcondition) "Error: Postcondition failed for $taskName"
-    }     
+    }
   }
-  
+
   $poppedTaskKey = $script:context.Peek().callStack.Pop()
-  
+
   Assert ($poppedTaskKey -eq $taskKey) "Error: CallStack was corrupt. Expected $taskKey, but got $poppedTaskKey."
 
   $script:context.Peek().executedTasks.Push($taskKey)
@@ -163,7 +163,7 @@ function Configure-BuildEnvironment
   $versionPart = $framework.Substring(0,3)
   $bitnessPart = $framework.Substring(3)
   $versions = $null
-  switch ($versionPart) 
+  switch ($versionPart)
   {
     '1.0' { $versions = @('v1.0.3705')  }
     '1.1' { $versions = @('v1.1.4322')  }
@@ -193,25 +193,25 @@ function Configure-BuildEnvironment
     }
   }
   $frameworkDirs = $versions | foreach { "$env:windir\Microsoft.NET\$bitness\$_\" }
-  
+
   $frameworkDirs | foreach { Assert (test-path $_) "Error: No .NET Framework installation directory found at $_" }
 
   $env:path = [string]::Join(';', $frameworkDirs) + ";$env:path"
   #if any error occurs in a PS function then "stop" processing immediately
-  # this does not effect any external programs that return a non-zero exit code 
+  # this does not effect any external programs that return a non-zero exit code
   $global:ErrorActionPreference = "Stop"
 }
 
-function Cleanup-Environment 
+function Cleanup-Environment
 {
-  $env:path = $script:context.Peek().originalEnvPath	
+  $env:path = $script:context.Peek().originalEnvPath
   Set-Location $script:context.Peek().originalDirectory
   $global:ErrorActionPreference = $script:context.Peek().originalErrorActionPreference
 }
 
 #borrowed from Jeffrey Snover http://blogs.msdn.com/powershell/archive/2006/12/07/resolve-error.aspx
-function Resolve-Error($ErrorRecord=$Error[0]) 
-{ 
+function Resolve-Error($ErrorRecord=$Error[0])
+{
   "ErrorRecord"
   $ErrorRecord | Format-List * -Force | Out-String -Stream | ? {$_}
   ""
@@ -220,7 +220,7 @@ function Resolve-Error($ErrorRecord=$Error[0])
   ""
   "Exception"
   $Exception = $ErrorRecord.Exception
-  for ($i = 0; $Exception; $i++, ($Exception = $Exception.InnerException)) 
+  for ($i = 0; $Exception; $i++, ($Exception = $Exception.InnerException))
   {
     "$i" * 70
     $Exception | Format-List * -Force | Out-String -Stream | ? {$_}
@@ -228,36 +228,36 @@ function Resolve-Error($ErrorRecord=$Error[0])
   }
 }
 
-function Write-Documentation 
+function Write-Documentation
 {
   $list = New-Object System.Collections.ArrayList
-  foreach($key in $script:context.Peek().tasks.Keys) 
+  foreach($key in $script:context.Peek().tasks.Keys)
   {
-    if($key -eq "default") 
+    if($key -eq "default")
     {
       continue
     }
     $task = $script:context.Peek().tasks.$key
     $content = "" | Select-Object Name, Description
-    $content.Name = $task.Name        
+    $content.Name = $task.Name
     $content.Description = $task.Description
     $index = $list.Add($content)
   }
 
-  $list | Sort 'Name' | Format-Table -Auto 
+  $list | Sort 'Name' | Format-Table -Auto
 }
 
 function Write-TaskTimeSummary
 {
   "-"*70
   "Build Time Report"
-  "-"*70  
+  "-"*70
   $list = @()
-  while ($script:context.Peek().executedTasks.Count -gt 0) 
+  while ($script:context.Peek().executedTasks.Count -gt 0)
   {
     $taskKey = $script:context.Peek().executedTasks.Pop()
     $task = $script:context.Peek().tasks.$taskKey
-    if($taskKey -eq "default") 
+    if($taskKey -eq "default")
     {
       continue
     }
@@ -265,36 +265,36 @@ function Write-TaskTimeSummary
   }
   [Array]::Reverse($list)
   $list += "" | Select-Object @{Name="Name";Expression={"Total:"}}, @{Name="Duration";Expression={$stopwatch.Elapsed}}
-  $list | Format-Table -Auto | Out-String -Stream | ? {$_}  # using "Out-String -Stream" to filter out the blank line that Format-Table prepends 
+  $list | Format-Table -Auto | Out-String -Stream | ? {$_}  # using "Out-String -Stream" to filter out the blank line that Format-Table prepends
 }
 
 #-- Public Module Functions
 function Exec
 {
 <#
-.SYNOPSIS 
+.SYNOPSIS
 Helper function for executing command-line programs.
-    
+
 .DESCRIPTION
-This is a helper function that runs a scriptblock and checks the PS variable $lastexitcode to see if an error occcured. 
+This is a helper function that runs a scriptblock and checks the PS variable $lastexitcode to see if an error occcured.
 If an error is detected then an exception is thrown.  This function allows you to run command-line programs without
 having to explicitly check fthe $lastexitcode variable.
-    
-.PARAMETER cmd 
-The scriptblock to execute.  This scriptblock will typically contain the command-line invocation. 
+
+.PARAMETER cmd
+The scriptblock to execute.  This scriptblock will typically contain the command-line invocation.
 Required
-    
+
 .PARAMETER errorMessage
 The error message used for the exception that is thrown.
-Optional 
-    
+Optional
+
 .EXAMPLE
 exec { svn info $repository_trunk } "Error executing SVN. Please verify SVN command-line client is installed"
-    
+
 This example calls the svn command-line client.
-     
+
 .LINK
-Assert  
+Assert
 Invoke-psake
 Task
 Properties
@@ -305,10 +305,10 @@ TaskTearDown
 #>
 [CmdletBinding(
     SupportsShouldProcess=$False,
-    SupportsTransactions=$False, 
+    SupportsTransactions=$False,
     ConfirmImpact="None",
     DefaultParameterSetName="")]
-  
+
   param(
       [Parameter(Position=0,Mandatory=1)][scriptblock]$cmd,
     [Parameter(Position=1,Mandatory=0)][string]$errorMessage = "Error executing command: " + $cmd
@@ -323,32 +323,32 @@ TaskTearDown
 function Assert
 {
 <#
-.SYNOPSIS 
-Helper function for "Design by Contract" assertion checking. 
-    
+.SYNOPSIS
+Helper function for "Design by Contract" assertion checking.
+
 .DESCRIPTION
 This is a helper function that makes the code less noisy by eliminating many of the "if" statements
 that are normally required to verify assumptions in the code.
-    
-.PARAMETER conditionToCheck 
-The boolean condition to evaluate 
+
+.PARAMETER conditionToCheck
+The boolean condition to evaluate
 Required
-    
+
 .PARAMETER failureMessage
 The error message used for the exception if the conditionToCheck parameter is false
-Required 
-    
+Required
+
 .EXAMPLE
 Assert $false "This always throws an exception"
-    
+
 This example always throws an exception
-    
+
 .EXAMPLE
-Assert ( ($i % 2) -eq 0 ) "%i is not an even number"    
+Assert ( ($i % 2) -eq 0 ) "%i is not an even number"
 
 This exmaple may throw an exception if $i is not an even number
-     
-.LINK 
+
+.LINK
 Invoke-psake
 Task
 Properties
@@ -356,15 +356,15 @@ Include
 FormatTaskName
 TaskSetup
 TaskTearDown
-    
+
 .NOTES
-It might be necessary to wrap the condition with paranthesis to force PS to evaluate the condition 
+It might be necessary to wrap the condition with paranthesis to force PS to evaluate the condition
 so that a boolean value is calculated and passed into the 'conditionToCheck' parameter.
 
 Example:
     Assert 1 -eq 2 "1 doesn't equal 2"
-   
-PS will pass 1 into the condtionToCheck variable and PS will look for a parameter called "eq" and 
+
+PS will pass 1 into the condtionToCheck variable and PS will look for a parameter called "eq" and
 throw an exception with the following message "A parameter cannot be found that matches parameter name 'eq'"
 
 The solution is to wrap the condition in () so that PS will evaluate it first.
@@ -373,10 +373,10 @@ The solution is to wrap the condition in () so that PS will evaluate it first.
 #>
 [CmdletBinding(
     SupportsShouldProcess=$False,
-    SupportsTransactions=$False, 
+    SupportsTransactions=$False,
     ConfirmImpact="None",
     DefaultParameterSetName="")]
-  
+
   param(
     [Parameter(Position=0,Mandatory=1)]$conditionToCheck,
     [Parameter(Position=1,Mandatory=1)]$failureMessage
@@ -388,38 +388,38 @@ function Task
 {
 <#
 .SYNOPSIS
-Defines a build task to be executed by psake 
-  
+Defines a build task to be executed by psake
+
 .DESCRIPTION
 This function creates a 'task' object that will be used by the psake engine to execute a build task.
-Note: There must be at least one task called 'default' in the build script 
-  
-.PARAMETER Name 
-The name of the task  
+Note: There must be at least one task called 'default' in the build script
+
+.PARAMETER Name
+The name of the task
 Required
-  
-.PARAMETER Action 
+
+.PARAMETER Action
 A scriptblock containing the statements to execute
-Optional 
+Optional
 
 .PARAMETER PreAction
 A scriptblock to be executed before the 'Action' scriptblock.
 Note: This parameter is ignored if the 'Action' scriptblock is not defined.
-Optional 
+Optional
 
-.PARAMETER PostAction 
+.PARAMETER PostAction
 A scriptblock to be executed after the 'Action' scriptblock.
 Note: This parameter is ignored if the 'Action' scriptblock is not defined.
-Optional 
+Optional
 
-.PARAMETER Precondition 
+.PARAMETER Precondition
 A scriptblock that is executed to determine if the task is executed or skipped.
 This scriptblock should return $true or $false
 Optional
 
 .PARAMETER Postcondition
 A scriptblock that is executed to determine if the task completed its job correctly.
-An exception is thrown if the scriptblock returns $false. 
+An exception is thrown if the scriptblock returns $false.
 Optional
 
 .PARAMETER ContinueOnError
@@ -436,9 +436,9 @@ A sample build script is shown below:
 
 task default -depends Test
 
-task Test -depends Compile, Clean { 
+task Test -depends Compile, Clean {
   "This is a test"
-}   
+}
 
 task Compile -depends Clean {
   "Compile"
@@ -454,12 +454,12 @@ It uses the 'depends' parameter to specify that 'Test' is a dependency
 The 'Test' task uses the 'depends' parameter to specify that 'Compile' and 'Clean' are dependencies
 The 'Compile' task depends on the 'Clean' task.
 
-Note: 
-The 'Action' parameter is defaulted to the script block following the 'Clean' task. 
+Note:
+The 'Action' parameter is defaulted to the script block following the 'Clean' task.
 
 The equivalent 'Test' task is shown below:
 
-task Test -depends Compile, Clean -Action { 
+task Test -depends Compile, Clean -Action {
   $testMessage
 }
 
@@ -483,7 +483,7 @@ Compile 00:00:00.0133268
 Test    00:00:00.0225964
 Total:  00:00:00.0782496
 
-.LINK 
+.LINK
 Invoke-psake
 Properties
 Include
@@ -494,14 +494,14 @@ Assert
 #>
 [CmdletBinding(
     SupportsShouldProcess=$False,
-    SupportsTransactions=$False, 
+    SupportsTransactions=$False,
     ConfirmImpact="None",
     DefaultParameterSetName="")]
   param(
     [Parameter(Position=0,Mandatory=1)]
-    [string]$name = $null, 
+    [string]$name = $null,
     [Parameter(Position=1,Mandatory=0)]
-    [scriptblock]$action = $null, 
+    [scriptblock]$action = $null,
     [Parameter(Position=2,Mandatory=0)]
     [scriptblock]$preaction = $null,
     [Parameter(Position=3,Mandatory=0)]
@@ -511,14 +511,14 @@ Assert
     [Parameter(Position=5,Mandatory=0)]
     [scriptblock]$postcondition = $null,
     [Parameter(Position=6,Mandatory=0)]
-    [switch]$continueOnError = $false, 
+    [switch]$continueOnError = $false,
     [Parameter(Position=7,Mandatory=0)]
-    [string[]]$depends = @(), 
+    [string[]]$depends = @(),
     [Parameter(Position=8,Mandatory=0)]
     [string]$description = $null
     )
-  
-  if ($name.ToLower() -eq 'default') 
+
+  if ($name.ToLower() -eq 'default')
   {
     Assert ($action -eq $null) "Error: 'default' task cannot specify an action"
   }
@@ -535,11 +535,11 @@ Assert
     Description = $description
     Duration = 0
   }
-  
+
   $taskKey = $name.ToLower()
-  
+
   Assert (!$script:context.Peek().tasks.ContainsKey($taskKey)) "Error: Task, $name, has already been defined."
-  
+
   $script:context.Peek().tasks.$taskKey = $newTask
 }
 
@@ -553,7 +553,7 @@ Define a scriptblock that contains assignments to variables that will be availab
 A build script may declare a "Properies" function which allows you to define
 variables that will be available to all the "Task" functions in the build script.
 
-.PARAMETER properties 
+.PARAMETER properties
 The script block containing all the variable assignment statements
 Required
 
@@ -561,36 +561,36 @@ Required
 A sample build script is shown below:
 
 Properties {
-  $build_dir = "c:\build"   
+  $build_dir = "c:\build"
   $connection_string = "datasource=localhost;initial catalog=northwind;integrated security=sspi"
 }
 
 Task default -depends Test
 
-Task Test -depends Compile, Clean { 
+Task Test -depends Compile, Clean {
 }
 
-Task Compile -depends Clean { 
+Task Compile -depends Clean {
 }
 
-Task Clean { 
+Task Clean {
 }
- 
-.LINK 
-Invoke-psake    
+
+.LINK
+Invoke-psake
 Task
 Include
 FormatTaskName
 TaskSetup
 TaskTearDown
-Assert  
+Assert
 
 .NOTES
 You can have more than 1 "Properties" function defined in the script
 #>
 [CmdletBinding(
     SupportsShouldProcess=$False,
-    SupportsTransactions=$False, 
+    SupportsTransactions=$False,
     ConfirmImpact="None",
     DefaultParameterSetName="")]
   param(
@@ -608,10 +608,10 @@ Include the functions or code of another powershell script file into the current
 
 .DESCRIPTION
 A build script may declare an "includes" function which allows you to define
-a file containing powershell code to be included and added to the scope of 
+a file containing powershell code to be included and added to the scope of
 the currently running build script.
 
-.PARAMETER fileNamePathToInclude 
+.PARAMETER fileNamePathToInclude
 A string containing the path and name of the powershell file to include
 Required
 
@@ -622,31 +622,31 @@ Include ".\build_utils.ps1"
 
 Task default -depends Test
 
-Task Test -depends Compile, Clean { 
+Task Test -depends Compile, Clean {
 }
 
-Task Compile -depends Clean { 
+Task Compile -depends Clean {
 }
 
-Task Clean { 
+Task Clean {
 }
 
- 
-.LINK 
-Invoke-psake    
+
+.LINK
+Invoke-psake
 Task
 Properties
 FormatTaskName
 TaskSetup
 TaskTearDown
-Assert  
+Assert
 
 .NOTES
 You can have more than 1 "Include" function defined in the script
 #>
 [CmdletBinding(
     SupportsShouldProcess=$False,
-    SupportsTransactions=$False, 
+    SupportsTransactions=$False,
     ConfirmImpact="None",
     DefaultParameterSetName="")]
   param(
@@ -657,7 +657,7 @@ You can have more than 1 "Include" function defined in the script
   $script:context.Peek().includes.Enqueue((Resolve-Path $fileNamePathToInclude));
 }
 
-function FormatTaskName 
+function FormatTaskName
 {
 <#
 .SYNOPSIS
@@ -668,7 +668,7 @@ the task name
 Allows you to define a format mask that will be used when psake displays
 the task name.  The default is "Executing task, {0}..."
 
-.PARAMETER format 
+.PARAMETER format
 A string containing the format mask to use, it should contain a placeholder ({0})
 that will be used to substitute the task name.
 Required
@@ -680,13 +680,13 @@ FormatTaskName "[Task: {0}]"
 
 Task default -depends Test
 
-Task Test -depends Compile, Clean { 
+Task Test -depends Compile, Clean {
 }
 
-Task Compile -depends Clean { 
+Task Compile -depends Clean {
 }
 
-Task Clean { 
+Task Clean {
 }
 
 You should get the following output:
@@ -707,8 +707,8 @@ Clean   00:00:00.0043477
 Compile 00:00:00.0102130
 Test    00:00:00.0182858
 Total:  00:00:00.0698071
- 
-.LINK 
+
+.LINK
 Invoke-psake
 Include
 Task
@@ -719,7 +719,7 @@ Assert
 #>
 [CmdletBinding(
     SupportsShouldProcess=$False,
-    SupportsTransactions=$False, 
+    SupportsTransactions=$False,
     ConfirmImpact="None",
     DefaultParameterSetName="")]
   param(
@@ -729,7 +729,7 @@ Assert
   $script:context.Peek().formatTaskNameString = $format
 }
 
-function TaskSetup 
+function TaskSetup
 {
 <#
 .SYNOPSIS
@@ -737,9 +737,9 @@ Adds a scriptblock that will be executed before each task
 
 .DESCRIPTION
 This function will accept a scriptblock that will be executed before each
-task in the build script.  
+task in the build script.
 
-.PARAMETER include 
+.PARAMETER include
 A scriptblock to execute
 Required
 
@@ -748,13 +748,13 @@ A sample build script is shown below:
 
 Task default -depends Test
 
-Task Test -depends Compile, Clean { 
+Task Test -depends Compile, Clean {
 }
 
-Task Compile -depends Clean { 
+Task Compile -depends Clean {
 }
 
-Task Clean { 
+Task Clean {
 }
 
 TaskSetup {
@@ -782,8 +782,8 @@ Clean   00:00:00.0054018
 Compile 00:00:00.0123085
 Test    00:00:00.0236915
 Total:  00:00:00.0739437
- 
-.LINK 
+
+.LINK
 Invoke-psake
 Include
 Task
@@ -794,7 +794,7 @@ Assert
 #>
 [CmdletBinding(
     SupportsShouldProcess=$False,
-    SupportsTransactions=$False, 
+    SupportsTransactions=$False,
     ConfirmImpact="None",
     DefaultParameterSetName="")]
   param(
@@ -804,7 +804,7 @@ Assert
   $script:context.Peek().taskSetupScriptBlock = $setup
 }
 
-function TaskTearDown 
+function TaskTearDown
 {
 <#
 .SYNOPSIS
@@ -812,9 +812,9 @@ Adds a scriptblock that will be executed after each task
 
 .DESCRIPTION
 This function will accept a scriptblock that will be executed after each
-task in the build script.  
+task in the build script.
 
-.PARAMETER include 
+.PARAMETER include
 A scriptblock to execute
 Required
 
@@ -823,13 +823,13 @@ A sample build script is shown below:
 
 Task default -depends Test
 
-Task Test -depends Compile, Clean { 
+Task Test -depends Compile, Clean {
 }
 
-Task Compile -depends Clean { 
+Task Compile -depends Clean {
 }
 
-Task Clean { 
+Task Clean {
 }
 
 TaskTearDown {
@@ -857,8 +857,8 @@ Clean   00:00:00.0064555
 Compile 00:00:00.0218902
 Test    00:00:00.0309151
 Total:  00:00:00.0858301
- 
-.LINK 
+
+.LINK
 Invoke-psake
 Include
 Task
@@ -869,7 +869,7 @@ Assert
 #>
 [CmdletBinding(
     SupportsShouldProcess=$False,
-    SupportsTransactions=$False, 
+    SupportsTransactions=$False,
     ConfirmImpact="None",
     DefaultParameterSetName="")]
   param(
@@ -878,30 +878,30 @@ Assert
   $script:context.Peek().taskTearDownScriptBlock = $teardown
 }
 
-function Invoke-psake 
+function Invoke-psake
 {
 <#
 .SYNOPSIS
 Runs a psake build script.
 
 .DESCRIPTION
-This function runs a psake build script 
+This function runs a psake build script
 
-.PARAMETER BuildFile 
-The psake build script to execute (default: default.ps1). 
+.PARAMETER BuildFile
+The psake build script to execute (default: default.ps1).
 
-.PARAMETER TaskList 
+.PARAMETER TaskList
 A comma-separated list of task names to execute
 
-.PARAMETER Framework 
+.PARAMETER Framework
 The version of the .NET framework you want to build. You can append x86 or x64 to force a specific framework. If not specified, x86 or x64 will be detected based on the bitness of the PowerShell process.
 Possible values: '1.0', '1.1', '2.0', '2.0x86', '2.0x64', '3.0', '3.0x86', '3.0x64', '3.5', '3.5x86', '3.5x64', '4.0', '4.0x86', '4.0x64'
 Default = '3.5'
 
-.PARAMETER Docs 
-Prints a list of tasks and their descriptions 
+.PARAMETER Docs
+Prints a list of tasks and their descriptions
 
-.PARAMETER Parameters 
+.PARAMETER Parameters
 A hashtable containing parameters to be passed into the current build script.  These parameters will be processed before the 'Properties' function of the script is processed.  This means you can access parameters from within the 'Properties' function!
 
 .PARAMETER Properties
@@ -931,7 +931,7 @@ Prints a report of all the tasks and their descriptions and exits
 Invoke-psake .\parameters.ps1 -parameters @{"p1"="v1";"p2"="v2"}
 
 Runs the build script called 'parameters.ps1' and passes in parameters 'p1' and 'p2' with values 'v1' and 'v2'
-	
+
 .EXAMPLE
 Invoke-psake .\properties.ps1 -properties @{"x"="1";"y"="2"}
 
@@ -939,7 +939,7 @@ Runs the build script called 'properties.ps1' and passes in parameters 'x' and '
 
 .OUTPUTS
     If there is an exception and '$psake.use_exit_on_error' -eq $true
-  then runs exit(1) to set the DOS lastexitcode variable 
+  then runs exit(1) to set the DOS lastexitcode variable
   otherwise set the '$psake.build_success variable' to $true or $false depending
   on whether an exception was thrown
 
@@ -952,7 +952,7 @@ $psake.log_error = $false           # determines if the exception details are wr
 $psake.build_success = $false       # indicates that the current build was successful
 $psake.version = "4.00"             # contains the current version of psake
 $psake.build_script_file = $null    # contains a System.IO.FileInfo for the current build file
-$psake.framework_version = ""       # contains the framework version # for the current build 
+$psake.framework_version = ""       # contains the framework version # for the current build
 
 $psake.use_exit_on_error and $psake.log_error are boolean variables that can be set before you call Invoke-Psake.
 
@@ -1014,28 +1014,28 @@ Assert
 #>
 [CmdletBinding(
     SupportsShouldProcess=$False,
-    SupportsTransactions=$False, 
+    SupportsTransactions=$False,
     ConfirmImpact="None",
     DefaultParameterSetName="")]
 
   param(
     [Parameter(Position=0,Mandatory=0)]
-		[string]$buildFile = 'default.ps1',
+    [string]$buildFile = 'default.ps1',
     [Parameter(Position=1,Mandatory=0)]
-		[string[]]$taskList = @(),
+    [string[]]$taskList = @(),
     [Parameter(Position=2,Mandatory=0)]
-		[string]$framework = '3.5',   
+    [string]$framework = '3.5',
     [Parameter(Position=3,Mandatory=0)]
-		[switch]$docs = $false,	  
+    [switch]$docs = $false,
     [Parameter(Position=4,Mandatory=0)]
-		[System.Collections.Hashtable]$parameters = @{},
-	[Parameter(Position=5, Mandatory=0)]
-		[System.Collections.Hashtable]$properties = @{}
+    [System.Collections.Hashtable]$parameters = @{},
+    [Parameter(Position=5, Mandatory=0)]
+    [System.Collections.Hashtable]$properties = @{}
   )
 
-  Begin 
-  { 
-    $script:psake.build_success = $false		
+  Begin
+  {
+    $script:psake.build_success = $false
     $script:psake.framework_version = $framework
 
     if ($script:context -eq $null)
@@ -1058,122 +1058,122 @@ Assert
     })
   }
 
-  Process 
-  { 
-    try 
+  Process
+  {
+    try
     {
-		$stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+    $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 
-		# Execute the build file to set up the tasks and defaults
-		Assert (test-path $buildFile) "Error: Could not find the build file, $buildFile."
+    # Execute the build file to set up the tasks and defaults
+    Assert (test-path $buildFile) "Error: Could not find the build file, $buildFile."
 
-		$script:psake.build_script_file = dir $buildFile
-		set-location $script:psake.build_script_file.Directory
-		. $script:psake.build_script_file.FullName
+    $script:psake.build_script_file = dir $buildFile
+    set-location $script:psake.build_script_file.Directory
+    . $script:psake.build_script_file.FullName
 
-		if ($docs) 
-		{
-		Write-Documentation
-		Cleanup-Environment
-		return
-		}
+    if ($docs)
+    {
+    Write-Documentation
+    Cleanup-Environment
+    return
+    }
 
-		Configure-BuildEnvironment
+    Configure-BuildEnvironment
 
-		# N.B. The initial dot (.) indicates that variables initialized/modified
-		#      in the propertyBlock are available in the parent scope.
-		while ($script:context.Peek().includes.Count -gt 0) 
-		{
-		$includeBlock = $script:context.Peek().includes.Dequeue()
-		. $includeBlock
-		}
-	  
-		foreach($key in $parameters.keys)
-		{
-			if (test-path "variable:\$key")
-			{
-				set-item -path "variable:\$key" -value $parameters.$key | out-null
-			}
-			else
-			{
-				new-item -path "variable:\$key" -value $parameters.$key | out-null
-			}
-		}
-	  
-		foreach($propertyBlock in $script:context.Peek().properties) 
-		{
-			. $propertyBlock
-		}
+    # N.B. The initial dot (.) indicates that variables initialized/modified
+    #      in the propertyBlock are available in the parent scope.
+    while ($script:context.Peek().includes.Count -gt 0)
+    {
+      $includeBlock = $script:context.Peek().includes.Dequeue()
+      . $includeBlock
+    }
 
-		foreach($key in $properties.keys)
-		{
-			if (test-path "variable:\$key")
-			{
-				set-item -path "variable:\$key" -value $properties.$key | out-null
-			}				
-		}
+    foreach($key in $parameters.keys)
+    {
+      if (test-path "variable:\$key")
+      {
+        set-item -path "variable:\$key" -value $parameters.$key | out-null
+      }
+      else
+      {
+        new-item -path "variable:\$key" -value $parameters.$key | out-null
+      }
+    }
 
-		# Execute the list of tasks or the default task
-		if($taskList.Length -ne 0) 
-		{
-			foreach($task in $taskList) 
-			{
-				ExecuteTask $task
-			}
-		} 
-		elseif ($script:context.Peek().tasks.default -ne $null) 
-		{
-			ExecuteTask default
-		} 
-		else 
-		{
-			throw 'Error: default task required'
-		}
+    foreach($propertyBlock in $script:context.Peek().properties)
+    {
+      . $propertyBlock
+    }
 
-		$stopwatch.Stop()
-      
-		"`nBuild Succeeded!`n" 
+    foreach($key in $properties.keys)
+    {
+      if (test-path "variable:\$key")
+      {
+        set-item -path "variable:\$key" -value $properties.$key | out-null
+      }
+    }
 
-		Write-TaskTimeSummary   
+    # Execute the list of tasks or the default task
+    if($taskList.Length -ne 0)
+    {
+      foreach($task in $taskList)
+      {
+        ExecuteTask $task
+      }
+    }
+    elseif ($script:context.Peek().tasks.default -ne $null)
+    {
+      ExecuteTask default
+    }
+    else
+    {
+      throw 'Error: default task required'
+    }
 
-		$script:psake.build_success = $true
-    } 
+    $stopwatch.Stop()
+
+    "`nBuild Succeeded!`n"
+
+    Write-TaskTimeSummary
+
+    $script:psake.build_success = $true
+    }
     catch
-    { 
-		#Append detailed exception and script variables to error log file
-		if ($script:psake.log_error)
-		{
-			$errorLogFile = "psake-error-log-{0}.log" -f ([DateTime]::Now.ToString("yyyyMMdd"))
-			"-" * 70 >> $errorLogFile
-			"{0}: An Error Occurred. See Error Details Below: " -f [DateTime]::Now >>$errorLogFile
-			"-" * 70 >> $errorLogFile
-			Resolve-Error $_ >> $errorLogFile
-			"-" * 70 >> $errorLogFile
-			"Script Variables" >> $errorLogFile
-			"-" * 70 >> $errorLogFile			
-			Get-Variable -scope script >> $errorLogFile
-		}
-      
-		$buildFileName = Split-Path $buildFile -leaf
-		if (test-path $buildFile) { $buildFileName = $script:psake.build_script_file.Name }   
-		Write-Host -foregroundcolor Red ($buildFileName + ":" + $_)       
+    {
+    #Append detailed exception and script variables to error log file
+    if ($script:psake.log_error)
+    {
+      $errorLogFile = "psake-error-log-{0}.log" -f ([DateTime]::Now.ToString("yyyyMMdd"))
+      "-" * 70 >> $errorLogFile
+      "{0}: An Error Occurred. See Error Details Below: " -f [DateTime]::Now >>$errorLogFile
+      "-" * 70 >> $errorLogFile
+      Resolve-Error $_ >> $errorLogFile
+      "-" * 70 >> $errorLogFile
+      "Script Variables" >> $errorLogFile
+      "-" * 70 >> $errorLogFile
+      Get-Variable -scope script >> $errorLogFile
+    }
 
-		if ($script:psake.use_exit_on_error) 
-		{ 
-			exit(1)
-		} 
-		else 
-		{
-			$script:psake.build_success = $false
-		}
+    $buildFileName = Split-Path $buildFile -leaf
+    if (test-path $buildFile) { $buildFileName = $script:psake.build_script_file.Name }
+    Write-Host -foregroundcolor Red ($buildFileName + ":" + $_)
+
+    if ($script:psake.use_exit_on_error)
+    {
+      exit(1)
+    }
+    else
+    {
+      $script:psake.build_success = $false
+    }
     }
   } #Process
-  
-  End 
+
+  End
   {
-	# Clear out any global variables
-	Cleanup-Environment
-	[void]$script:context.Pop()
+  # Clear out any global variables
+  Cleanup-Environment
+  [void]$script:context.Pop()
   }
 }
 
