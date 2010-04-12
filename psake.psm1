@@ -171,7 +171,7 @@ function Configure-BuildEnvironment
     '2.0' { $versions = @('v2.0.50727') }
     '3.0' { $versions = @('v2.0.50727') }
     '3.5' { $versions = @('v3.5','v2.0.50727') }
-    '4.0' { $versions = @('v4.0.30128') }
+    '4.0' { $versions = @('v4.0.30319') }
     default { throw "Error: Unknown .NET Framework version, $versionPart, specified in $framework" }
   }
 
