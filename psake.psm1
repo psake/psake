@@ -31,6 +31,7 @@ $script:psake.build_success = $false        # indicates that the current build w
 $script:psake.version = "4.00"              # contains the current version of psake
 $script:psake.build_script_file = $null     # contains a System.IO.FileInfo for the current build file
 $script:psake.framework_version = ""        # contains the framework version # for the current build
+$script:psake.default_build_file_name = 'default.ps1'
 
 Export-ModuleMember -Variable "psake"
 
@@ -923,6 +924,17 @@ Invoke-psake '.\build.ps1' Tests,Package
 Runs the 'Tests' and 'Package' tasks in the '.build.ps1' build script
 
 .EXAMPLE
+Invoke-psake Tests
+
+If you have your Tasks in the .\default.ps1. This example will run the 'Tests' tasks in the 'default.ps1' build script.
+
+.EXAMPLE
+Invoke-psake 'Tests, Package'
+
+If you have your Tasks in the .\default.ps1. This example will run the 'Tests' and 'Package' tasks in the 'default.ps1' build script.
+NOTE: the quotes around the list of tasks to execute.
+
+.EXAMPLE
 Invoke-psake '.\build.ps1' -docs
 
 Prints a report of all the tasks and their descriptions and exits
@@ -1020,7 +1032,7 @@ Assert
 
   param(
     [Parameter(Position=0,Mandatory=0)]
-    [string]$buildFile = 'default.ps1',
+    [string]$buildFile = $script:psake.default_build_file_name,
     [Parameter(Position=1,Mandatory=0)]
     [string[]]$taskList = @(),
     [Parameter(Position=2,Mandatory=0)]
@@ -1063,6 +1075,22 @@ Assert
     try
     {
     $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+
+    <#
+      If the default.ps1 file exists and the given "buildfile" isn't found assume that the given 
+      $buildFile is actually the target Tasks to execute in the default.ps1 script.
+    #>
+    if((Test-Path $script:psake.default_build_file_name ) -and !(test-path $buildFile)) {
+      $list = New-Object System.Collections.ArrayList
+      foreach($t in $buildFile.Split(',')) {
+        $t1 = $t.Trim()
+        if($t1 -ne $null -or $t1 -ne "") {
+          $list.Add($t1)
+        }
+      }
+      $taskList = $list.ToArray()
+      $buildFile = $script:psake.default_build_file_name
+    }
 
     # Execute the build file to set up the tasks and defaults
     Assert (test-path $buildFile) "Error: Could not find the build file, $buildFile."
