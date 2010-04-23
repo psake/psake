@@ -10,5 +10,5 @@ try
 }
 finally
 {
-	remove-module psake
+	remove-module psake -ea "SilentlyContinue"
 }
