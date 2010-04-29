@@ -239,9 +239,10 @@ function Write-Documentation
       continue
     }
     $task = $script:context.Peek().tasks.$key
-    $content = "" | Select-Object Name, Description
+    $content = "" | Select-Object Name, Description, "Depends On"
     $content.Name = $task.Name
     $content.Description = $task.Description
+	$content."Depends On" = [System.String]::Join(", ", $task.DependsON)
     $index = $list.Add($content)
   }
 
