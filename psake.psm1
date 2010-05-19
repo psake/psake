@@ -44,9 +44,9 @@ function ExecuteTask
 
   $taskKey = $taskName.ToLower()
 
-    Assert ($script:context.Peek().tasks.Contains($taskKey)) "task [$taskName] does not exist"
+  Assert ($script:context.Peek().tasks.Contains($taskKey)) "task [$taskName] does not exist"
 
-    if ($script:context.Peek().executedTasks.Contains($taskKey))
+  if ($script:context.Peek().executedTasks.Contains($taskKey))
   {
     return
   }
@@ -305,20 +305,16 @@ FormatTaskName
 TaskSetup
 TaskTearDown
 #>
-[CmdletBinding(
-    SupportsShouldProcess=$False,
-    SupportsTransactions=$False,
-    ConfirmImpact="None",
-    DefaultParameterSetName="")]
+  [CmdletBinding()]
 
   param(
-      [Parameter(Position=0,Mandatory=1)][scriptblock]$cmd,
+    [Parameter(Position=0,Mandatory=1)][scriptblock]$cmd,
     [Parameter(Position=1,Mandatory=0)][string]$errorMessage = "Error executing command: " + $cmd
   )
      & $cmd
      if ($lastexitcode -ne 0)
      {
-          throw $errorMessage
+        throw $errorMessage
      }
 }
 
@@ -373,17 +369,16 @@ The solution is to wrap the condition in () so that PS will evaluate it first.
 
     Assert (1 -eq 2) "1 doesn't equal 2"
 #>
-[CmdletBinding(
-    SupportsShouldProcess=$False,
-    SupportsTransactions=$False,
-    ConfirmImpact="None",
-    DefaultParameterSetName="")]
+  [CmdletBinding()]
 
   param(
     [Parameter(Position=0,Mandatory=1)]$conditionToCheck,
     [Parameter(Position=1,Mandatory=1)]$failureMessage
   )
-  if (!$conditionToCheck) { throw $failureMessage }
+  if (!$conditionToCheck)
+  { 
+    throw $failureMessage 
+  }
 }
 
 function Task
@@ -494,11 +489,8 @@ TaskSetup
 TaskTearDown
 Assert
 #>
-[CmdletBinding(
-    SupportsShouldProcess=$False,
-    SupportsTransactions=$False,
-    ConfirmImpact="None",
-    DefaultParameterSetName="")]
+  [CmdletBinding()]
+  
   param(
     [Parameter(Position=0,Mandatory=1)]
     [string]$name = $null,
@@ -590,14 +582,10 @@ Assert
 .NOTES
 You can have more than 1 "Properties" function defined in the script
 #>
-[CmdletBinding(
-    SupportsShouldProcess=$False,
-    SupportsTransactions=$False,
-    ConfirmImpact="None",
-    DefaultParameterSetName="")]
+  [CmdletBinding()]
   param(
-  [Parameter(Position=0,Mandatory=1)]
-  [scriptblock]$properties
+    [Parameter(Position=0,Mandatory=1)]
+    [scriptblock]$properties
   )
   $script:context.Peek().properties += $properties
 }
@@ -646,14 +634,10 @@ Assert
 .NOTES
 You can have more than 1 "Include" function defined in the script
 #>
-[CmdletBinding(
-    SupportsShouldProcess=$False,
-    SupportsTransactions=$False,
-    ConfirmImpact="None",
-    DefaultParameterSetName="")]
+  [CmdletBinding()]
   param(
-  [Parameter(Position=0,Mandatory=1)]
-  [string]$fileNamePathToInclude
+    [Parameter(Position=0,Mandatory=1)]
+    [string]$fileNamePathToInclude
   )
   Assert (test-path $fileNamePathToInclude) "Error: Unable to include $fileNamePathToInclude. File not found."
   $script:context.Peek().includes.Enqueue((Resolve-Path $fileNamePathToInclude));
@@ -719,14 +703,10 @@ TaskSetup
 TaskTearDown
 Assert
 #>
-[CmdletBinding(
-    SupportsShouldProcess=$False,
-    SupportsTransactions=$False,
-    ConfirmImpact="None",
-    DefaultParameterSetName="")]
+  [CmdletBinding()]
   param(
-  [Parameter(Position=0,Mandatory=1)]
-  [string]$format
+    [Parameter(Position=0,Mandatory=1)]
+    [string]$format
   )
   $script:context.Peek().formatTaskNameString = $format
 }
@@ -794,14 +774,10 @@ FormatTaskName
 TaskTearDown
 Assert
 #>
-[CmdletBinding(
-    SupportsShouldProcess=$False,
-    SupportsTransactions=$False,
-    ConfirmImpact="None",
-    DefaultParameterSetName="")]
+  [CmdletBinding()]
   param(
-  [Parameter(Position=0,Mandatory=1)]
-  [scriptblock]$setup
+    [Parameter(Position=0,Mandatory=1)]
+    [scriptblock]$setup
   )
   $script:context.Peek().taskSetupScriptBlock = $setup
 }
@@ -869,14 +845,10 @@ FormatTaskName
 TaskSetup
 Assert
 #>
-[CmdletBinding(
-    SupportsShouldProcess=$False,
-    SupportsTransactions=$False,
-    ConfirmImpact="None",
-    DefaultParameterSetName="")]
+  [CmdletBinding()]
   param(
-  [Parameter(Position=0,Mandatory=1)]
-  [scriptblock]$teardown)
+    [Parameter(Position=0,Mandatory=1)]
+    [scriptblock]$teardown)
   $script:context.Peek().taskTearDownScriptBlock = $teardown
 }
 
@@ -1025,12 +997,7 @@ TaskSetup
 TaskTearDown
 Assert
 #>
-[CmdletBinding(
-    SupportsShouldProcess=$False,
-    SupportsTransactions=$False,
-    ConfirmImpact="None",
-    DefaultParameterSetName="")]
-
+  [CmdletBinding()]
   param(
     [Parameter(Position=0,Mandatory=0)]
     [string]$buildFile = $script:psake.default_build_file_name,
@@ -1075,127 +1042,127 @@ Assert
   {
     try
     {
-    $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+      $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 
-    <#
-      If the default.ps1 file exists and the given "buildfile" isn't found assume that the given 
-      $buildFile is actually the target Tasks to execute in the default.ps1 script.
-    #>
-    if((Test-Path $script:psake.default_build_file_name ) -and !(test-path $buildFile)) {     
-	  $taskList = $buildFile.Split(',')
-	  $buildFile = $script:psake.default_build_file_name
-    }
+      <#
+        If the default.ps1 file exists and the given "buildfile" isn't found assume that the given 
+        $buildFile is actually the target Tasks to execute in the default.ps1 script.
+      #>
+      if((Test-Path $script:psake.default_build_file_name ) -and !(test-path $buildFile)) {     
+        $taskList = $buildFile.Split(',')
+        $buildFile = $script:psake.default_build_file_name
+      }
 
-    # Execute the build file to set up the tasks and defaults
-    Assert (test-path $buildFile) "Error: Could not find the build file, $buildFile."
+      # Execute the build file to set up the tasks and defaults
+      Assert (test-path $buildFile) "Error: Could not find the build file, $buildFile."
 
-    $script:psake.build_script_file = dir $buildFile
-    set-location $script:psake.build_script_file.Directory
-    . $script:psake.build_script_file.FullName
+      $script:psake.build_script_file = dir $buildFile
+      set-location $script:psake.build_script_file.Directory
+      . $script:psake.build_script_file.FullName
 
-    if ($docs)
-    {
-    Write-Documentation
-    Cleanup-Environment
-    return
-    }
-
-    Configure-BuildEnvironment
-
-    # N.B. The initial dot (.) indicates that variables initialized/modified
-    #      in the propertyBlock are available in the parent scope.
-    while ($script:context.Peek().includes.Count -gt 0)
-    {
-      $includeBlock = $script:context.Peek().includes.Dequeue()
-      . $includeBlock
-    }
-
-    foreach($key in $parameters.keys)
-    {
-      if (test-path "variable:\$key")
+      if ($docs)
       {
-        set-item -path "variable:\$key" -value $parameters.$key | out-null
+        Write-Documentation
+        Cleanup-Environment
+        return
+      }
+
+      Configure-BuildEnvironment
+
+      # N.B. The initial dot (.) indicates that variables initialized/modified
+      #      in the propertyBlock are available in the parent scope.
+      while ($script:context.Peek().includes.Count -gt 0)
+      {
+        $includeBlock = $script:context.Peek().includes.Dequeue()
+        . $includeBlock
+      }
+
+      foreach($key in $parameters.keys)
+      {
+        if (test-path "variable:\$key")
+        {
+          set-item -path "variable:\$key" -value $parameters.$key | out-null
+        }
+        else
+        {
+          new-item -path "variable:\$key" -value $parameters.$key | out-null
+        }
+      }
+
+      foreach($propertyBlock in $script:context.Peek().properties)
+      {
+        . $propertyBlock
+      }
+
+      foreach($key in $properties.keys)
+      {
+        if (test-path "variable:\$key")
+        {
+          set-item -path "variable:\$key" -value $properties.$key | out-null
+        }
+      }
+
+      # Execute the list of tasks or the default task
+      if($taskList.Length -ne 0)
+      {
+        foreach($task in $taskList)
+        {
+          ExecuteTask $task
+        }
+      }
+      elseif ($script:context.Peek().tasks.default -ne $null)
+      {
+        ExecuteTask default
       }
       else
       {
-        new-item -path "variable:\$key" -value $parameters.$key | out-null
+        throw 'Error: default task required'
       }
-    }
 
-    foreach($propertyBlock in $script:context.Peek().properties)
-    {
-      . $propertyBlock
-    }
+      $stopwatch.Stop()
 
-    foreach($key in $properties.keys)
-    {
-      if (test-path "variable:\$key")
-      {
-        set-item -path "variable:\$key" -value $properties.$key | out-null
-      }
-    }
+      "`nBuild Succeeded!`n"
 
-    # Execute the list of tasks or the default task
-    if($taskList.Length -ne 0)
-    {
-      foreach($task in $taskList)
-      {
-        ExecuteTask $task
-      }
-    }
-    elseif ($script:context.Peek().tasks.default -ne $null)
-    {
-      ExecuteTask default
-    }
-    else
-    {
-      throw 'Error: default task required'
-    }
+      Write-TaskTimeSummary
 
-    $stopwatch.Stop()
-
-    "`nBuild Succeeded!`n"
-
-    Write-TaskTimeSummary
-
-    $script:psake.build_success = $true
+      $script:psake.build_success = $true
     }
     catch
     {
-    #Append detailed exception and script variables to error log file
-    if ($script:psake.log_error)
-    {
-      $errorLogFile = "psake-error-log-{0}.log" -f ([DateTime]::Now.ToString("yyyyMMdd"))
-      "-" * 70 >> $errorLogFile
-      "{0}: An Error Occurred. See Error Details Below: " -f [DateTime]::Now >>$errorLogFile
-      "-" * 70 >> $errorLogFile
-      Resolve-Error $_ >> $errorLogFile
-      "-" * 70 >> $errorLogFile
-      "Script Variables" >> $errorLogFile
-      "-" * 70 >> $errorLogFile
-      Get-Variable -scope script >> $errorLogFile
-    }
+      #Append detailed exception and script variables to error log file
+      if ($script:psake.log_error)
+      {
+        $errorLogFile = "psake-error-log-{0}.log" -f ([DateTime]::Now.ToString("yyyyMMdd"))
+        "-" * 70 >> $errorLogFile
+        "{0}: An Error Occurred. See Error Details Below: " -f [DateTime]::Now >>$errorLogFile
+        "-" * 70 >> $errorLogFile
+        Resolve-Error $_ >> $errorLogFile
+        "-" * 70 >> $errorLogFile
+        "Script Variables" >> $errorLogFile
+        "-" * 70 >> $errorLogFile
+        Get-Variable -scope script >> $errorLogFile
+      }
 
-    $buildFileName = Split-Path $buildFile -leaf
-    if (test-path $buildFile) { $buildFileName = $script:psake.build_script_file.Name }
-    Write-Host -foregroundcolor Red ($buildFileName + ":" + $_)
+      $buildFileName = Split-Path $buildFile -leaf
+      if (test-path $buildFile) { $buildFileName = $script:psake.build_script_file.Name }
+      Write-Host -foregroundcolor Red ($buildFileName + ":" + $_)
 
-    if ($script:psake.use_exit_on_error)
-    {
-      exit(1)
-    }
-    else
-    {
-      $script:psake.build_success = $false
-    }
+      if ($script:psake.use_exit_on_error)
+      {
+        exit(1)
+      }
+      else
+      {
+        $script:psake.build_success = $false
+      }
     }
   } #Process
 
   End
   {
-  # Clear out any global variables
-  Cleanup-Environment
-  [void]$script:context.Pop()
+    # Clear out any global variables
+    Cleanup-Environment
+    [void]$script:context.Pop()
   }
 }
 
