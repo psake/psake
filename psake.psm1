@@ -242,7 +242,7 @@ function Write-Documentation
     $content = "" | Select-Object Name, Description, "Depends On"
     $content.Name = $task.Name
     $content.Description = $task.Description
-	$content."Depends On" = [System.String]::Join(", ", $task.DependsON)
+    $content."Depends On" = [System.String]::Join(", ", $task.DependsOn)
     $index = $list.Add($content)
   }
 
