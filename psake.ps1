@@ -19,7 +19,10 @@ param(
   [System.Collections.Hashtable]$properties = @{}
 )
 
-$scriptPath = Split-Path -parent $MyInvocation.InvocationName;
-import-module (join-path $scriptPath psake.psm1)
-invoke-psake $buildFile $taskList $framework $docs $parameters $properties
-remove-module psake -ea "SilentlyContinue"
+try {
+  $scriptPath = Split-Path -parent $MyInvocation.InvocationName;
+  import-module (join-path $scriptPath psake.psm1)
+  invoke-psake $buildFile $taskList $framework $docs $parameters $properties
+} finally {
+  remove-module psake -ea 'SilentlyContinue'
+}
