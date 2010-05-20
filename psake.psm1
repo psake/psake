@@ -59,7 +59,7 @@ function ExecuteTask
 
   $taskName = $task.Name
 
-  $precondition_is_valid = if ($task.Precondition -ne $null) {& $task.Precondition} else {$true}
+  $precondition_is_valid = if ($task.Precondition) {& $task.Precondition} else {$true}
 
   if (!$precondition_is_valid)
   {
@@ -71,12 +71,12 @@ function ExecuteTask
     {
       $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 
-      if ( ($task.PreAction -ne $null) -or ($task.PostAction -ne $null) )
+      if ($task.PreAction -or $task.PostAction)
       {
-        Assert ($task.Action -ne $null) "Error: Action parameter must be specified when using PreAction or PostAction parameters"
+        Assert $task.Action "Error: Action parameter must be specified when using PreAction or PostAction parameters"
       }
 
-      if ($task.Action -ne $null)
+      if ($task.Action)
       {
         try
         {
@@ -87,12 +87,12 @@ function ExecuteTask
 
           $script:context.Peek().currentTaskName = $taskName
 
-          if ($script:context.Peek().taskSetupScriptBlock -ne $null)
+          if ($script:context.Peek().taskSetupScriptBlock)
           {
             & $script:context.Peek().taskSetupScriptBlock
           }
 
-          if ($task.PreAction -ne $null)
+          if ($task.PreAction)
           {
             & $task.PreAction
           }
@@ -100,12 +100,12 @@ function ExecuteTask
           $script:context.Peek().formatTaskNameString -f $taskName
           & $task.Action
 
-          if ($task.PostAction -ne $null)
+          if ($task.PostAction)
           {
             & $task.PostAction
           }
 
-          if ($script:context.Peek().taskTearDownScriptBlock -ne $null)
+          if ($script:context.Peek().taskTearDownScriptBlock)
           {
             & $script:context.Peek().taskTearDownScriptBlock
           }
@@ -143,7 +143,7 @@ function ExecuteTask
       }
     }
 
-    if ($task.Postcondition -ne $null)
+    if ($task.Postcondition)
     {
       Assert (& $task.Postcondition) "Error: Postcondition failed for $taskName"
     }
@@ -514,7 +514,7 @@ Assert
 
   if ($name.ToLower() -eq 'default')
   {
-    Assert ($action -eq $null) "Error: 'default' task cannot specify an action"
+    Assert (!$action) "Error: 'default' task cannot specify an action"
   }
 
   $newTask = @{
@@ -1018,7 +1018,7 @@ Assert
     $script:psake.build_success = $false
     $script:psake.framework_version = $framework
 
-    if ($script:context -eq $null)
+    if (!$script:context)
     {
       $script:context = New-Object System.Collections.Stack
     }
@@ -1110,7 +1110,7 @@ Assert
           ExecuteTask $task
         }
       }
-      elseif ($script:context.Peek().tasks.default -ne $null)
+      elseif ($script:context.Peek().tasks.default)
       {
         ExecuteTask default
       }
