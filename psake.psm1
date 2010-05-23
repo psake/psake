@@ -40,7 +40,7 @@ function ExecuteTask
 {
   param([string]$taskName)
 
-  Assert (![string]::IsNullOrEmpty($taskName)) "Task name should not be null or empty string"
+  Assert (!$taskName) "Task name should not be null or empty string"
 
   $taskKey = $taskName.ToLower()
 
@@ -197,7 +197,7 @@ function Configure-BuildEnvironment
 
   $frameworkDirs | foreach { Assert (test-path $_) "Error: No .NET Framework installation directory found at $_" }
 
-  $env:path = [string]::Join(';', $frameworkDirs) + ";$env:path"
+  $env:path = ($frameworkDirs -join ";") + ";$env:path"
   #if any error occurs in a PS function then "stop" processing immediately
   # this does not effect any external programs that return a non-zero exit code
   $global:ErrorActionPreference = "Stop"
@@ -242,7 +242,7 @@ function Write-Documentation
     $content = "" | Select-Object Name, Description, "Depends On"
     $content.Name = $task.Name
     $content.Description = $task.Description
-    $content."Depends On" = [System.String]::Join(", ", $task.DependsOn)
+    $content."Depends On" = $task.DependsOn -join ", "
     $index = $list.Add($content)
   }
 
@@ -512,7 +512,7 @@ Assert
     [string]$description = $null
     )
 
-  if ($name.ToLower() -eq 'default')
+  if ($name -eq 'default')
   {
     Assert (!$action) "Error: 'default' task cannot specify an action"
   }
@@ -1008,9 +1008,9 @@ Assert
     [Parameter(Position=3,Mandatory=0)]
     [switch]$docs = $false,
     [Parameter(Position=4,Mandatory=0)]
-    [System.Collections.Hashtable]$parameters = @{},
+    [hashtable]$parameters = @{},
     [Parameter(Position=5, Mandatory=0)]
-    [System.Collections.Hashtable]$properties = @{}
+    [hashtable]$properties = @{}
   )
 
   Begin
@@ -1056,7 +1056,7 @@ Assert
       # Execute the build file to set up the tasks and defaults
       Assert (test-path $buildFile) "Error: Could not find the build file, $buildFile."
 
-      $script:psake.build_script_file = dir $buildFile
+      $script:psake.build_script_file = Get-Item $buildFile
       set-location $script:psake.build_script_file.Directory
       . $script:psake.build_script_file.FullName
 
@@ -1103,7 +1103,7 @@ Assert
       }
 
       # Execute the list of tasks or the default task
-      if($taskList.Length -ne 0)
+      if($taskList)
       {
         foreach($task in $taskList)
         {
@@ -1132,9 +1132,9 @@ Assert
       #Append detailed exception and script variables to error log file
       if ($script:psake.log_error)
       {
-        $errorLogFile = "psake-error-log-{0}.log" -f ([DateTime]::Now.ToString("yyyyMMdd"))
+        $errorLogFile = "psake-error-log-{0}.log" -f (Get-Date -f "yyyyMMdd")
         "-" * 70 >> $errorLogFile
-        "{0}: An Error Occurred. See Error Details Below: " -f [DateTime]::Now >>$errorLogFile
+        "{0}: An Error Occurred. See Error Details Below: " -f (Get-Date) >>$errorLogFile
         "-" * 70 >> $errorLogFile
         Resolve-Error $_ >> $errorLogFile
         "-" * 70 >> $errorLogFile
@@ -1166,4 +1166,4 @@ Assert
   }
 }
 
-Export-ModuleMember -Function "Invoke-psake","Task","Properties","Include","FormatTaskName","TaskSetup","TaskTearDown","Assert","Exec"
+Export-ModuleMember -Function Invoke-psake, Task, Properties, Include, FormatTaskName, TaskSetup, TaskTearDown, Assert, Exec
