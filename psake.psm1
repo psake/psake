@@ -40,7 +40,7 @@ function ExecuteTask
 {
   param([string]$taskName)
 
-  Assert (!$taskName) "Task name should not be null or empty string"
+  Assert $taskName "Task name should not be null or empty string"
 
   $taskKey = $taskName.ToLower()
 
@@ -59,7 +59,7 @@ function ExecuteTask
 
   $taskName = $task.Name
 
-  $precondition_is_valid = if ($task.Precondition) {& $task.Precondition} else {$true}
+  $precondition_is_valid = & $task.Precondition
 
   if (!$precondition_is_valid)
   {
@@ -87,10 +87,7 @@ function ExecuteTask
 
           $script:context.Peek().currentTaskName = $taskName
 
-          if ($script:context.Peek().taskSetupScriptBlock)
-          {
-            & $script:context.Peek().taskSetupScriptBlock
-          }
+          & $script:context.Peek().taskSetupScriptBlock
 
           if ($task.PreAction)
           {
@@ -105,10 +102,7 @@ function ExecuteTask
             & $task.PostAction
           }
 
-          if ($script:context.Peek().taskTearDownScriptBlock)
-          {
-            & $script:context.Peek().taskTearDownScriptBlock
-          }
+          & $script:context.Peek().taskTearDownScriptBlock
         }
         catch
         {
@@ -143,10 +137,7 @@ function ExecuteTask
       }
     }
 
-    if ($task.Postcondition)
-    {
-      Assert (& $task.Postcondition) "Error: Postcondition failed for $taskName"
-    }
+    Assert (& $task.Postcondition) "Error: Postcondition failed for $taskName"
   }
 
   $poppedTaskKey = $script:context.Peek().callStack.Pop()
@@ -501,9 +492,9 @@ Assert
     [Parameter(Position=3,Mandatory=0)]
     [scriptblock]$postaction = $null,
     [Parameter(Position=4,Mandatory=0)]
-    [scriptblock]$precondition = $null,
+    [scriptblock]$precondition = {$true},
     [Parameter(Position=5,Mandatory=0)]
-    [scriptblock]$postcondition = $null,
+    [scriptblock]$postcondition = {$true},
     [Parameter(Position=6,Mandatory=0)]
     [switch]$continueOnError = $false,
     [Parameter(Position=7,Mandatory=0)]
@@ -1025,8 +1016,8 @@ Assert
 
     $script:context.push(@{
                            "formatTaskNameString" = "Executing task: {0}";
-                           "taskSetupScriptBlock" = $null;
-                           "taskTearDownScriptBlock" = $null;
+                           "taskSetupScriptBlock" = {};
+                           "taskTearDownScriptBlock" = {};
                            "executedTasks" = New-Object System.Collections.Stack;
                            "callStack" = New-Object System.Collections.Stack;
                            "originalEnvPath" = $env:path;
