@@ -44,20 +44,22 @@ function ExecuteTask
 
   $taskKey = $taskName.ToLower()
 
-  Assert ($script:context.Peek().tasks.Contains($taskKey)) "task [$taskName] does not exist"
+  $tasks     = $script:context.Peek().tasks
+  $execTasks = $script:context.Peek().executedTasks
+  $callStack = $script:context.Peek().callStack
+  $currContext = $script:context.Peek()
+  
+  Assert ($tasks.Contains($taskKey)) "task [$taskName] does not exist"
 
-  if ($script:context.Peek().executedTasks.Contains($taskKey))
+  if ($execTasks.Contains($taskKey))
   {
     return
   }
 
-  Assert (!$script:context.Peek().callStack.Contains($taskKey)) "Error: Circular reference found for task, $taskName"
+  Assert (!$callStack.Contains($taskKey)) "Error: Circular reference found for task, $taskName"
+  $callStack.Push($taskKey)
 
-  $script:context.Peek().callStack.Push($taskKey)
-
-  $task = $script:context.Peek().tasks.$taskKey
-
-  $taskName = $task.Name
+  $task = $tasks.$taskKey
 
   $precondition_is_valid = & $task.Precondition
 
@@ -85,16 +87,16 @@ function ExecuteTask
             ExecuteTask $childTask
           }
 
-          $script:context.Peek().currentTaskName = $taskName
+          $currContext.currentTaskName = $taskName
 
-          & $script:context.Peek().taskSetupScriptBlock
+          & $currContext.taskSetupScriptBlock
 
           if ($task.PreAction)
           {
             & $task.PreAction
           }
 
-          $script:context.Peek().formatTaskNameString -f $taskName
+          $currContext.formatTaskNameString -f $taskName
           & $task.Action
 
           if ($task.PostAction)
@@ -102,7 +104,7 @@ function ExecuteTask
             & $task.PostAction
           }
 
-          & $script:context.Peek().taskTearDownScriptBlock
+          & $currContext.taskTearDownScriptBlock
         }
         catch
         {
@@ -140,11 +142,10 @@ function ExecuteTask
     Assert (& $task.Postcondition) "Error: Postcondition failed for $taskName"
   }
 
-  $poppedTaskKey = $script:context.Peek().callStack.Pop()
-
+  $poppedTaskKey = $callStack.Pop()
   Assert ($poppedTaskKey -eq $taskKey) "Error: CallStack was corrupt. Expected $taskKey, but got $poppedTaskKey."
 
-  $script:context.Peek().executedTasks.Push($taskKey)
+  $execTasks.Push($taskKey)
 }
 
 function Configure-BuildEnvironment
@@ -222,23 +223,19 @@ function Resolve-Error($ErrorRecord=$Error[0])
 
 function Write-Documentation
 {
-  $list = New-Object System.Collections.ArrayList
-  foreach($key in $script:context.Peek().tasks.Keys)
-  {
-    if($key -eq "default")
-    {
-      continue
+  $script:context.Peek().tasks.Keys | 
+  ForEach-Object { 
+    if($_ -eq "default") { return }
+  
+    $task = $script:context.Peek().tasks.$_
+    new-object PsObject -property @{
+        Name         = $task.Name
+        Description  = $task.Description
+        "Depends On" = $task.DependsOn -join ", "
     }
-    $task = $script:context.Peek().tasks.$key
-    $content = new-object PsObject -property @{
-      Name         = $task.Name
-      Description  = $task.Description
-      "Depends On" = $task.DependsOn -join ", "
-    }
-    $index = $list.Add($content)
-  }
-
-  $list | Sort 'Name' | Format-Table -Auto
+  } |
+  Sort 'Name' | 
+  Format-Table -Auto
 }
 
 function Write-TaskTimeSummary
@@ -247,10 +244,11 @@ function Write-TaskTimeSummary
   "Build Time Report"
   "-"*70
   $list = @()
-  while ($script:context.Peek().executedTasks.Count -gt 0)
+  $contxt = $script:context.Peek()
+  while ($contxt.executedTasks.Count -gt 0)
   {
-    $taskKey = $script:context.Peek().executedTasks.Pop()
-    $task = $script:context.Peek().tasks.$taskKey
+    $taskKey = $contxt.executedTasks.Pop()
+    $task = $contxt.tasks.$taskKey
     if($taskKey -eq "default")
     {
       continue
@@ -1061,11 +1059,12 @@ Assert
 
       Configure-BuildEnvironment
 
+      $contxt = $script:context.Peek()
       # N.B. The initial dot (.) indicates that variables initialized/modified
       #      in the propertyBlock are available in the parent scope.
-      while ($script:context.Peek().includes.Count -gt 0)
+      while ($contxt.includes.Count -gt 0)
       {
-        $includeBlock = $script:context.Peek().includes.Dequeue()
+        $includeBlock = $contxt.includes.Dequeue()
         . $includeBlock
       }
 
@@ -1081,7 +1080,7 @@ Assert
         }
       }
 
-      foreach($propertyBlock in $script:context.Peek().properties)
+      foreach($propertyBlock in $contxt.properties)
       {
         . $propertyBlock
       }
@@ -1102,7 +1101,7 @@ Assert
           ExecuteTask $task
         }
       }
-      elseif ($script:context.Peek().tasks.default)
+      elseif ($contxt.tasks.default)
       {
         ExecuteTask default
       }
