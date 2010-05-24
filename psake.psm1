@@ -230,10 +230,11 @@ function Write-Documentation
       continue
     }
     $task = $script:context.Peek().tasks.$key
-    $content = "" | Select-Object Name, Description, "Depends On"
-    $content.Name = $task.Name
-    $content.Description = $task.Description
-    $content."Depends On" = $task.DependsOn -join ", "
+    $content = new-object PsObject -property @{
+      Name         = $task.Name
+      Description  = $task.Description
+      "Depends On" = $task.DependsOn -join ", "
+    }
     $index = $list.Add($content)
   }
 
@@ -254,10 +255,10 @@ function Write-TaskTimeSummary
     {
       continue
     }
-    $list += "" | Select-Object @{Name="Name";Expression={$task.Name}}, @{Name="Duration";Expression={$task.Duration}}
+    $list += New-Object PsObject -property @{Name=$task.Name; Duration = $task.Duration}
   }
   [Array]::Reverse($list)
-  $list += "" | Select-Object @{Name="Name";Expression={"Total:"}}, @{Name="Duration";Expression={$stopwatch.Elapsed}}
+  $list += New-Object PsObject -property @{Name="Total:"; Duration=$stopwatch.Elapsed}
   $list | Format-Table -Auto | Out-String -Stream | ? {$_}  # using "Out-String -Stream" to filter out the blank line that Format-Table prepends
 }
 
