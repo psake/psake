@@ -13,7 +13,7 @@ function runBuilds{
     $testResult = "" | select Name, Result
     $testResult.Name = $buildFile.Name
 
-    Invoke-psake $buildFile.FullName -Parameters @{'p1'='v1'; 'p2'='v2'} -Properties @{'x'='1'; 'y'='2'} | Out-Null			
+    invoke-psake $buildFile.FullName -Parameters @{'p1'='v1'; 'p2'='v2'} -Properties @{'x'='1'; 'y'='2'} | Out-Null			
     $testResult.Result = (getResult $buildFile.Name $psake.build_success)
     $testResults += $testResult
   }
@@ -37,13 +37,11 @@ function getResult([string]$fileName, [bool]$buildSucceeded) {
   }
 }
 
-Remove-Module psake -ea SilentlyContinue
-
-Import-Module .\psake.psm1
-
+remove-module psake -ea SilentlyContinue
+import-module .\psake.psm1
+$psake.suppress_error_messages = $true
 $results = runBuilds
-
-Remove-Module psake
+remove-module psake
 
 ""
 $results | Sort 'Name' | % { if ($_.Result -eq "Passed") { write-host ($_.Name + " (Passed)") -ForeGroundColor 'GREEN'} else { write-host ($_.Name + " (Failed)") -ForeGroundColor 'RED'}} 
