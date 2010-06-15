@@ -14,3 +14,8 @@ How to get started.
    - This will execute the "default" task in the "default.ps1"
 > Invoke-psake .\default.ps1 Clean
    - will execute the single task in the default.ps1 script
+
+
+- If you encounter the following error "Import-Module : ...psake.psm1 cannot be loaded because the execution of scripts is disabled on this system. Please see "get-help about_signing" for more details.
+> Run power shell as administrator
+> Set-ExecutionPolicy RemoteSigned
