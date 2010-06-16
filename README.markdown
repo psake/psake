@@ -1,4 +1,4 @@
-﻿# Welcome to psake on GitHub.
+﻿## Welcome to psake on GitHub.
 
 *psake* is a build automation tool written in PowerShell. It avoids the angle-bracket tax associated with executable XML by leveraging the PowerShell syntax in your build scripts. 
 
@@ -33,6 +33,7 @@ Anyone can fork the main repository and submit patches, as well. And lastly, the
 ## Contributors
 
 Many thanks for contributions to psake are due (in alphabetical order):
+
 * candland
 * ElegantCode
 * lanwin
