@@ -18,8 +18,8 @@ Just right-click the zip and click on "properties" and click on the "unblock" bu
 > Import-Module .\psake.psm1
 
 If you encounter the following error "Import-Module : ...psake.psm1 cannot be loaded because the execution of scripts is disabled on this system. Please see "get-help about_signing" for more details.
-Run PowerShell as administrator
-> Set-ExecutionPolicy RemoteSigned
+1. Run PowerShell as administrator
+2. Set-ExecutionPolicy RemoteSigned
 
 > Get-Help Invoke-psake -Full   
 > - this will show you help and examples of how to use psake
