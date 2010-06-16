@@ -1,4 +1,5 @@
-﻿# Welcome to the psake project.
+﻿Welcome to the psake project.
+=============================
 
 psake is a build automation tool written in PowerShell. It avoids the angle-bracket tax associated with executable XML by leveraging the PowerShell syntax in your build scripts. 
 
