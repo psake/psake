@@ -17,18 +17,22 @@ Just right-click the zip and click on "properties" and click on the "unblock" bu
 
 > Import-Module .\psake.psm1
 >
-> Get-Help Invoke-psake -Full   #this will show you help and examples of how to use psake
+> Get-Help Invoke-psake -Full   
+>	- this will show you help and examples of how to use psake
 	
 **Step 3:** Run some examples
 
 > CD .\examples
 >
-> Invoke-psake    					# This will execute the "default" task in the "default.ps1"
+> Invoke-psake    					
+>	- This will execute the "default" task in the "default.ps1"
 >
-> Invoke-psake .\default.ps1 Clean  # will execute the single task in the default.ps1 script
+> Invoke-psake .\default.ps1 Clean  
+>	- will execute the single task in the default.ps1 script
 
 If you encounter the following error "Import-Module : ...psake.psm1 cannot be loaded because the execution of scripts is disabled on this system. Please see "get-help about_signing" for more details.
 Run PowerShell as administrator
+
 > Set-ExecutionPolicy RemoteSigned
 
 ## How To Contribute, Collaborate, Communicate
