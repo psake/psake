@@ -37,14 +37,21 @@ function runBuilds()
 	$buildFiles += $non_existant_buildfile
 
 	foreach($buildFile in $buildFiles) 
-	{
-		write-host "." -ForeGroundColor GREEN -NoNewLine
+	{		
 		$testResult = "" | select Name, Result
 		$testResult.Name = $buildFile.Name
 
 		invoke-psake $buildFile.FullName -Parameters @{'p1'='v1'; 'p2'='v2'} -Properties @{'x'='1'; 'y'='2'} | Out-Null			
 		$testResult.Result = (getResult $buildFile.Name $psake.build_success)
 		$testResults += $testResult
+		if ($testResult.Result -eq "Passed")
+		{
+			write-host "." -ForeGroundColor GREEN -NoNewLine
+		}
+		else
+		{
+			write-host "F" -ForeGroundColor RED -NoNewLine
+		}
 	}
 
   return $testResults

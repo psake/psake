@@ -25,7 +25,5 @@ task Verify -description "This task verifies psake's variables" {
   Assert ($psake.build_script_file.Name -eq "writing_psake_variables_should_pass.ps1") ("psake variable: {0} was not equal to 'writing_psake_variables_should_pass.ps1'" -f $psake.build_script_file.Name)
   Assert (![string]::IsNullOrEmpty($psake.framework_version)) 'psake variable: $psake.framework_version was null or empty'
 
-  #Verify script-level variables
-  $context.Count
-  Assert ($context.Count -eq 1) 'psake variable: $context should have had a length of one (1) during script execution'
+  Assert ($psake.context.Count -eq 1) '$psake.context should have had a length of one (1) during script execution'
 }
