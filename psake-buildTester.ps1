@@ -3,7 +3,7 @@ function Main()
 	write-host "Running psake build tests" -ForeGroundColor GREEN
 	remove-module psake -ea SilentlyContinue
 	import-module .\psake.psm1
-	$psake.suppress_error_messages = $true
+	$psake.run_by_psake_build_tester = $true
 	$results = runBuilds
 	remove-module psake
 

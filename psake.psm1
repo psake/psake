@@ -22,14 +22,14 @@
 
 #The $psake hashtable variable is initialized in the invoke-psake function
 $script:psake = @{}
-$psake.use_exit_on_error = $false    # determines if psake uses the "exit()" function when an exception occurs
-$psake.build_success = $false        # indicates that the current build was successful
-$psake.version = "4.00"              # contains the current version of psake
-$psake.build_script_file = $null     # contains a System.IO.FileInfo for the current build file
-$psake.framework_version = ""        # contains the framework version # for the current build
-$psake.default_build_file_name = 'default.ps1'
-$psake.suppress_error_messages = $false
-$psake.context = new-object system.collections.stack
+$psake.build_success = $false        			# indicates that the current build was successful
+$psake.version = "4.00"              			# contains the current version of psake
+$psake.build_script_file = $null     			# contains a System.IO.FileInfo for the current build file
+$psake.build_script_dir = ""  				   	# contains a string with fully-qualified path to current build script
+$psake.framework_version = ""        			# contains the framework version # for the current build
+$psake.default_build_file_name = 'default.ps1'	# default build script file name
+$psake.run_by_psake_build_tester = $false		# indicates that build is being run by psake-BuildTester
+$psake.context = new-object system.collections.stack # holds onto the current state of all variables
 
 DATA msgs
 {
@@ -61,6 +61,46 @@ convertfrom-stringdata @'
 import-localizeddata -bindingvariable msgs -erroraction silentlycontinue
 
 #-- Private Module Functions
+function IsChildOfService
+{
+    param
+    (                             
+    [int]$currentProcessID = $PID
+    ) 
+
+    $currentProcess = gwmi -Query "select * from win32_process where processid = '$currentProcessID'"
+
+    if ($currentProcess.ProcessID -eq 0)  #System Idle Process
+    {
+       return $false
+    }
+	
+	$service = Get-WmiObject -Class Win32_Service -Filter "ProcessId = '$currentProcessID'"
+
+	if ($service) # We are invoked by a windows service
+	{
+		return $true
+	}
+	else
+	{	
+		$parentProcess = gwmi -Query "select * from win32_process where processid = '$($currentProcess.ParentProcessID)'"
+		return IsChildOfService $parentProcess.ProcessID
+	}
+}
+
+function InNestedScope
+{
+	try
+	{
+		$vars = get-variable -scope 1
+		return $true
+	}
+	catch 
+	{
+		return $false
+	}
+}
+
 function Configure-BuildEnvironment
 {
   if ($framework.Length -ne 3 -and $framework.Length -ne 6) {    
@@ -971,7 +1011,7 @@ Invoke-psake .\properties.ps1 -properties @{"x"="1";"y"="2"}
 Runs the build script called 'properties.ps1' and passes in parameters 'x' and 'y' with values '1' and '2'
 
 .OUTPUTS
-    If there is an exception and '$psake.use_exit_on_error' -eq $true
+  If there is an exception and the build script was invoked by a windows service (directly/indirectly)
   then runs exit(1) to set the DOS lastexitcode variable
   otherwise set the '$psake.build_success variable' to $true or $false depending
   on whether an exception was thrown
@@ -980,13 +1020,11 @@ Runs the build script called 'properties.ps1' and passes in parameters 'x' and '
 When the psake module is loaded a variabled called $psake is created it is a hashtable
 containing some variables that can be used to configure psake:
 
-$psake.use_exit_on_error = $false   # determines if psake uses the "exit()" function when an exception occurs
 $psake.build_success = $false       # indicates that the current build was successful
 $psake.version = "4.00"             # contains the current version of psake
 $psake.build_script_file = $null    # contains a System.IO.FileInfo for the current build file
+$psake.build_script_dir				# contains the fully qualified path to the current build file
 $psake.framework_version = ""       # contains the framework version # for the current build
-
-$psake.use_exit_on_error is a boolean variable that can be set before you call Invoke-Psake.
 
 You should see the following when you display the contents of the $psake variable right after importing psake
 
@@ -997,11 +1035,11 @@ Name                           Value
 ----                           -----
 version                        4.00
 build_script_file
-use_exit_on_error              False
+build_script_dir
 build_success                  False
 framework_version
 
-After a build is executed the following $psake values are updated (build_script_file, build_success, and framework_version)
+After a build is executed the following $psake values are updated (build_script_file, build_script_dir, build_success, and framework_version)
 
 PS projects:\psake> Invoke-psake .\examples\default.ps1
 Executing task: Clean
@@ -1029,7 +1067,7 @@ Name                           Value
 ----                           -----
 version                        4.00
 build_script_file              C:\Users\Jorge\Documents\Projects\psake\examples\default.ps1
-use_exit_on_error              False
+build_script_dir			   C:\Users\Jorge\Documents\Projects\psake\examples	
 build_success                  True
 framework_version              3.5
 
@@ -1100,7 +1138,8 @@ Assert
 		Assert (test-path $buildFile) ($msgs.error_build_file_not_found -f $buildFile)
 
 		$psake.build_script_file = Get-Item $buildFile
-		set-location $psake.build_script_file.Directory
+		$psake.build_script_dir = $psake.build_script_file.DirectoryName
+		set-location $psake.build_script_dir
 		. $psake.build_script_file.FullName
 
 		if ($docs)
@@ -1181,18 +1220,25 @@ Assert
 		$error_message += ("-" * 70) + "`n"
 		$error_message += get-variable -scope script | format-table | out-string 
 		
-		if (!$psake.suppress_error_messages)
+		#if psake is run by psake-BuildTester then suppress error messages
+		if (!$psake.run_by_psake_build_tester)
 		{
 			write-host $error_message -foregroundcolor red
 		}
-	
-		if ($psake.use_exit_on_error)
+		
+		if ( (IsChildOfService) )
 		{
 			exit(1)
 		}
 		else
 		{
 			$psake.build_success = $false
+		}
+		
+		#if we are running in a nested scope then we need to re-throw the exception, unless the current script is run by psake-BuildTester 
+		if ( (InNestedScope) -and (!$psake.run_by_psake_build_tester) )
+		{
+			throw $_
 		}
     }
 	finally
