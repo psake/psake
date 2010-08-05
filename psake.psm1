@@ -1117,9 +1117,15 @@ Assert
 		
 		$currentContext = $psake.context.Peek()
 		
+		$module = $null
 		if (test-path .\modules\*.psm1)
 		{
-			get-item .\modules\*.psm1 | import-module
+			get-item .\modules\*.psm1 | % { "loading module: $_"; $module = import-module $_ -passthru; if (!$module) { throw ("Error loading module: {0}" -f $_.Name)} }
+		}
+		
+		if ($module) 
+		{
+			""
 		}
 		
 		$stopwatch = [System.Diagnostics.Stopwatch]::StartNew()	
@@ -1150,7 +1156,6 @@ Assert
 		}
 
 		Configure-BuildEnvironment
-
 		
 		# N.B. The initial dot (.) indicates that variables initialized/modified
 		#      in the propertyBlock are available in the parent scope.
