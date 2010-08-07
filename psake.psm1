@@ -1231,7 +1231,7 @@ Assert
 			write-host $error_message -foregroundcolor red
 		}
 		
-		if ( (IsChildOfService) )
+		if ( !$psake.run_by_psake_build_tester -and (IsChildOfService) )
 		{
 			exit(1)
 		}
