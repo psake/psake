@@ -1123,7 +1123,10 @@ Assert
 			get-item .\modules\*.psm1 | % { "loading module: $_"; $module = import-module $_ -passthru; if (!$module) { throw ("Error loading module: {0}" -f $_.Name)} }
 		}
 		
-		
+		if ($module) 
+		{
+			""
+		}
 		
 		$stopwatch = [System.Diagnostics.Stopwatch]::StartNew()	
 		
