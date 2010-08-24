@@ -20,6 +20,6 @@ param(
 )
 
 remove-module psake -ea 'SilentlyContinue'
-$scriptPath = Split-Path -parent $MyInvocation.InvocationName
+$scriptPath = Split-Path -parent $MyInvocation.MyCommand.path
 import-module (join-path $scriptPath psake.psm1)
 invoke-psake $buildFile $taskList $framework $docs $parameters $properties
