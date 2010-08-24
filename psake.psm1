@@ -20,17 +20,6 @@
 
 #Requires -Version 2.0
 
-#The $psake hashtable variable is initialized in the invoke-psake function
-$script:psake = @{}
-$psake.build_success = $false        			# indicates that the current build was successful
-$psake.version = "4.00"              			# contains the current version of psake
-$psake.build_script_file = $null     			# contains a System.IO.FileInfo for the current build file
-$psake.build_script_dir = ""  				   	# contains a string with fully-qualified path to current build script
-$psake.framework_version = ""        			# contains the framework version # for the current build
-$psake.default_build_file_name = 'default.ps1'	# default build script file name
-$psake.run_by_psake_build_tester = $false		# indicates that build is being run by psake-BuildTester
-$psake.context = new-object system.collections.stack # holds onto the current state of all variables
-
 DATA msgs
 {
 convertfrom-stringdata @'
@@ -38,7 +27,6 @@ convertfrom-stringdata @'
 	error_task_name_does_not_exist = Error: task [{0}] does not exist
 	error_circular_reference = Error: Circular reference found for task, {0}
 	error_missing_action_parameter = Error: Action parameter must be specified when using PreAction or PostAction parameters
-	postcondition_failed = Error: Postcondition failed for {0}
 	error_corrupt_callstack = Error: CallStack was corrupt. Expected {0}, but got {1}.
 	error_invalid_framework = Error: Invalid .NET Framework version, {0}, specified
 	error_unknown_framework = Error: Unknown .NET Framework version, {0}, specified in {1}
@@ -51,9 +39,12 @@ convertfrom-stringdata @'
 	error_invalid_include_path = Error: Unable to include {0}. File not found.
 	error_build_file_not_found = Error: Could not find the build file, {0}.
 	error_no_default_task = Error: default task required
+	error_invalid_module_dir = "Unable to load modules from directory: {0}"
+	error_invalid_module_path = "Unable to load module at path: {0}"
+	error_loading_module = "Error loading module: {0}"
+	postcondition_failed = Error: Postcondition failed for {0}
 	precondition_was_false = Precondition was false not executing {0}
 	continue_on_error = Error in Task [{0}] {1}
-	default_task_name_format = Executing task: {0}
 	build_success = Build Succeeded!
 '@
 } 
@@ -61,6 +52,18 @@ convertfrom-stringdata @'
 import-localizeddata -bindingvariable msgs -erroraction silentlycontinue
 
 #-- Private Module Functions
+function Load-Configuration
+{
+	if (test-path ".\psake.config")
+	{
+		return ([xml](get-content ".\psake.config")).config
+	}
+	else
+	{
+		return new-object psobject -property @{ defaultbuildfilename="default.ps1";  tasknameformat="Executing {0}"; exitcode="1"; modules = (new-object psobject -property @{autoload=$false})}
+	}
+}
+
 function IsChildOfService
 {
     param
@@ -1083,7 +1086,7 @@ Assert
 	[CmdletBinding()]
 	param(
 		[Parameter(Position=0,Mandatory=0)]
-		[string]$buildFile = $script:psake.default_build_file_name,
+		[string]$buildFile = $psake.config.defaultbuildfilename,
 		[Parameter(Position=1,Mandatory=0)]
 		[string[]]$taskList = @(),
 		[Parameter(Position=2,Mandatory=0)]
@@ -1102,7 +1105,7 @@ Assert
 		$psake.framework_version = $framework
 
 		$psake.context.push(@{
-		   "formatTaskName" = $msgs.default_task_name_format;
+		   "formatTaskName" = $psake.config.tasknameformat;
 		   "taskSetupScriptBlock" = {};
 		   "taskTearDownScriptBlock" = {};
 		   "executedTasks" = New-Object System.Collections.Stack;
@@ -1117,14 +1120,31 @@ Assert
 		
 		$currentContext = $psake.context.Peek()
 		
-		$module = $null
-		if (test-path .\modules\*.psm1)
+		$modules = $null
+
+		if ($psake.config.modules.autoload -eq $true)
 		{
-			get-item .\modules\*.psm1 | % { "loading module: $_"; $module = import-module $_ -passthru; if (!$module) { throw ("Error loading module: {0}" -f $_.Name)} }
+			if ($psake.config.modules.directory)
+			{
+				Assert (test-path $psake.config.modules.directory) ($msgs.error_invalid_module_dir -f $psake.config.modules.directory)
+				$modules = get-item (join-path $psake.config.modules.directory *.psm1)
+			}
+			elseif (test-path .\modules)
+			{
+				$modules = get-item .\modules\*.psm1 
+			}
+		}
+		else
+		{
+			if ($psake.config.modules.module)
+			{
+				$modules = $psake.config.modules.module | % { Assert (test-path $_.path) ($msgs.error_invalid_module_path -f $_.path); get-item $_.path }
+			}
 		}
 		
-		if ($module) 
+		if ($modules)
 		{
+			$modules | % { "loading module: $_"; $module = import-module $_ -passthru; if (!$module) { throw ($msgs.error_loading_module -f $_.Name)} }
 			""
 		}
 		
@@ -1134,10 +1154,10 @@ Assert
 		If the default.ps1 file exists and the given "buildfile" isn't found assume that the given 
 		$buildFile is actually the target Tasks to execute in the default.ps1 script.
 		#>
-		if ((Test-Path $psake.default_build_file_name ) -and !(test-path $buildFile)) 
+		if ((Test-Path $psake.config.defaultbuildfilename ) -and !(test-path $buildFile)) 
 		{     
 			$taskList = $buildFile.Split(',')
-			$buildFile = $psake.default_build_file_name
+			$buildFile = $psake.config.defaultbuildfilename
 		}
 
 		# Execute the build file to set up the tasks and defaults
@@ -1225,25 +1245,23 @@ Assert
 		$error_message += ("-" * 70) + "`n"
 		$error_message += get-variable -scope script | format-table | out-string 
 		
-		#if psake is run by psake-BuildTester then suppress error messages
+		$psake.build_success = $false
+		
 		if (!$psake.run_by_psake_build_tester)
 		{
 			write-host $error_message -foregroundcolor red
-		}
-		
-		if ( !$psake.run_by_psake_build_tester -and (IsChildOfService) )
-		{
-			exit(1)
-		}
-		else
-		{
-			$psake.build_success = $false
-		}
-		
-		#if we are running in a nested scope then we need to re-throw the exception, unless the current script is run by psake-BuildTester 
-		if ( (InNestedScope) -and (!$psake.run_by_psake_build_tester) )
-		{
-			throw $_
+
+			# Need to return a non-zero DOS exit code so that CI server's (Hudson, TeamCity, etc...) can detect a failed job
+			if ( (IsChildOfService) )
+			{
+				exit($psake.config.exitcode)
+			}
+						
+			#if we are running in a nested scope then we need to re-throw the exception
+			if ( (InNestedScope) )
+			{
+				throw $_
+			}
 		}
     }
 	finally
@@ -1251,5 +1269,15 @@ Assert
 		Cleanup-Environment    
 	}
 }
+
+$script:psake = @{}
+$psake.build_success = $false        			# indicates that the current build was successful
+$psake.version = "4.00"              			# contains the current version of psake
+$psake.build_script_file = $null     			# contains a System.IO.FileInfo for the current build file
+$psake.build_script_dir = ""  				   	# contains a string with fully-qualified path to current build script
+$psake.framework_version = ""        			# contains the framework version # for the current build
+$psake.config = Load-Configuration
+$psake.run_by_psake_build_tester = $false		# indicates that build is being run by psake-BuildTester
+$psake.context = new-object system.collections.stack # holds onto the current state of all variables
 
 export-modulemember -function invoke-psake, invoke-task, task, properties, include, formattaskname, tasksetup, taskteardown, assert, exec -variable psake
