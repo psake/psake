@@ -41,7 +41,7 @@ If you'd like to get involved with psake, we have discussion groups over at goog
 
 Anyone can fork the main repository and submit patches, as well. And lastly, the [wiki](http://wiki.github.com/JamesKovacs/psake/) and [issues list](http://github.com/JamesKovacs/psake/issues) are also open for additions, edits, and discussion.
 
-Also check out the **[psake-contrib](http://github.com/JamesKovacs/psake-contrib) project for scripts,modules and functions to help you with a build**
+Also check out the **[psake-contrib](http://github.com/JamesKovacs/psake-contrib)** project for scripts,modules and functions to help you with a build
 
 ## Contributors
 
