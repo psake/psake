@@ -48,7 +48,7 @@ Also check out the **[psake-contrib](http://github.com/JamesKovacs/psake-contrib
 Many thanks for contributions to psake are due (in alphabetical order):
 
 * candland
-* ElegantCode
+* Staxmanade
 * lanwin
 * smbecker
 * stej
