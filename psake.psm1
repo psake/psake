@@ -54,13 +54,18 @@ import-localizeddata -bindingvariable msgs -erroraction silentlycontinue
 #-- Private Module Functions
 function Load-Configuration
 {
-	if (test-path ".\psake.config")
+	if (test-path ".\psake-config.ps1")
 	{
-		return ([xml](get-content ".\psake.config")).config
+		. .\psake-config.ps1
 	}
 	else
 	{
-		return new-object psobject -property @{ defaultbuildfilename="default.ps1";  tasknameformat="Executing {0}"; exitcode="1"; modules = (new-object psobject -property @{autoload=$false})}
+		$psake.config = new-object psobject -property @{
+		  defaultbuildfilename="default.ps1";
+		  tasknameformat="Executing {0}";
+		  exitcode="1";
+		  modules=(new-object psobject -property @{ autoload=$true; directory=".\modules" })
+		}
 	}
 }
 
@@ -1276,8 +1281,9 @@ $psake.version = "4.00"              			# contains the current version of psake
 $psake.build_script_file = $null     			# contains a System.IO.FileInfo for the current build file
 $psake.build_script_dir = ""  				   	# contains a string with fully-qualified path to current build script
 $psake.framework_version = ""        			# contains the framework version # for the current build
-$psake.config = Load-Configuration
 $psake.run_by_psake_build_tester = $false		# indicates that build is being run by psake-BuildTester
 $psake.context = new-object system.collections.stack # holds onto the current state of all variables
+
+Load-Configuration
 
 export-modulemember -function invoke-psake, invoke-task, task, properties, include, formattaskname, tasksetup, taskteardown, assert, exec -variable psake
