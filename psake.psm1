@@ -54,17 +54,22 @@ import-localizeddata -bindingvariable msgs -erroraction silentlycontinue
 #-- Private Module Functions
 function Load-Configuration
 {
+	$psake.config = new-object psobject -property @{
+	  defaultbuildfilename="default.ps1";
+	  tasknameformat="Executing {0}";
+	  exitcode="1";
+	  modules=(new-object psobject -property @{ autoload=$false })
+	}
+			
 	if (test-path ".\psake-config.ps1")
 	{
-		. .\psake-config.ps1
-	}
-	else
-	{
-		$psake.config = new-object psobject -property @{
-		  defaultbuildfilename="default.ps1";
-		  tasknameformat="Executing {0}";
-		  exitcode="1";
-		  modules=(new-object psobject -property @{ autoload=$true; directory=".\modules" })
+		try
+		{
+			. .\psake-config.ps1
+		}
+		catch
+		{
+			throw "Error Loading Configuration from psake-config.ps1: " + $_
 		}
 	}
 }

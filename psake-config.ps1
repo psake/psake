@@ -1,11 +1,37 @@
-﻿$psake.config = new-object psobject -property @{
+﻿#-------------------------------------------------------------------
+#Specify defaults and do not auto-load modules
+#-------------------------------------------------------------------
+$psake.config = new-object psobject -property @{
   defaultbuildfilename="default.ps1";
   tasknameformat="Executing {0}";
   exitcode="1";
-  modules=(new-object psobject -property @{ autoload=$true; directory=".\modules" })
+  modules=(new-object psobject -property @{ autoload=$false })
 }
 
 <#
+-------------------------------------------------------------------
+Specify defaults and auto-load modules from .\modules folder
+-------------------------------------------------------------------
+$psake.config = new-object psobject -property @{
+  defaultbuildfilename="default.ps1";
+  tasknameformat="Executing {0}";
+  exitcode="1";
+  modules=(new-object psobject -property @{ autoload=$true})
+}
+
+-------------------------------------------------------------------
+Specify defaults and auto-load modules from .\my_modules folder
+-------------------------------------------------------------------
+$psake.config = new-object psobject -property @{
+  defaultbuildfilename="default.ps1";
+  tasknameformat="Executing {0}";
+  exitcode="1";
+  modules=(new-object psobject -property @{ autoload=$true; directory=".\my_modules" })
+}
+
+-------------------------------------------------------------------
+Specify defaults and explicitly load module(s)
+-------------------------------------------------------------------
 $psake.config = new-object psobject -property @{
   defaultbuildfilename="default.ps1";
   tasknameformat="Executing {0}";
