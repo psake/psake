@@ -60,12 +60,14 @@ function Load-Configuration
 	  exitcode="1";
 	  modules=(new-object psobject -property @{ autoload=$false })
 	}
-			
-	if (test-path ".\psake-config.ps1")
+		
+	$psakeConfigFilePath = (join-path $PSScriptRoot psake-config.ps1)
+	
+	if (test-path $psakeConfigFilePath)
 	{
 		try
 		{
-			. .\psake-config.ps1
+			. $psakeConfigFilePath
 		}
 		catch
 		{
@@ -1139,9 +1141,9 @@ Assert
 				Assert (test-path $psake.config.modules.directory) ($msgs.error_invalid_module_dir -f $psake.config.modules.directory)
 				$modules = get-item (join-path $psake.config.modules.directory *.psm1)
 			}
-			elseif (test-path .\modules)
+			elseif (test-path (join-path $PSScriptRoot "modules"))
 			{
-				$modules = get-item .\modules\*.psm1 
+				$modules = get-item (join-path (join-path $PSScriptRoot "modules") "*.psm1")
 			}
 		}
 		else
