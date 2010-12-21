@@ -483,7 +483,11 @@ The solution is to wrap the condition in () so that PS will evaluate it first.
 		[Parameter(Position=1,Mandatory=1)]$failureMessage
 	)
 	if (!$conditionToCheck)
-	{ 
+	{
+		if ($failureMessage.GetType() -eq [String]) {
+			$failureMessage = "[[ASSERTTEXTONLY]]" + $failureMessage
+		}
+
 		throw $failureMessage 
 	}
 }
@@ -1249,13 +1253,19 @@ Assert
     }
     catch
     {
-      	$error_message = "{0}: An Error Occurred. See Error Details Below: `n" -f (Get-Date) 
-		$error_message += ("-" * 70) + "`n"
-		$error_message += Resolve-Error $_
-		$error_message += ("-" * 70) + "`n"
-		$error_message += "Script Variables" + "`n"
-		$error_message += ("-" * 70) + "`n"
-		$error_message += get-variable -scope script | format-table | out-string 
+		if ($_.TargetObject.GetType() -eq [String] -and $_.TargetObject.StartsWith("[[ASSERTTEXTONLY]]")) {
+
+			$error_message = "{0}: An Assertion Failed.  Message: " -f (Get-Date) + $_.TargetObject.SubString("[[ASSERTTEXTONLY]]".length)
+
+		} else {
+	  	    $error_message = "{0}: An Error Occurred. See Error Details Below: `n" -f (Get-Date) 
+			$error_message += ("-" * 70) + "`n"
+			$error_message += Resolve-Error $_
+			$error_message += ("-" * 70) + "`n"
+			$error_message += "Script Variables" + "`n"
+			$error_message += ("-" * 70) + "`n"
+			$error_message += get-variable -scope script | format-table | out-string 
+		}
 		
 		$psake.build_success = $false
 		
