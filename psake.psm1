@@ -1253,7 +1253,7 @@ Assert
     }
     catch
     {
-		if ($_.TargetObject.GetType() -eq [String] -and $_.TargetObject.StartsWith("[[ASSERTTEXTONLY]]")) {
+		if ($_.TargetObject -and $_.TargetObject.GetType() -eq [String] -and $_.TargetObject.StartsWith("[[ASSERTTEXTONLY]]")) {
 
 			$error_message = "{0}: An Assertion Failed.  Message: " -f (Get-Date) + $_.TargetObject.SubString("[[ASSERTTEXTONLY]]".length)
 
