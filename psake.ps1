@@ -27,3 +27,4 @@ if (-not(test-path $buildFile))
     $buildFile = (join-path $scriptPath $buildFile)
 } 
 invoke-psake $buildFile $taskList $framework $docs $parameters $properties
+exit $lastexitcode
