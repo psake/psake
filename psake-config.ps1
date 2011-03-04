@@ -2,9 +2,10 @@
 #Specify defaults and do not auto-load modules
 #-------------------------------------------------------------------
 $psake.config = new-object psobject -property @{
-  defaultbuildfilename="default.ps1";
-  tasknameformat="Executing {0}";
-  exitcode="1";
+  defaultBuildFileName="default.ps1";
+  taskNameFormat="Executing {0}";
+  exitCode="1";
+  verboseError=$false;
   modules=(new-object psobject -property @{ autoload=$false })
 }
 
@@ -13,9 +14,10 @@ $psake.config = new-object psobject -property @{
 Specify defaults and auto-load modules from .\modules folder
 -------------------------------------------------------------------
 $psake.config = new-object psobject -property @{
-  defaultbuildfilename="default.ps1";
-  tasknameformat="Executing {0}";
-  exitcode="1";
+  defaultBuildFileName="default.ps1";
+  taskNameFormat="Executing {0}";
+  exitCode="1";
+  verboseError=$false;
   modules=(new-object psobject -property @{ autoload=$true})
 }
 
@@ -23,9 +25,10 @@ $psake.config = new-object psobject -property @{
 Specify defaults and auto-load modules from .\my_modules folder
 -------------------------------------------------------------------
 $psake.config = new-object psobject -property @{
-  defaultbuildfilename="default.ps1";
-  tasknameformat="Executing {0}";
-  exitcode="1";
+  defaultBuildFileName="default.ps1";
+  taskNameFormat="Executing {0}";
+  exitCode="1";
+  verboseError=$false;
   modules=(new-object psobject -property @{ autoload=$true; directory=".\my_modules" })
 }
 
@@ -33,9 +36,10 @@ $psake.config = new-object psobject -property @{
 Specify defaults and explicitly load module(s)
 -------------------------------------------------------------------
 $psake.config = new-object psobject -property @{
-  defaultbuildfilename="default.ps1";
-  tasknameformat="Executing {0}";
-  exitcode="1";
+  defaultBuildFileName="default.ps1";
+  taskNameFormat="Executing {0}";
+  exitCode="1";
+  verboseError=$false;
   modules=(new-object psobject -property @{
     autoload=$false; 
     module=(new-object psobject -property @{path="c:\module1dir\module1.ps1"}), 
