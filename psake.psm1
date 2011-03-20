@@ -430,12 +430,12 @@ function Load-Configuration {
         }
     } else {
         if (!$psake.config) {
-            $psake.config = new-object psobject -property@ {
+            $psake.config = new-object psobject -property @{
                 defaultBuildFileName = "default.ps1";
                 taskNameFormat = "Executing {0}";
                 exitCode = "1";
-                verboseError = $true;
-                modules = (new-object PSObject -property@ {
+                verboseError = $false;
+                modules = (new-object PSObject -property @{
                     autoload = $false
                 })
             }
