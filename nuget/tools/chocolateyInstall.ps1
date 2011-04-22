@@ -11,4 +11,4 @@ Write-Host "Adding $packageBatchFileName and pointing to $path"
 
 
 write-host "PSake is now ready. You can type 'psake' from any command line at any path. Get started by typing 'psake /?'"
-Start-Sleep 10
+Start-Sleep 6

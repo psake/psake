@@ -5,6 +5,6 @@ import-module $psakeModule
 
 @"
 ========================
-PSake - Automated builds with powershell
+psake - Automated builds with powershell
 ========================
 "@ | Write-Host
