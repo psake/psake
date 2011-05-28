@@ -439,25 +439,25 @@ function Load-Configuration {
 
     $psakeConfigFilePath = (join-path $configdir "psake-config.ps1")
 
+    if (!$psake.config) {
+        $psake.config = new-object psobject -property @{
+            defaultBuildFileName = "default.ps1";
+            framework = "3.5";
+            taskNameFormat = "Executing {0}";
+            exitCode = "1";
+            verboseError = $false;
+            coloredOutput = $false;
+            modules = (new-object PSObject -property @{
+                autoload = $false
+            })
+        }
+    }
+
     if (test-path $psakeConfigFilePath) {
         try {
             . $psakeConfigFilePath
         } catch {
             throw "Error Loading Configuration from psake-config.ps1: " + $_
-        }
-    } else {
-        if (!$psake.config) {
-            $psake.config = new-object psobject -property @{
-                defaultBuildFileName = "default.ps1";
-                framework = "3.5";
-                taskNameFormat = "Executing {0}";
-                exitCode = "1";
-                verboseError = $false;
-                coloredOutput = $false;
-                modules = (new-object PSObject -property @{
-                    autoload = $false
-                })
-            }
         }
     }
 }

@@ -1,54 +1,29 @@
-﻿#-------------------------------------------------------------------
-#Specify defaults and do not auto-load modules
-#-------------------------------------------------------------------
-$psake.config = new-object psobject -property @{
-  defaultBuildFileName="default.ps1";
-  framework = "3.5";
-  taskNameFormat="Executing {0}";
-  exitCode="1";
-  verboseError=$false;
-  coloredOutput = $false;
-  modules=(new-object psobject -property @{ autoload=$false })
-}
-
-<#
+﻿<#
 -------------------------------------------------------------------
-Specify defaults and auto-load modules from .\modules folder
+Defaults
 -------------------------------------------------------------------
-$psake.config = new-object psobject -property @{
-  defaultBuildFileName="default.ps1";
-  framework = "3.5";
-  taskNameFormat="Executing {0}";
-  exitCode="1";
-  verboseError=$false;
-  coloredOutput = $false;
-  modules=(new-object psobject -property @{ autoload=$true})
-}
+$psake.config.defaultBuildFileName="default.ps1";
+$psake.config.framework = "3.5";
+$psake.config.taskNameFormat="Executing {0}";
+$psake.config.exitCode="1";
+$psake.config.verboseError=$true;
+$psake.config.coloredOutput = $false;
+$psake.config.modules=(new-object psobject -property @{ autoload=$false })
 
 -------------------------------------------------------------------
-Specify defaults and auto-load modules from .\my_modules folder
+Auto-load modules from .\modules folder
 -------------------------------------------------------------------
-$psake.config = new-object psobject -property @{
-  defaultBuildFileName="default.ps1";
-  framework = "3.5";
-  taskNameFormat="Executing {0}";
-  exitCode="1";
-  verboseError=$false;
-  coloredOutput = $false;
-  modules=(new-object psobject -property @{ autoload=$true; directory=".\my_modules" })
-}
+$psake.config.modules=(new-object psobject -property @{ autoload=$true})
 
 -------------------------------------------------------------------
-Specify defaults and explicitly load module(s)
+Auto-load modules from .\my_modules folder
 -------------------------------------------------------------------
-$psake.config = new-object psobject -property @{
-  defaultBuildFileName="default.ps1";
-  framework = "3.5";
-  taskNameFormat="Executing {0}";
-  exitCode="1";
-  verboseError=$false;
-  coloredOutput = $false;
-  modules=(new-object psobject -property @{
+$psake.config.modules=(new-object psobject -property @{ autoload=$true; directory=".\my_modules" })
+
+-------------------------------------------------------------------
+Explicitly load module(s)
+-------------------------------------------------------------------
+$psake.config.modules=(new-object psobject -property @{
     autoload=$false; 
     module=(new-object psobject -property @{path="c:\module1dir\module1.ps1"}), 
            (new-object psobject -property @{path="c:\module1dir\module2.ps1"})
