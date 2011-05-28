@@ -563,6 +563,13 @@ function Resolve-Error($ErrorRecord = $Error[0]) {
 
 function Write-Documentation {
     $currentContext = $psake.context.Peek()
+
+    if ($currentContext.tasks.default) {
+        $defaultTaskDependencies = $currentContext.tasks.default.DependsOn
+    } else {
+        $defaultTaskDependencies = @()
+    }
+
     $currentContext.tasks.Keys | foreach-object {
         if ($_ -eq "default") {
             return
@@ -573,8 +580,9 @@ function Write-Documentation {
             Name = $task.Name;
             Description = $task.Description;
             "Depends On" = $task.DependsOn -join ", "
+            Default = if ($defaultTaskDependencies -contains $task.Name) { $true }
         }
-    } | sort 'Name' | format-table -Auto
+    } | sort 'Name' | format-table -Auto -Property Name,Description,"Depends On",Default
 }
 
 function Write-TaskTimeSummary {
@@ -599,7 +607,7 @@ function Write-TaskTimeSummary {
         Name = "Total:";
         Duration = $stopwatch.Elapsed
     }
-    $list | format-table -auto | out-string -stream | ? { $_ } #using "Out-String -Stream" to filter out the blank line that Format-Table prepends
+    $list | format-table -auto -Property Name,Duration | out-string -stream | ? { $_ } #using "Out-String -Stream" to filter out the blank line that Format-Table prepends
 }
 
 DATA msgs {
