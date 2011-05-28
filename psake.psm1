@@ -255,22 +255,6 @@ function Invoke-psake {
         $psake.build_success = $false
         $psake.framework_version = $framework
 
-        $psake.context.push(@{
-            "formatTaskName" = $psake.config.taskNameFormat;
-            "taskSetupScriptBlock" = {};
-            "taskTearDownScriptBlock" = {};
-            "executedTasks" = new-object System.Collections.Stack;
-            "callStack" = new-object System.Collections.Stack;
-            "originalEnvPath" = $env:path;
-            "originalDirectory" = get-location;
-            "originalErrorActionPreference" = $global:ErrorActionPreference;
-            "tasks" = @{};
-            "properties" = @();
-            "includes" = new-object System.Collections.Queue;
-        })
-
-        $currentContext = $psake.context.Peek()
-
         <# 
         If the default.ps1 file exists and the given "buildfile" isn 't found assume that the given 
         $buildFile is actually the target Tasks to execute in the default.ps1 script. 
@@ -288,6 +272,20 @@ function Invoke-psake {
 
         Load-Configuration $psake.build_script_dir
 
+        $psake.context.push(@{
+            "formatTaskName" = $psake.config.taskNameFormat;
+            "taskSetupScriptBlock" = {};
+            "taskTearDownScriptBlock" = {};
+            "executedTasks" = new-object System.Collections.Stack;
+            "callStack" = new-object System.Collections.Stack;
+            "originalEnvPath" = $env:path;
+            "originalDirectory" = get-location;
+            "originalErrorActionPreference" = $global:ErrorActionPreference;
+            "tasks" = @{};
+            "properties" = @();
+            "includes" = new-object System.Collections.Queue;
+        })
+
         Load-Modules
         
         $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
@@ -303,6 +301,8 @@ function Invoke-psake {
         }
 
         Configure-BuildEnvironment
+
+        $currentContext = $psake.context.Peek()
 
         # N.B. The initial dot (.) indicates that variables initialized/modified
         #      in the propertyBlock are available in the parent scope.
