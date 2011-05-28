@@ -18,7 +18,7 @@ Task Verify -Description "This task verifies psake's variables" {
 		((!$variable:psake.build_success), 'psake.build_success should be $false'),
 		((![string]::IsNullOrEmpty($variable:psake.version)), 'psake.version was null or empty'),
 		(($variable:psake.build_script_file -ne $null), '$psake.build_script_file was null'), 
-		(($variable:psake.build_script_file.Name -eq "checkvariables.ps1"), ("psake variable: {0} was not equal to 'VerifyVariables.ps1'" -f $psake.build_script_file.Name)),
+		(($variable:psake.build_script_file.Name -eq "checkvariables.ps1"), ("psake variable: {0} was not equal to 'checkvariables.ps1'" -f $psake.build_script_file.Name)),
 		((![string]::IsNullOrEmpty($variable:psake.framework_version)), 'psake variable: $psake.framework_version was null or empty'),
 		(($variable:psake.context.Peek().tasks.Count -ne 0), 'psake variable: $tasks had length zero'),
 		(($variable:psake.context.Peek().properties.Count -ne 0), 'psake variable: $properties had length zero'),
