@@ -3,6 +3,7 @@
 #-------------------------------------------------------------------
 $psake.config = new-object psobject -property @{
   defaultBuildFileName="default.ps1";
+  framework = "3.5";
   taskNameFormat="Executing {0}";
   exitCode="1";
   verboseError=$false;
@@ -15,6 +16,7 @@ Specify defaults and auto-load modules from .\modules folder
 -------------------------------------------------------------------
 $psake.config = new-object psobject -property @{
   defaultBuildFileName="default.ps1";
+  framework = "3.5";
   taskNameFormat="Executing {0}";
   exitCode="1";
   verboseError=$false;
@@ -26,6 +28,7 @@ Specify defaults and auto-load modules from .\my_modules folder
 -------------------------------------------------------------------
 $psake.config = new-object psobject -property @{
   defaultBuildFileName="default.ps1";
+  framework = "3.5";
   taskNameFormat="Executing {0}";
   exitCode="1";
   verboseError=$false;
@@ -37,6 +40,7 @@ Specify defaults and explicitly load module(s)
 -------------------------------------------------------------------
 $psake.config = new-object psobject -property @{
   defaultBuildFileName="default.ps1";
+  framework = "3.5";
   taskNameFormat="Executing {0}";
   exitCode="1";
   verboseError=$false;

@@ -244,16 +244,13 @@ function Invoke-psake {
     param(
         [Parameter(Position = 0, Mandatory = 0)][string] $buildFile = $psake.config.defaultBuildFileName, 
         [Parameter(Position = 1, Mandatory = 0)][string[]] $taskList = @(), 
-        [Parameter(Position = 2, Mandatory = 0)][string] $framework = '3.5', 
+        [Parameter(Position = 2, Mandatory = 0)][string] $framework,
         [Parameter(Position = 3, Mandatory = 0)][switch] $docs = $false, 
         [Parameter(Position = 4, Mandatory = 0)][hashtable] $parameters = @{}, 
         [Parameter(Position = 5, Mandatory = 0)][hashtable] $properties = @{}
     )
-
     try {
         "psake version {0}`nCopyright (c) 2010 James Kovacs`n" -f $psake.version
-        $psake.build_success = $false
-        $psake.framework_version = $framework
 
         <# 
         If the default.ps1 file exists and the given "buildfile" isn 't found assume that the given 
@@ -285,6 +282,13 @@ function Invoke-psake {
             "properties" = @();
             "includes" = new-object System.Collections.Queue;
         })
+
+        if (!$framework) {
+            $framework = $psake.config.framework
+        }
+
+        $psake.build_success = $false
+        $psake.framework_version = $framework
 
         Load-Modules
         
@@ -432,6 +436,7 @@ function Load-Configuration {
         if (!$psake.config) {
             $psake.config = new-object psobject -property @{
                 defaultBuildFileName = "default.ps1";
+                framework = "3.5";
                 taskNameFormat = "Executing {0}";
                 exitCode = "1";
                 verboseError = $false;
