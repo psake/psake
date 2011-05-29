@@ -55,7 +55,11 @@ function Invoke-Task
     $precondition_is_valid = & $task.Precondition
 
     if (!$precondition_is_valid) {
-        $msgs.precondition_was_false -f $taskName
+        if ($psake.config.coloredOutput) {
+            write-host ($msgs.precondition_was_false -f $taskName) -foregroundcolor darkgreen
+        } else {
+            $msgs.precondition_was_false -f $taskName
+        }
     } else {
         if ($taskKey -ne 'default') {
             $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
@@ -81,7 +85,11 @@ function Invoke-Task
                     if ($currentContext.formatTaskName -is [ScriptBlock]) {
                         & $currentContext.formatTaskName $taskName
                     } else {
-                        $currentContext.formatTaskName -f $taskName
+                        if ($psake.config.coloredOutput) {
+                            write-host ($currentContext.formatTaskName -f $taskName) -foregroundcolor darkgreen
+                        } else {
+                            $currentContext.formatTaskName -f $taskName
+                        }
                     }
 
                     & $task.Action 
@@ -346,7 +354,12 @@ function Invoke-psake {
 
         $stopwatch.Stop()
 
-        "`n" + $msgs.build_success + "`n"
+        if ($psake.config.coloredOutput) {
+            write-host ("`n" + $msgs.build_success + "`n") -foregroundcolor green
+        }
+        else {
+            "`n" + $msgs.build_success + "`n"
+        }
 
         Write-TaskTimeSummary
 
@@ -440,6 +453,7 @@ function Load-Configuration {
                 taskNameFormat = "Executing {0}";
                 exitCode = "1";
                 verboseError = $false;
+                coloredOutput = $false;
                 modules = (new-object PSObject -property @{
                     autoload = $false
                 })

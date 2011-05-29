@@ -7,6 +7,7 @@ $psake.config = new-object psobject -property @{
   taskNameFormat="Executing {0}";
   exitCode="1";
   verboseError=$false;
+  coloredOutput = $false;
   modules=(new-object psobject -property @{ autoload=$false })
 }
 
@@ -20,6 +21,7 @@ $psake.config = new-object psobject -property @{
   taskNameFormat="Executing {0}";
   exitCode="1";
   verboseError=$false;
+  coloredOutput = $false;
   modules=(new-object psobject -property @{ autoload=$true})
 }
 
@@ -32,6 +34,7 @@ $psake.config = new-object psobject -property @{
   taskNameFormat="Executing {0}";
   exitCode="1";
   verboseError=$false;
+  coloredOutput = $false;
   modules=(new-object psobject -property @{ autoload=$true; directory=".\my_modules" })
 }
 
@@ -44,6 +47,7 @@ $psake.config = new-object psobject -property @{
   taskNameFormat="Executing {0}";
   exitCode="1";
   verboseError=$false;
+  coloredOutput = $false;
   modules=(new-object psobject -property @{
     autoload=$false; 
     module=(new-object psobject -property @{path="c:\module1dir\module1.ps1"}), 
