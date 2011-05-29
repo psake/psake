@@ -308,11 +308,9 @@ function Invoke-psake {
 
         $currentContext = $psake.context.Peek()
 
-        # N.B. The initial dot (.) indicates that variables initialized/modified
-        #      in the propertyBlock are available in the parent scope.
         while ($currentContext.includes.Count -gt 0) {
-            $includeBlock = $currentContext.includes.Dequeue()
-            . $includeBlock
+            $includeFilename = $currentContext.includes.Dequeue()
+            . $includeFilename
         }
 
         foreach ($key in $parameters.keys) {
@@ -323,6 +321,8 @@ function Invoke-psake {
             }
         }
 
+        # N.B. The initial dot (.) indicates that variables initialized/modified
+        #      in the propertyBlock are available in the parent scope.
         foreach ($propertyBlock in $currentContext.properties) {
             . $propertyBlock 
         }
