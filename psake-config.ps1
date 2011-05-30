@@ -2,30 +2,20 @@
 -------------------------------------------------------------------
 Defaults
 -------------------------------------------------------------------
-$config.buildFileName="default.ps1";
-$config.framework = "3.5";
-$config.taskNameFormat="Executing {0}";
-$config.verboseError=$false;
-$config.coloredOutput = $true;
-$config.modules=(new-object psobject -property @{ autoload=$false })
+$config.buildFileName="default.ps1"
+$config.framework = "3.5"
+$config.taskNameFormat="Executing {0}"
+$config.verboseError=$false
+$config.coloredOutput = $true
+$config.modules=$null
 
 -------------------------------------------------------------------
-Auto-load modules from .\modules folder
+Load modules from .\modules folder and from file my_module.psm1
 -------------------------------------------------------------------
-$config.modules=(new-object psobject -property @{ autoload=$true})
+$config.modules=(".\modules\*.psm1",".\my_module.psm1")
 
 -------------------------------------------------------------------
-Auto-load modules from .\my_modules folder
+Use scriptblock for taskNameFormat
 -------------------------------------------------------------------
-$config.modules=(new-object psobject -property @{ autoload=$true; directory=".\my_modules" })
-
--------------------------------------------------------------------
-Explicitly load module(s)
--------------------------------------------------------------------
-$config.modules=(new-object psobject -property @{
-    autoload=$false; 
-    module=(new-object psobject -property @{path="c:\module1dir\module1.ps1"}), 
-           (new-object psobject -property @{path="c:\module1dir\module2.ps1"})
-  })
-}
+$config.taskNameFormat= { param($taskName) "Executing $taskName at $(get-date)" }
 #>
