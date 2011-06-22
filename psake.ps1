@@ -25,7 +25,11 @@ remove-module psake -ea 'SilentlyContinue'
 import-module (join-path $scriptPath psake.psm1)
 if (-not(test-path $buildFile))
 {
-    $buildFile = (join-path $scriptPath $buildFile)
+    $absoluteBuildFile = (join-path $scriptPath $buildFile)
+	if (test-path $absoluteBuildFile)
+	{
+		$buildFile = $absoluteBuildFile
+	}
 } 
 invoke-psake $buildFile $taskList $framework $docs $parameters $properties
 exit $lastexitcode
