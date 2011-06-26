@@ -55,11 +55,7 @@ function Invoke-Task
     $precondition_is_valid = & $task.Precondition
 
     if (!$precondition_is_valid) {
-        if ($psake.config.coloredOutput) {
-            write-host ($msgs.precondition_was_false -f $taskName) -foregroundcolor darkgreen
-        } else {
-            $msgs.precondition_was_false -f $taskName
-        }
+        Write-ColoredOutput ($msgs.precondition_was_false -f $taskName) -foregroundcolor Blue
     } else {
         if ($taskKey -ne 'default') {
             $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
@@ -85,11 +81,7 @@ function Invoke-Task
                     if ($currentContext.formatTaskName -is [ScriptBlock]) {
                         & $currentContext.formatTaskName $taskName
                     } else {
-                        if ($psake.config.coloredOutput) {
-                            write-host ($currentContext.formatTaskName -f $taskName) -foregroundcolor darkgreen
-                        } else {
-                            $currentContext.formatTaskName -f $taskName
-                        }
+                        Write-ColoredOutput ($currentContext.formatTaskName -f $taskName) -foregroundcolor Blue
                     }
 
                     & $task.Action 
@@ -354,12 +346,7 @@ function Invoke-psake {
 
         $stopwatch.Stop()
 
-        if ($psake.config.coloredOutput) {
-            write-host ("`n" + $msgs.build_success + "`n") -foregroundcolor green
-        }
-        else {
-            "`n" + $msgs.build_success + "`n"
-        }
+        Write-ColoredOutput ("`n" + $msgs.build_success + "`n") -foregroundcolor Green
 
         Write-TaskTimeSummary
 
@@ -386,7 +373,7 @@ function Invoke-psake {
             if ( $inNestedScope ) {
                 throw $_
             } else {
-                write-host $error_message -foregroundcolor red
+                Write-ColoredOutput $error_message -foregroundcolor Red
             }
             
             # Need to return a non-zero DOS exit code so that CI server's (Hudson, TeamCity, etc...) can detect a failed job
@@ -400,6 +387,26 @@ function Invoke-psake {
 } #Invoke-psake
 
 #-- Private Module Functions --#
+function Write-ColoredOutput {
+    param(
+        [string] $message,
+        [System.ConsoleColor] $foregroundcolor
+    )
+
+    if ($psake.config.coloredOutput -eq $true) {
+        if (($Host.UI -ne $null) -and ($Host.UI.RawUI -ne $null)) {
+            $previousColor = $Host.UI.RawUI.ForegroundColor
+            $Host.UI.RawUI.ForegroundColor = $foregroundcolor
+        }
+    }
+
+    $message
+
+    if ($previousColor -ne $null) {
+        $Host.UI.RawUI.ForegroundColor = $previousColor
+    }
+}
+
 function Load-Modules {
     $modules = $null
 
