@@ -5,7 +5,6 @@ Defaults
 $config.defaultBuildFileName="default.ps1";
 $config.framework = "3.5";
 $config.taskNameFormat="Executing {0}";
-$config.exitCode="1";
 $config.verboseError=$true;
 $config.coloredOutput = $true;
 $config.modules=(new-object psobject -property @{ autoload=$false })
