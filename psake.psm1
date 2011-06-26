@@ -81,6 +81,10 @@ function Invoke-Task
                         Write-ColoredOutput ($currentContext.config.taskNameFormat -f $taskName) -foregroundcolor Blue
                     }
 
+                    foreach ($variable in $task.requiredVariables) {
+                        Assert ((test-path "variable:$variable") -and ((get-variable $variable).Value -ne $null)) ($msgs.required_variable_not_set -f $variable, $taskName)
+                    }
+
                     & $task.Action 
 
                     if ($task.PostAction) {
@@ -152,17 +156,17 @@ function Task
 {
     [CmdletBinding()]  
     param(
-        [Parameter(Position=0,Mandatory=1)] [string]$name = $null,
-        [Parameter(Position=1,Mandatory=0)] [scriptblock]$action = $null,    
-        [Parameter(Position=2,Mandatory=0)] [scriptblock]$preaction = $null,    
-        [Parameter(Position=3,Mandatory=0)] [scriptblock]$postaction = $null,    
-        [Parameter(Position=4,Mandatory=0)] [scriptblock]$precondition = {$true},    
-        [Parameter(Position=5,Mandatory=0)] [scriptblock]$postcondition = {$true},    
-        [Parameter(Position=6,Mandatory=0)] [switch]$continueOnError = $false,    
-        [Parameter(Position=7,Mandatory=0)] [string[]]$depends = @(),    
-        [Parameter(Position=8,Mandatory=0)] [string]$description = $null
+        [Parameter(Position=0,Mandatory=1)][string]$name = $null,
+        [Parameter(Position=1,Mandatory=0)][scriptblock]$action = $null,
+        [Parameter(Position=2,Mandatory=0)][scriptblock]$preaction = $null,
+        [Parameter(Position=3,Mandatory=0)][scriptblock]$postaction = $null,
+        [Parameter(Position=4,Mandatory=0)][scriptblock]$precondition = {$true}, 
+        [Parameter(Position=5,Mandatory=0)][scriptblock]$postcondition = {$true},
+        [Parameter(Position=6,Mandatory=0)][switch]$continueOnError = $false,
+        [Parameter(Position=7,Mandatory=0)][string[]]$depends = @(),
+        [Parameter(Position=8,Mandatory=0)][string[]]$requiredVariables = @(),
+        [Parameter(Position=9,Mandatory=0)][string]$description = $null
     )
-
     if ($name -eq 'default') {
         Assert (!$action) ($msgs.error_default_task_cannot_have_action)
     }
@@ -178,6 +182,7 @@ function Task
         ContinueOnError = $continueOnError
         Description = $description
         Duration = 0
+        RequiredVariables = $requiredVariables
     }
 
     $taskKey = $name.ToLower()
@@ -647,6 +652,7 @@ convertfrom-stringdata @'
     error_no_default_task = default task required
     error_loading_module = Error loading module: {0}
     warning_deprecated_framework_variable = Warning: Using global variable $framework to set .NET framework version used is deprecated. Instead use Framework function or configuration file psake-config.ps1
+    required_variable_not_set = Variable {0} must be set to run task {1}.
     postcondition_failed = Postcondition failed for {0}
     precondition_was_false = Precondition was false not executing {0}
     continue_on_error = Error in Task [{0}] {1}

@@ -1403,6 +1403,10 @@ Task Clean {
           <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
         </command:parameter>
 		<command:parameter require="false" variableLength="false" globbing="false" pipelineInput="false" postion="0">
+          <maml:name>RequiredVariables</maml:name>
+          <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
+        </command:parameter>
+		<command:parameter require="false" variableLength="false" globbing="false" pipelineInput="false" postion="0">
           <maml:name>Description</maml:name>
           <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
         </command:parameter>
@@ -1497,6 +1501,18 @@ Task Clean {
 			<maml:name>Depends</maml:name>
 			<maml:description>
 			  <maml:para>An array of task names that this task depends on.  These tasks will be executed before the current task is executed.</maml:para>
+			</maml:description>
+			<command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
+			<dev:type>
+			  <maml:name>String[]</maml:name>
+			  <maml:uri />
+			</dev:type>
+			<dev:defaultValue></dev:defaultValue>
+		</command:parameter>
+		<command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false (ByValue)" position="0">
+			<maml:name>RequiredVariables</maml:name>
+			<maml:description>
+			  <maml:para>An array of names of variables that must be set to run this task.</maml:para>
 			</maml:description>
 			<command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
 			<dev:type>
