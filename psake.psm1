@@ -81,10 +81,12 @@ function Invoke-Task
                     if ($currentContext.formatTaskName -is [ScriptBlock]) {
                         & $currentContext.formatTaskName $taskName
                     } else {
-                        $currentContext.formatTaskName -f $taskName
+                        $formattedTaskName = $currentContext.formatTaskName -f $taskName
+                        Write-TeamCityBlockOpened $formattedTaskName
                     }
 
-                    & $task.Action 
+                    & $task.Action
+                    Write-TeamCityBlockClosed $formattedTaskName			
 
                     if ($task.PostAction) {
                         & $task.PostAction
@@ -600,6 +602,21 @@ function Write-TaskTimeSummary {
         Duration = $stopwatch.Elapsed
     }
     $list | format-table -auto | out-string -stream | ? { $_ } #using "Out-String -Stream" to filter out the blank line that Format-Table prepends
+}
+
+function Write-TeamCityBlockOpened($name = $(throw "name paramater required.")){
+    if($env:TEAMCITY_PROJECT_NAME -ne $null){  # detect if this script is being run in TeamCity. Uses same mechanism as xunit http://xunit.codeplex.com/wikipage?title=HowToUseTeamCity
+        "##teamcity[blockOpened name='$name']"
+    }
+    else{
+        $name
+    }
+}
+
+function Write-TeamCityBlockClosed($name = $(throw "name paramater required.")){
+    if($env:TEAMCITY_PROJECT_NAME -ne $null){
+        "##teamcity[blockClosed name='$name']"
+    }
 }
 
 DATA msgs {
