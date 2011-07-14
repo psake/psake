@@ -634,7 +634,7 @@ import-localizeddata -bindingvariable msgs -erroraction silentlycontinue
 
 $script:psake = @{}
 $psake.build_success = $false # indicates that the current build was successful
-$psake.version = "4.00" # contains the current version of psake
+$psake.version = "4.2" # contains the current version of psake
 $psake.build_script_file = $null # contains a System.IO.FileInfo for the current build file
 $psake.build_script_dir = "" # contains a string with fully-qualified path to current build script
 $psake.framework_version = "" # contains the framework version # for the current build
