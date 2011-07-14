@@ -81,10 +81,12 @@ function Invoke-Task
                     if ($currentContext.formatTaskName -is [ScriptBlock]) {
                         & $currentContext.formatTaskName $taskName
                     } else {
-                        $currentContext.formatTaskName -f $taskName
+                        $formattedTaskName = $currentContext.formatTaskName -f $taskName
+                        Write-TeamCityBlockOpened $formattedTaskName
                     }
 
-                    & $task.Action 
+                    & $task.Action
+                    Write-TeamCityBlockClosed $formattedTaskName			
 
                     if ($task.PostAction) {
                         & $task.PostAction
@@ -602,6 +604,21 @@ function Write-TaskTimeSummary {
     $list | format-table -auto | out-string -stream | ? { $_ } #using "Out-String -Stream" to filter out the blank line that Format-Table prepends
 }
 
+function Write-TeamCityBlockOpened($name = $(throw "name paramater required.")){
+    if($env:TEAMCITY_PROJECT_NAME -ne $null){  # detect if this script is being run in TeamCity. Uses same mechanism as xunit http://xunit.codeplex.com/wikipage?title=HowToUseTeamCity
+        "##teamcity[blockOpened name='$name']"
+    }
+    else{
+        $name
+    }
+}
+
+function Write-TeamCityBlockClosed($name = $(throw "name paramater required.")){
+    if($env:TEAMCITY_PROJECT_NAME -ne $null){
+        "##teamcity[blockClosed name='$name']"
+    }
+}
+
 DATA msgs {
 convertfrom-stringdata @'
     error_invalid_task_name = Task name should not be null or empty string
@@ -634,7 +651,7 @@ import-localizeddata -bindingvariable msgs -erroraction silentlycontinue
 
 $script:psake = @{}
 $psake.build_success = $false # indicates that the current build was successful
-$psake.version = "4.00" # contains the current version of psake
+$psake.version = "4.2" # contains the current version of psake
 $psake.build_script_file = $null # contains a System.IO.FileInfo for the current build file
 $psake.build_script_dir = "" # contains a string with fully-qualified path to current build script
 $psake.framework_version = "" # contains the framework version # for the current build
