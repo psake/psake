@@ -374,6 +374,7 @@ function Invoke-psake {
             
             # Need to return a non-zero DOS exit code so that CI server's (Hudson, TeamCity, etc...) can detect a failed job
             if ((IsChildOfService)) {
+                $host.SetShouldExit($psake.config.exitCode)
                 exit($psake.config.exitCode)
             }
         }
