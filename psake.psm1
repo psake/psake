@@ -247,11 +247,13 @@ function Invoke-psake {
         [Parameter(Position = 2, Mandatory = 0)][string] $framework,
         [Parameter(Position = 3, Mandatory = 0)][switch] $docs = $false, 
         [Parameter(Position = 4, Mandatory = 0)][hashtable] $parameters = @{}, 
-        [Parameter(Position = 5, Mandatory = 0)][hashtable] $properties = @{}
+        [Parameter(Position = 5, Mandatory = 0)][hashtable] $properties = @{},
+        [Parameter(Position = 6, Mandatory = 0)][switch] $nologo = $false
     )
     try {
+        if (-not $nologo) {
         "psake version {0}`nCopyright (c) 2010 James Kovacs`n" -f $psake.version
-
+		}
         <# 
         If the default.ps1 file exists and the given "buildfile" isn 't found assume that the given 
         $buildFile is actually the target Tasks to execute in the default.ps1 script. 
