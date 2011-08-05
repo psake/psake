@@ -716,7 +716,7 @@ $psake.config_default = new-object psobject -property @{
     taskNameFormat = "Executing {0}";
     exitCode = "1";
     verboseError = $false;
-    coloredOutput = $false;
+    coloredOutput = $true;
     modules = (new-object PSObject -property @{
         autoload = $false
     })
