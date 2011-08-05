@@ -239,6 +239,15 @@ function TaskTearDown {
 }
 
 # .ExternalHelp  psake.psm1-help.xml
+function Framework {
+    [CmdletBinding()]
+    param(
+        [Parameter(Position=0,Mandatory=1)][string]$framework
+    )
+    $psake.context.Peek().config.framework = $framework
+}
+
+# .ExternalHelp  psake.psm1-help.xml
 function Invoke-psake {
     [CmdletBinding()]
     param(
@@ -252,13 +261,11 @@ function Invoke-psake {
     )
     try {
         if (-not $nologo) {
-        "psake version {0}`nCopyright (c) 2010 James Kovacs`n" -f $psake.version
-		}
-        <# 
-        If the default.ps1 file exists and the given "buildfile" isn 't found assume that the given 
-        $buildFile is actually the target Tasks to execute in the default.ps1 script. 
-        #>
-        
+            "psake version {0}`nCopyright (c) 2010 James Kovacs`n" -f $psake.version
+        }
+ 
+        # If the default.ps1 file exists and the given "buildfile" isn 't found assume that the given 
+        # $buildFile is actually the target Tasks to execute in the default.ps1 script. 
         if ($buildFile -and !(test-path $buildFile) -and (test-path $psake.config_default.buildFileName)) {
             $taskList = $buildFile.Split(', ')
             $buildFile = $psake.config_default.buildFileName
@@ -271,7 +278,6 @@ function Invoke-psake {
         $psake.build_script_dir = $psake.build_script_file.DirectoryName
         $psake.build_success = $false
 
-        
         $psake.context.push(@{
             "taskSetupScriptBlock" = {};
             "taskTearDownScriptBlock" = {};
@@ -294,7 +300,15 @@ function Invoke-psake {
         
         set-location $psake.build_script_dir
         
+        $frameworkOldValue = $framework
         . $psake.build_script_file.FullName
+
+        $currentContext = $psake.context.Peek()
+
+        if ($framework -ne $frameworkOldValue) {
+            write-coloredoutput $msgs.warning_deprecated_framework_variable -foregroundcolor Yellow
+            $currentContext.config.framework = $framework
+        }
 
         if ($docs) {
             Write-Documentation
@@ -303,8 +317,6 @@ function Invoke-psake {
         }
 
         Configure-BuildEnvironment
-
-        $currentContext = $psake.context.Peek()
 
         while ($currentContext.includes.Count -gt 0) {
             $includeFilename = $currentContext.includes.Dequeue()
@@ -684,6 +696,7 @@ convertfrom-stringdata @'
     error_invalid_module_dir = Unable to load modules from directory: {0}
     error_invalid_module_path = Unable to load module at path: {0}
     error_loading_module = Error loading module: {0}
+    warning_deprecated_framework_variable = Warning: Using global variable $framework to set .NET framework version used is deprecated. Instead use Framework function or configuration file psake-config.ps1
     postcondition_failed = Postcondition failed for {0}
     precondition_was_false = Precondition was false not executing {0}
     continue_on_error = Error in Task [{0}] {1}
@@ -715,4 +728,4 @@ $psake.build_script_dir = "" # contains a string with fully-qualified path to cu
 
 Load-Configuration
 
-export-modulemember -function invoke-psake, invoke-task, task, properties, include, formattaskname, tasksetup, taskteardown, assert, exec -variable psake
+export-modulemember -function invoke-psake, invoke-task, task, properties, include, formattaskname, tasksetup, taskteardown, framework, assert, exec -variable psake

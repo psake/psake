@@ -77,8 +77,8 @@
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false (ByValue)" position="2">
         <maml:name>framework</maml:name>
        <maml:description>
-            <maml:para>The version of the .NET framework you want to build. You can append x86 or x64 to force a specific framework. If not specified, x86 or x64 will be detected based on the bitness of the PowerShell process.
-Possible values: '1.0', '1.1', '2.0', '2.0x86', '2.0x64', '3.0', '3.0x86', '3.0x64', '3.5', '3.5x86', '3.5x64', '4.0', '4.0x86', '4.0x6'</maml:para>
+            <maml:para>The version of the .NET framework you want to use during build. You can append x86 or x64 to force a specific framework. If not specified, x86 or x64 will be detected based on the bitness of the PowerShell process.
+Possible values: '1.0', '1.1', '2.0', '2.0x86', '2.0x64', '3.0', '3.0x86', '3.0x64', '3.5', '3.5x86', '3.5x64', '4.0', '4.0x86', '4.0x64'</maml:para>
           </maml:description>
         <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <dev:type>
@@ -723,6 +723,133 @@ Build Succeeded</maml:para>
       </maml:navigationLink>
     </maml:relatedLinks>
   </command:command> 
+  
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10">
+    <command:details>
+      <command:name>Framework</command:name>
+      <maml:description>
+        <maml:para>Sets the version of the .NET framework you want to use during build.</maml:para>
+      </maml:description>
+      <maml:copyright>
+        <maml:para />
+      </maml:copyright>
+      <command:verb></command:verb>
+      <command:noun></command:noun>
+      <dev:version />
+    </command:details>
+    <maml:description>
+      <maml:para>This function will accept a string containing version of the .NET framework to use during build. Possible values: '1.0', '1.1', '2.0', '2.0x86', '2.0x64', '3.0', '3.0x86', '3.0x64', '3.5', '3.5x86', '3.5x64', '4.0', '4.0x86', '4.0x64'. Default is '3.5*', where x86 or x64 will be detected based on the bitness of the PowerShell process.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <command:name>Framework</command:name>
+        <command:parameter require="false" variableLength="false" globbing="false" pipelineInput="false" postion="0">
+          <maml:name>framework</maml:name>
+          <command:parameterValue required="true" variableLength="false">string</command:parameterValue>
+        </command:parameter>
+       </command:syntaxItem>
+    </command:syntax>	
+	 <command:parameters>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false (ByValue)" position="0">
+        <maml:name>framework</maml:name>
+        <maml:description>
+          <maml:para>Version of the .NET framework to use during build.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">string</command:parameterValue>
+        <dev:type>
+          <maml:name>string</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue></dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>None</maml:name>
+          <maml:uri />
+          <maml:description>
+            <maml:para />
+          </maml:description>
+        </dev:type>
+        <maml:description />
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>None</maml:name>
+          <maml:uri />
+          <maml:description>
+            <maml:para></maml:para>
+          </maml:description>
+        </dev:type>
+        <maml:description />
+      </command:returnValue>
+    </command:returnValues>
+    <command:terminatingErrors />
+    <command:nonTerminatingErrors />
+	<maml:alertSet>
+      <maml:title></maml:title>
+	  <maml:alert>
+		<maml:para></maml:para>	
+      </maml:alert>
+    </maml:alertSet>
+	<command:examples>
+      <command:example>
+        <maml:title>--------------  EXAMPLE 1 --------------</maml:title>
+        <dev:code>
+Framework "4.0"
+
+Task default -depends Compile
+
+Task Compile -depends Clean {
+  msbuild /version
+}</dev:code>
+        <dev:remarks>
+          <maml:para>Description</maml:para>
+          <maml:para>-----------</maml:para>
+          <maml:para>The script above will output detailed version of msbuid v4</maml:para>
+          <maml:para />
+        </dev:remarks>
+        <command:commandLines>
+          <command:commandLine>
+            <command:commandText />
+          </command:commandLine>
+        </command:commandLines>
+      </command:example>
+    </command:examples>
+	<maml:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Task</maml:linkText>
+	     <maml:uri />
+      </maml:navigationLink>	
+	  <maml:navigationLink>
+		<maml:linkText>Include</maml:linkText>
+		<maml:uri />
+      </maml:navigationLink>
+	  <maml:navigationLink>	
+	    <maml:linkText>Properties</maml:linkText>
+		<maml:uri />
+      </maml:navigationLink>
+	  <maml:navigationLink>
+		<maml:linkText>Invoke-psake</maml:linkText>
+		<maml:uri />
+      </maml:navigationLink>
+	  <maml:navigationLink>
+	    <maml:linkText>FormatTaskName</maml:linkText>
+		<maml:uri />
+      </maml:navigationLink>
+	  <maml:navigationLink>
+		<maml:linkText>TaskTearDown</maml:linkText>
+		<maml:uri />
+      </maml:navigationLink>
+	  <maml:navigationLink>	
+		<maml:linkText>Assert</maml:linkText>
+		<maml:uri />
+      </maml:navigationLink>
+    </maml:relatedLinks>
+  </command:command>
   
   <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10">
     <command:details>
