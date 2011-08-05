@@ -720,10 +720,10 @@ $psake.config_default = new-object psobject -property @{
     modules = (new-object PSObject -property @{
         autoload = $false
     })
-} # contains default configuration, can be overriden in psake-config.ps1 in directory with psake.psm1
+} # contains default configuration, can be overriden in psake-config.ps1 in directory with psake.psm1 or in directory with current build script
 
 $psake.build_success = $false # indicates that the current build was successful
-$psake.build_script_file = $null # contains a System.IO.FileInfo for the current build file
+$psake.build_script_file = $null # contains a System.IO.FileInfo for the current build script
 $psake.build_script_dir = "" # contains a string with fully-qualified path to current build script
 
 Load-Configuration
