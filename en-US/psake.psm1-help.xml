@@ -160,7 +160,7 @@ Possible values: '1.0', '1.1', '2.0', '2.0x86', '2.0x64', '3.0', '3.0x86', '3.0x
 containing some variables that can be used to configure psake:
 
 $psake.build_success = $false       # indicates that the current build was successful
-$psake.version = "4.00"             # contains the current version of psake
+$psake.version = "4.2"             # contains the current version of psake
 $psake.build_script_file = $null    # contains a System.IO.FileInfo for the current build file
 $psake.build_script_dir             # contains the fully qualified path to the current build file
 $psake.framework_version = ""       # contains the framework version # for the current build
@@ -172,7 +172,7 @@ PS projects:\psake> $psake
 
 Name                           Value
 ----                           -----
-version                        4.00
+version                        4.2
 build_script_file
 build_script_dir
 build_success                  False
@@ -204,7 +204,7 @@ PS projects:\psake> $psake
 
 Name                           Value
 ----                           -----
-version                        4.00
+version                        4.2
 build_script_file              C:\Users\Jorge\Documents\Projects\psake\examples\default.ps1
 build_script_dir			   C:\Users\Jorge\Documents\Projects\psake\examples	
 build_success                  True
