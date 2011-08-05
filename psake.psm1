@@ -480,7 +480,7 @@ function Get-CurrentConfigurationOrDefault() {
 
 function Create-ConfigurationForNewContext {
     param(
-        [string] $buildFileName,
+        [string] $buildFile,
         [string] $framework
     )
 
