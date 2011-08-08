@@ -77,8 +77,8 @@
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false (ByValue)" position="2">
         <maml:name>framework</maml:name>
        <maml:description>
-            <maml:para>The version of the .NET framework you want to build. You can append x86 or x64 to force a specific framework. If not specified, x86 or x64 will be detected based on the bitness of the PowerShell process.
-Possible values: '1.0', '1.1', '2.0', '2.0x86', '2.0x64', '3.0', '3.0x86', '3.0x64', '3.5', '3.5x86', '3.5x64', '4.0', '4.0x86', '4.0x6'</maml:para>
+            <maml:para>The version of the .NET framework you want to use during build. You can append x86 or x64 to force a specific framework. If not specified, x86 or x64 will be detected based on the bitness of the PowerShell process.
+Possible values: '1.0', '1.1', '2.0', '2.0x86', '2.0x64', '3.0', '3.0x86', '3.0x64', '3.5', '3.5x86', '3.5x64', '4.0', '4.0x86', '4.0x64'</maml:para>
           </maml:description>
         <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
         <dev:type>
@@ -173,13 +173,16 @@ Possible values: '1.0', '1.1', '2.0', '2.0x86', '2.0x64', '3.0', '3.0x86', '3.0x
 	  <maml:alert>
 		<maml:para>---- $psake variable ----</maml:para>
         <maml:para>When the psake module is loaded a variable called $psake is created which is a hashtable
-containing some variables that can be used to configure psake:
+containing some variables:
 
-$psake.build_success = $false       # indicates that the current build was successful
-$psake.version = "4.2"             # contains the current version of psake
-$psake.build_script_file = $null    # contains a System.IO.FileInfo for the current build file
-$psake.build_script_dir             # contains the fully qualified path to the current build file
-$psake.framework_version = ""       # contains the framework version # for the current build
+$psake.version                      # contains the current version of psake
+$psake.context                      # holds onto the current state of all variables
+$psake.run_by_psake_build_tester    # indicates that build is being run by psake-BuildTester
+$psake.config_default               # contains default configuration
+                                    # can be overriden in psake-config.ps1 in directory with psake.psm1 or in directory with current build script
+$psake.build_success                # indicates that the current build was successful
+$psake.build_script_file            # contains a System.IO.FileInfo for the current build script
+$psake.build_script_dir             # contains the fully qualified path to the current build script
 
 You should see the following when you display the contents of the $psake variable right after importing psake
 
@@ -188,13 +191,15 @@ PS projects:\psake> $psake
 
 Name                           Value
 ----                           -----
+run_by_psake_build_tester      False
 version                        4.2
+build_success                  False
 build_script_file
 build_script_dir
-build_success                  False
-framework_version
+config_default                 @{framework=3.5; ...
+context                        {}
 
-After a build is executed the following $psake values are updated (build_script_file, build_script_dir, build_success, and framework_version)
+After a build is executed the following $psake values are updated: build_script_file, build_script_dir, build_success
 
 PS projects:\psake> Invoke-psake .\examples\default.ps1
 Executing task: Clean
@@ -220,11 +225,14 @@ PS projects:\psake> $psake
 
 Name                           Value
 ----                           -----
+build_script_file              YOUR_PATH\examples\default.ps1
+run_by_psake_build_tester      False
+build_script_dir               YOUR_PATH\examples
+context                        {}
 version                        4.2
-build_script_file              C:\Users\Jorge\Documents\Projects\psake\examples\default.ps1
-build_script_dir			   C:\Users\Jorge\Documents\Projects\psake\examples	
 build_success                  True
-framework_version              3.5
+config_default                 @{framework=3.5; ...
+
 </maml:para>
 	<maml:para></maml:para>	
       </maml:alert>
@@ -427,6 +435,10 @@ task TestProperties {
 		<maml:linkText>Assert</maml:linkText>
 		<maml:uri />
       </maml:navigationLink>
+	  <maml:navigationLink>	
+		<maml:linkText>Framework</maml:linkText>
+		<maml:uri />
+      </maml:navigationLink>
     </maml:relatedLinks>
   </command:command>
   
@@ -572,6 +584,10 @@ Build Succeeded</maml:para>
       </maml:navigationLink>
 	  <maml:navigationLink>	
 		<maml:linkText>Assert</maml:linkText>
+		<maml:uri />
+      </maml:navigationLink>
+	  <maml:navigationLink>	
+		<maml:linkText>Framework</maml:linkText>
 		<maml:uri />
       </maml:navigationLink>
     </maml:relatedLinks>
@@ -721,8 +737,143 @@ Build Succeeded</maml:para>
 		<maml:linkText>Assert</maml:linkText>
 		<maml:uri />
       </maml:navigationLink>
+	  <maml:navigationLink>	
+		<maml:linkText>Framework</maml:linkText>
+		<maml:uri />
+      </maml:navigationLink>
     </maml:relatedLinks>
   </command:command> 
+  
+  <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10">
+    <command:details>
+      <command:name>Framework</command:name>
+      <maml:description>
+        <maml:para>Sets the version of the .NET framework you want to use during build.</maml:para>
+      </maml:description>
+      <maml:copyright>
+        <maml:para />
+      </maml:copyright>
+      <command:verb></command:verb>
+      <command:noun></command:noun>
+      <dev:version />
+    </command:details>
+    <maml:description>
+      <maml:para>This function will accept a string containing version of the .NET framework to use during build. Possible values: '1.0', '1.1', '2.0', '2.0x86', '2.0x64', '3.0', '3.0x86', '3.0x64', '3.5', '3.5x86', '3.5x64', '4.0', '4.0x86', '4.0x64'. Default is '3.5*', where x86 or x64 will be detected based on the bitness of the PowerShell process.</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <command:name>Framework</command:name>
+        <command:parameter require="false" variableLength="false" globbing="false" pipelineInput="false" postion="0">
+          <maml:name>framework</maml:name>
+          <command:parameterValue required="true" variableLength="false">string</command:parameterValue>
+        </command:parameter>
+       </command:syntaxItem>
+    </command:syntax>	
+	 <command:parameters>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false (ByValue)" position="0">
+        <maml:name>framework</maml:name>
+        <maml:description>
+          <maml:para>Version of the .NET framework to use during build.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">string</command:parameterValue>
+        <dev:type>
+          <maml:name>string</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue></dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name>None</maml:name>
+          <maml:uri />
+          <maml:description>
+            <maml:para />
+          </maml:description>
+        </dev:type>
+        <maml:description />
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name>None</maml:name>
+          <maml:uri />
+          <maml:description>
+            <maml:para></maml:para>
+          </maml:description>
+        </dev:type>
+        <maml:description />
+      </command:returnValue>
+    </command:returnValues>
+    <command:terminatingErrors />
+    <command:nonTerminatingErrors />
+	<maml:alertSet>
+      <maml:title></maml:title>
+	  <maml:alert>
+		<maml:para></maml:para>	
+      </maml:alert>
+    </maml:alertSet>
+	<command:examples>
+      <command:example>
+        <maml:title>--------------  EXAMPLE 1 --------------</maml:title>
+        <dev:code>
+Framework "4.0"
+
+Task default -depends Compile
+
+Task Compile -depends Clean {
+  msbuild /version
+}</dev:code>
+        <dev:remarks>
+          <maml:para>Description</maml:para>
+          <maml:para>-----------</maml:para>
+          <maml:para>The script above will output detailed version of msbuid v4</maml:para>
+          <maml:para />
+        </dev:remarks>
+        <command:commandLines>
+          <command:commandLine>
+            <command:commandText />
+          </command:commandLine>
+        </command:commandLines>
+      </command:example>
+    </command:examples>
+	<maml:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Task</maml:linkText>
+	     <maml:uri />
+      </maml:navigationLink>	
+	  <maml:navigationLink>
+		<maml:linkText>Include</maml:linkText>
+		<maml:uri />
+      </maml:navigationLink>
+	  <maml:navigationLink>	
+	    <maml:linkText>Properties</maml:linkText>
+		<maml:uri />
+      </maml:navigationLink>
+	  <maml:navigationLink>
+		<maml:linkText>Invoke-psake</maml:linkText>
+		<maml:uri />
+      </maml:navigationLink>
+	  <maml:navigationLink>
+	    <maml:linkText>FormatTaskName</maml:linkText>
+		<maml:uri />
+      </maml:navigationLink>
+	  <maml:navigationLink>
+		<maml:linkText>TaskSetup</maml:linkText>
+		<maml:uri />
+      </maml:navigationLink>
+	  <maml:navigationLink>
+		<maml:linkText>TaskTearDown</maml:linkText>
+		<maml:uri />
+      </maml:navigationLink>
+	  <maml:navigationLink>	
+		<maml:linkText>Assert</maml:linkText>
+		<maml:uri />
+      </maml:navigationLink>
+    </maml:relatedLinks>
+  </command:command>
   
   <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10">
     <command:details>
@@ -906,6 +1057,10 @@ Task TaskC {
 		<maml:linkText>Assert</maml:linkText>
 		<maml:uri />
       </maml:navigationLink>
+	  <maml:navigationLink>	
+		<maml:linkText>Framework</maml:linkText>
+		<maml:uri />
+      </maml:navigationLink>
     </maml:relatedLinks>
   </command:command> 
   
@@ -1041,6 +1196,10 @@ Task Clean {
       </maml:navigationLink>
 	  <maml:navigationLink>	
 		<maml:linkText>Assert</maml:linkText>
+		<maml:uri />
+      </maml:navigationLink>
+	  <maml:navigationLink>	
+		<maml:linkText>Framework</maml:linkText>
 		<maml:uri />
       </maml:navigationLink>
     </maml:relatedLinks>
@@ -1183,6 +1342,10 @@ Task Clean {
       </maml:navigationLink>
 	  <maml:navigationLink>	
 		<maml:linkText>Assert</maml:linkText>
+		<maml:uri />
+      </maml:navigationLink>
+	  <maml:navigationLink>	
+		<maml:linkText>Framework</maml:linkText>
 		<maml:uri />
       </maml:navigationLink>
     </maml:relatedLinks>
@@ -1485,6 +1648,10 @@ Total:  00:00:00.0782496</dev:code>
 		<maml:linkText>Assert</maml:linkText>
 		<maml:uri />
       </maml:navigationLink>
+	  <maml:navigationLink>	
+		<maml:linkText>Framework</maml:linkText>
+		<maml:uri />
+      </maml:navigationLink>
     </maml:relatedLinks>
   </command:command>
   
@@ -1657,6 +1824,10 @@ The solution is to wrap the condition in () so that PS will evaluate it first.
 		<maml:uri />
       </maml:navigationLink>
     </maml:relatedLinks>
+	  <maml:navigationLink>	
+		<maml:linkText>Framework</maml:linkText>
+		<maml:uri />
+      </maml:navigationLink>
   </command:command>
 
   <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10">
@@ -1800,6 +1971,10 @@ The solution is to wrap the condition in () so that PS will evaluate it first.
 		<maml:uri />
       </maml:navigationLink> 	  
     </maml:relatedLinks>
+	  <maml:navigationLink>	
+		<maml:linkText>Framework</maml:linkText>
+		<maml:uri />
+      </maml:navigationLink>
   </command:command>
   
   <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10">
@@ -1930,6 +2105,10 @@ The solution is to wrap the condition in () so that PS will evaluate it first.
 		<maml:linkText>TaskTearDown</maml:linkText>
 		<maml:uri />
       </maml:navigationLink> 	  
+	  <maml:navigationLink>	
+		<maml:linkText>Framework</maml:linkText>
+		<maml:uri />
+      </maml:navigationLink>
     </maml:relatedLinks>
   </command:command>
   </helpItems>
