@@ -21,7 +21,8 @@
 #Requires -Version 2.0
 
 #Ensure that only one instance of the psake module is loaded 
-remove-module psake -erroraction silentlycontinue
+#'[p]sake' is the same as 'psake' but $Error is not polluted.
+remove-module [p]sake -erroraction silentlycontinue
 
 #-- Public Module Functions --#
 
