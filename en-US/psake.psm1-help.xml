@@ -167,7 +167,7 @@ Possible values: '1.0', '1.1', '2.0', '2.0x86', '2.0x64', '3.0', '3.0x86', '3.0x
       <maml:title></maml:title>
       <maml:alert>
 	  <maml:para>---- Exceptions ----</maml:para>
-	  <maml:para>If there is an exception thrown during the running of a build script and the build script was invoked by a windows service then psake will execute the "exit" command (with a default value of "1") which in turn sets the PowerShell $lastexitcode variable otherwise psake will set the '$psake.build_success' variable to $true or $false depending on whether an exception was thrown.</maml:para>
+	  <maml:para>If there is an exception thrown during the running of a build script psake will set the '$psake.build_success' variable to $false. To detect failue outside PowerShell (for example by build server), finish PowerShell process with non-zero exit code when '$psake.build_success' is $false. Calling psake from 'cmd.exe' with 'psake.cmd' will give you that behaviour.</maml:para>
 	  <maml:para></maml:para>
 	  </maml:alert>	  
 	  <maml:alert>

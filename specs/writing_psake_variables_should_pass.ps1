@@ -28,7 +28,6 @@ task Verify -description "This task verifies psake's variables" {
   Assert ((new-object "System.IO.FileInfo" $config.buildFileName).FullName -eq $psake.build_script_file.FullName) ('$psake.context.peek().config.buildFileName not equal to "{0}"' -f $psake.build_script_file.FullName)
   Assert ($config.framework -eq "3.5") '$psake.context.peek().config.framework not equal to "3.5"'
   Assert ($config.taskNameFormat -eq "Executing {0}") '$psake.context.peek().config.taskNameFormat not equal to "Executing {0}"'
-  Assert ($config.exitCode -eq "1") '$psake.context.peek().config.ExitCode not equal to "1"'
   Assert (!$config.verboseError) '$psake.context.peek().config.verboseError should be $false'
   Assert ($config.coloredOutput) '$psake.context.peek().config.coloredOutput should be $false'
   Assert ($config.modules) '$psake.context.peek().config.modules is $null'

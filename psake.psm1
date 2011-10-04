@@ -386,12 +386,7 @@ function Invoke-psake {
             } else {
                 Write-ColoredOutput $error_message -foregroundcolor Red
             }
-            
-            # Need to return a non-zero DOS exit code so that CI server's (Hudson, TeamCity, etc...) can detect a failed job
-            if ((IsChildOfService)) {
-                $host.SetShouldExit($currentConfig.exitCode)
-                exit($currentConfig.exitCode)
-            }
+
         }
     } finally {
         Cleanup-Environment
@@ -490,7 +485,6 @@ function Create-ConfigurationForNewContext {
         buildFileName = $previousConfig.buildFileName;
         framework = $previousConfig.framework;
         taskNameFormat = $previousConfig.taskNameFormat;
-        exitCode = $previousConfig.exitCode;
         verboseError = $previousConfig.verboseError;
         coloredOutput = $previousConfig.coloredOutput;
         modules = $previousConfig.modules
@@ -505,29 +499,6 @@ function Create-ConfigurationForNewContext {
     }
 
     return $config
-}
-
-function IsChildOfService {
-    param(
-        [int] $currentProcessID = $PID
-    )
-
-    $currentProcess = gwmi -Query "select * from win32_process where processid = '$currentProcessID'"
-
-    #System Idle Process
-    if ($currentProcess.ProcessID -eq 0) {
-        return $false
-    }
-
-    $service = Get-WmiObject -Class Win32_Service -Filter "ProcessId = '$currentProcessID'"
-
-    #We are invoked by a windows service
-    if ($service) {
-        return $true
-    } else {
-        $parentProcess = gwmi -Query "select * from win32_process where processid = '$($currentProcess.ParentProcessID)'"
-        return IsChildOfService $parentProcess.ProcessID
-    }
 }
 
 function Configure-BuildEnvironment {
@@ -714,7 +685,6 @@ $psake.config_default = new-object psobject -property @{
     buildFileName = "default.ps1";
     framework = "3.5";
     taskNameFormat = "Executing {0}";
-    exitCode = "1";
     verboseError = $false;
     coloredOutput = $true;
     modules = (new-object PSObject -property @{
