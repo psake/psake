@@ -20,10 +20,6 @@
 
 #Requires -Version 2.0
 
-#Ensure that only one instance of the psake module is loaded 
-#'[p]sake' is the same as 'psake' but $Error is not polluted.
-remove-module [p]sake -erroraction silentlycontinue
-
 #-- Public Module Functions --#
 
 # .ExternalHelp  psake.psm1-help.xml

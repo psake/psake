@@ -23,7 +23,8 @@ param(
     [switch]$nologo = $false
 )
 
-remove-module psake -ea 'SilentlyContinue'
+# '[p]sake' is the same as 'psake' but $Error is not polluted
+remove-module [p]sake
 import-module (join-path $scriptPath psake.psm1)
 if (-not(test-path $buildFile)) {
     $absoluteBuildFile = (join-path $scriptPath $buildFile)
