@@ -20,9 +20,6 @@
 
 #Requires -Version 2.0
 
-#Ensure that only one instance of the psake module is loaded 
-remove-module psake -erroraction silentlycontinue
-
 #-- Public Module Functions --#
 
 # .ExternalHelp  psake.psm1-help.xml
@@ -239,6 +236,15 @@ function TaskTearDown {
 }
 
 # .ExternalHelp  psake.psm1-help.xml
+function Framework {
+    [CmdletBinding()]
+    param(
+        [Parameter(Position=0,Mandatory=1)][string]$framework
+    )
+    $psake.context.Peek().config.framework = $framework
+}
+
+# .ExternalHelp  psake.psm1-help.xml
 function Invoke-psake {
     [CmdletBinding()]
     param(
@@ -252,13 +258,11 @@ function Invoke-psake {
     )
     try {
         if (-not $nologo) {
-        "psake version {0}`nCopyright (c) 2010 James Kovacs`n" -f $psake.version
-		}
-        <# 
-        If the default.ps1 file exists and the given "buildfile" isn 't found assume that the given 
-        $buildFile is actually the target Tasks to execute in the default.ps1 script. 
-        #>
-        
+            "psake version {0}`nCopyright (c) 2010 James Kovacs`n" -f $psake.version
+        }
+ 
+        # If the default.ps1 file exists and the given "buildfile" isn 't found assume that the given 
+        # $buildFile is actually the target Tasks to execute in the default.ps1 script. 
         if ($buildFile -and !(test-path $buildFile) -and (test-path $psake.config_default.buildFileName)) {
             $taskList = $buildFile.Split(', ')
             $buildFile = $psake.config_default.buildFileName
@@ -271,7 +275,6 @@ function Invoke-psake {
         $psake.build_script_dir = $psake.build_script_file.DirectoryName
         $psake.build_success = $false
 
-        
         $psake.context.push(@{
             "taskSetupScriptBlock" = {};
             "taskTearDownScriptBlock" = {};
@@ -294,7 +297,15 @@ function Invoke-psake {
         
         set-location $psake.build_script_dir
         
+        $frameworkOldValue = $framework
         . $psake.build_script_file.FullName
+
+        $currentContext = $psake.context.Peek()
+
+        if ($framework -ne $frameworkOldValue) {
+            write-coloredoutput $msgs.warning_deprecated_framework_variable -foregroundcolor Yellow
+            $currentContext.config.framework = $framework
+        }
 
         if ($docs) {
             Write-Documentation
@@ -303,8 +314,6 @@ function Invoke-psake {
         }
 
         Configure-BuildEnvironment
-
-        $currentContext = $psake.context.Peek()
 
         while ($currentContext.includes.Count -gt 0) {
             $includeFilename = $currentContext.includes.Dequeue()
@@ -360,7 +369,8 @@ function Invoke-psake {
             $error_message += ("-" * 70) + "`n"
             $error_message += get-variable -scope script | format-table | out-string 
         } else {
-            $error_message = "{0}: An Error Occurred: `n{1}" -f (Get-Date), $_
+            # ($_ | Out-String) gets error messages with source information included. 
+            $error_message = "{0}: An Error Occurred: `n{1}" -f (Get-Date), ($_ | Out-String)
         }
 
         $psake.build_success = $false
@@ -374,12 +384,7 @@ function Invoke-psake {
             } else {
                 Write-ColoredOutput $error_message -foregroundcolor Red
             }
-            
-            # Need to return a non-zero DOS exit code so that CI server's (Hudson, TeamCity, etc...) can detect a failed job
-            if ((IsChildOfService)) {
-                $host.SetShouldExit($currentConfig.exitCode)
-                exit($currentConfig.exitCode)
-            }
+
         }
     } finally {
         Cleanup-Environment
@@ -468,7 +473,7 @@ function Get-CurrentConfigurationOrDefault() {
 
 function Create-ConfigurationForNewContext {
     param(
-        [string] $buildFileName,
+        [string] $buildFile,
         [string] $framework
     )
 
@@ -478,7 +483,6 @@ function Create-ConfigurationForNewContext {
         buildFileName = $previousConfig.buildFileName;
         framework = $previousConfig.framework;
         taskNameFormat = $previousConfig.taskNameFormat;
-        exitCode = $previousConfig.exitCode;
         verboseError = $previousConfig.verboseError;
         coloredOutput = $previousConfig.coloredOutput;
         modules = $previousConfig.modules
@@ -493,29 +497,6 @@ function Create-ConfigurationForNewContext {
     }
 
     return $config
-}
-
-function IsChildOfService {
-    param(
-        [int] $currentProcessID = $PID
-    )
-
-    $currentProcess = gwmi -Query "select * from win32_process where processid = '$currentProcessID'"
-
-    #System Idle Process
-    if ($currentProcess.ProcessID -eq 0) {
-        return $false
-    }
-
-    $service = Get-WmiObject -Class Win32_Service -Filter "ProcessId = '$currentProcessID'"
-
-    #We are invoked by a windows service
-    if ($service) {
-        return $true
-    } else {
-        $parentProcess = gwmi -Query "select * from win32_process where processid = '$($currentProcess.ParentProcessID)'"
-        return IsChildOfService $parentProcess.ProcessID
-    }
 }
 
 function Configure-BuildEnvironment {
@@ -684,6 +665,7 @@ convertfrom-stringdata @'
     error_invalid_module_dir = Unable to load modules from directory: {0}
     error_invalid_module_path = Unable to load module at path: {0}
     error_loading_module = Error loading module: {0}
+    warning_deprecated_framework_variable = Warning: Using global variable $framework to set .NET framework version used is deprecated. Instead use Framework function or configuration file psake-config.ps1
     postcondition_failed = Postcondition failed for {0}
     precondition_was_false = Precondition was false not executing {0}
     continue_on_error = Error in Task [{0}] {1}
@@ -701,18 +683,17 @@ $psake.config_default = new-object psobject -property @{
     buildFileName = "default.ps1";
     framework = "3.5";
     taskNameFormat = "Executing {0}";
-    exitCode = "1";
     verboseError = $false;
-    coloredOutput = $false;
+    coloredOutput = $true;
     modules = (new-object PSObject -property @{
         autoload = $false
     })
-} # contains default configuration, can be overriden in psake-config.ps1 in directory with psake.psm1
+} # contains default configuration, can be overriden in psake-config.ps1 in directory with psake.psm1 or in directory with current build script
 
 $psake.build_success = $false # indicates that the current build was successful
-$psake.build_script_file = $null # contains a System.IO.FileInfo for the current build file
+$psake.build_script_file = $null # contains a System.IO.FileInfo for the current build script
 $psake.build_script_dir = "" # contains a string with fully-qualified path to current build script
 
 Load-Configuration
 
-export-modulemember -function invoke-psake, invoke-task, task, properties, include, formattaskname, tasksetup, taskteardown, assert, exec -variable psake
+export-modulemember -function invoke-psake, invoke-task, task, properties, include, formattaskname, tasksetup, taskteardown, framework, assert, exec -variable psake
