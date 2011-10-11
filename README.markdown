@@ -39,9 +39,9 @@ If you encounter the following error "Import-Module : ...psake.psm1 cannot be lo
 
 If you'd like to get involved with psake, we have discussion groups over at google: **[psake-dev](http://groups.google.com/group/psake-dev)** **[psake-users](http://groups.google.com/group/psake-users)**
 
-Anyone can fork the main repository and submit patches, as well. And lastly, the [wiki](http://wiki.github.com/JamesKovacs/psake/) and [issues list](http://github.com/JamesKovacs/psake/issues) are also open for additions, edits, and discussion.
+Anyone can fork the main repository and submit patches, as well. And lastly, the [wiki](http://wiki.github.com/psake/psake/) and [issues list](http://github.com/psake/psake/issues) are also open for additions, edits, and discussion.
 
-Also check out the **[psake-contrib](http://github.com/JamesKovacs/psake-contrib)** project for scripts,modules and functions to help you with a build
+Also check out the **[psake-contrib](http://github.com/psake/psake-contrib)** project for scripts,modules and functions to help you with a build
 
 ## Contributors
 
