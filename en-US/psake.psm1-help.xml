@@ -1078,7 +1078,7 @@ Task TaskC {
       <dev:version />
     </command:details>
     <maml:description>
-      <maml:para>A build script may declare an "includes" function which allows you to define a file containing powershell code to be included and added to the scope of the currently running build script.</maml:para>
+      <maml:para>A build script may declare an "includes" function which allows you to define a file containing powershell code to be included and added to the scope of the currently running build script. Code from such file will be executed after code from build script.</maml:para>
     </maml:description>
     <command:syntax>
       <command:syntaxItem>

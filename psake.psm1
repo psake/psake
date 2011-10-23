@@ -81,6 +81,10 @@ function Invoke-Task
                         Write-ColoredOutput ($currentContext.config.taskNameFormat -f $taskName) -foregroundcolor Blue
                     }
 
+                    foreach ($variable in $task.requiredVariables) {
+                        Assert ((test-path "variable:$variable") -and ((get-variable $variable).Value -ne $null)) ($msgs.required_variable_not_set -f $variable, $taskName)
+                    }
+
                     & $task.Action 
 
                     if ($task.PostAction) {
@@ -152,17 +156,17 @@ function Task
 {
     [CmdletBinding()]  
     param(
-        [Parameter(Position=0,Mandatory=1)] [string]$name = $null,
-        [Parameter(Position=1,Mandatory=0)] [scriptblock]$action = $null,    
-        [Parameter(Position=2,Mandatory=0)] [scriptblock]$preaction = $null,    
-        [Parameter(Position=3,Mandatory=0)] [scriptblock]$postaction = $null,    
-        [Parameter(Position=4,Mandatory=0)] [scriptblock]$precondition = {$true},    
-        [Parameter(Position=5,Mandatory=0)] [scriptblock]$postcondition = {$true},    
-        [Parameter(Position=6,Mandatory=0)] [switch]$continueOnError = $false,    
-        [Parameter(Position=7,Mandatory=0)] [string[]]$depends = @(),    
-        [Parameter(Position=8,Mandatory=0)] [string]$description = $null
+        [Parameter(Position=0,Mandatory=1)][string]$name = $null,
+        [Parameter(Position=1,Mandatory=0)][scriptblock]$action = $null,
+        [Parameter(Position=2,Mandatory=0)][scriptblock]$preaction = $null,
+        [Parameter(Position=3,Mandatory=0)][scriptblock]$postaction = $null,
+        [Parameter(Position=4,Mandatory=0)][scriptblock]$precondition = {$true}, 
+        [Parameter(Position=5,Mandatory=0)][scriptblock]$postcondition = {$true},
+        [Parameter(Position=6,Mandatory=0)][switch]$continueOnError = $false,
+        [Parameter(Position=7,Mandatory=0)][string[]]$depends = @(),
+        [Parameter(Position=8,Mandatory=0)][string]$description = $null,
+        [Parameter(Position=9,Mandatory=0)][string[]]$requiredVariables = @()
     )
-
     if ($name -eq 'default') {
         Assert (!$action) ($msgs.error_default_task_cannot_have_action)
     }
@@ -178,6 +182,7 @@ function Task
         ContinueOnError = $continueOnError
         Description = $description
         Duration = 0
+        RequiredVariables = $requiredVariables
     }
 
     $taskKey = $name.ToLower()
@@ -414,32 +419,15 @@ function Write-ColoredOutput {
 }
 
 function Load-Modules {
-    $modules = $null
-
     $currentConfig = $psake.context.peek().config
-    if ($currentConfig.modules.autoload) {
-        if ($currentConfig.modules.directory) {
-            Assert (test-path $currentConfig.modules.directory) ($msgs.error_invalid_module_dir -f $currentConfig.modules.directory)
-            $modules = get-item(join-path $currentConfig.modules.directory "*.psm1")
-        }
-        elseif (test-path (join-path $PSScriptRoot "modules")) {
-            $modules = get-item (join-path (join-path $PSScriptRoot "modules") "*.psm1")
-        }
-    } else {
-        if ($currentConfig.modules.module) {
-            $modules = $currentConfig.modules.module | % {
-                Assert (test-path $_.path) ($msgs.error_invalid_module_path -f $_.path);
-                get-item $_.path
-            }
-        }
-    }
-
-    if ($modules) {
-        $modules | % {
-            "loading module: $_";
-            $module = import-module $_ -passthru;
-            if (!$module) {
-                throw ($msgs.error_loading_module -f $_.Name)
+    if ($currentConfig.modules) {
+        $currentConfig.modules | foreach {
+            resolve-path $_ | foreach {
+                "Loading module: $_"
+                $module = import-module $_ -passthru
+                if (!$module) {
+                    throw ($msgs.error_loading_module -f $_.Name)
+                }
             }
         }
         ""
@@ -662,10 +650,9 @@ convertfrom-stringdata @'
     error_invalid_include_path = Unable to include {0}. File not found.
     error_build_file_not_found = Could not find the build file, {0}.
     error_no_default_task = default task required
-    error_invalid_module_dir = Unable to load modules from directory: {0}
-    error_invalid_module_path = Unable to load module at path: {0}
     error_loading_module = Error loading module: {0}
     warning_deprecated_framework_variable = Warning: Using global variable $framework to set .NET framework version used is deprecated. Instead use Framework function or configuration file psake-config.ps1
+    required_variable_not_set = Variable {0} must be set to run task {1}.
     postcondition_failed = Postcondition failed for {0}
     precondition_was_false = Precondition was false not executing {0}
     continue_on_error = Error in Task [{0}] {1}
@@ -685,9 +672,7 @@ $psake.config_default = new-object psobject -property @{
     taskNameFormat = "Executing {0}";
     verboseError = $false;
     coloredOutput = $true;
-    modules = (new-object PSObject -property @{
-        autoload = $false
-    })
+    modules = $null;
 } # contains default configuration, can be overriden in psake-config.ps1 in directory with psake.psm1 or in directory with current build script
 
 $psake.build_success = $false # indicates that the current build was successful

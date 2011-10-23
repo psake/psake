@@ -30,5 +30,5 @@ task Verify -description "This task verifies psake's variables" {
   Assert ($config.taskNameFormat -eq "Executing {0}") '$psake.context.peek().config.taskNameFormat not equal to "Executing {0}"'
   Assert (!$config.verboseError) '$psake.context.peek().config.verboseError should be $false'
   Assert ($config.coloredOutput) '$psake.context.peek().config.coloredOutput should be $false'
-  Assert ($config.modules) '$psake.context.peek().config.modules is $null'
+  Assert ($config.modules -eq $null) '$psake.context.peek().config.modules is not $null'
 }
