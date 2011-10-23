@@ -209,7 +209,7 @@ function Include {
     param(
         [Parameter(Position=0,Mandatory=1)][string]$fileNamePathToInclude
     )
-    Assert (test-path $fileNamePathToInclude) ($msgs.error_invalid_include_path -f $fileNamePathToInclude)
+    Assert (test-path $fileNamePathToInclude -pathType Leaf) ($msgs.error_invalid_include_path -f $fileNamePathToInclude)
     $psake.context.Peek().includes.Enqueue((Resolve-Path $fileNamePathToInclude));
 }
 
@@ -268,13 +268,13 @@ function Invoke-psake {
  
         # If the default.ps1 file exists and the given "buildfile" isn 't found assume that the given 
         # $buildFile is actually the target Tasks to execute in the default.ps1 script. 
-        if ($buildFile -and !(test-path $buildFile) -and (test-path $psake.config_default.buildFileName)) {
+        if ($buildFile -and !(test-path $buildFile -pathType Leaf) -and (test-path $psake.config_default.buildFileName -pathType Leaf)) {
             $taskList = $buildFile.Split(', ')
             $buildFile = $psake.config_default.buildFileName
         }
 
         # Execute the build file to set up the tasks and defaults
-        Assert (test-path $buildFile) ($msgs.error_build_file_not_found -f $buildFile)
+        Assert (test-path $buildFile -pathType Leaf) ($msgs.error_build_file_not_found -f $buildFile)
 
         $psake.build_script_file = get-item $buildFile
         $psake.build_script_dir = $psake.build_script_file.DirectoryName
@@ -441,7 +441,7 @@ function Load-Configuration {
 
     $psakeConfigFilePath = (join-path $configdir "psake-config.ps1")
 
-    if (test-path $psakeConfigFilePath) {
+    if (test-path $psakeConfigFilePath -pathType Leaf) {
         try {
             $config = Get-CurrentConfigurationOrDefault
             . $psakeConfigFilePath
@@ -549,7 +549,7 @@ function Configure-BuildEnvironment {
     }
     $frameworkDirs = $versions | foreach { "$env:windir\Microsoft.NET\$bitness\$_\" }
 
-    $frameworkDirs | foreach { Assert (test-path $_) ($msgs.error_no_framework_install_dir_found -f $_)}
+    $frameworkDirs | foreach { Assert (test-path $_ -pathType Container) ($msgs.error_no_framework_install_dir_found -f $_)}
 
     $env:path = ($frameworkDirs -join ";") + ";$env:path"
     #if any error occurs in a PS function then "stop" processing immediately
