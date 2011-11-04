@@ -393,6 +393,7 @@ function Invoke-psake {
         }
     } finally {
         Cleanup-Environment
+        exit($psake.build_success)
     }
 } #Invoke-psake
 
