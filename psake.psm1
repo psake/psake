@@ -52,7 +52,7 @@ function Invoke-Task
     $precondition_is_valid = & $task.Precondition
 
     if (!$precondition_is_valid) {
-        Write-ColoredOutput ($msgs.precondition_was_false -f $taskName) -foregroundcolor Blue
+        Write-ColoredOutput ($msgs.precondition_was_false -f $taskName) -foregroundcolor $textcolor
     } else {
         if ($taskKey -ne 'default') {
             $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
@@ -78,7 +78,7 @@ function Invoke-Task
                     if ($currentContext.config.taskNameFormat -is [ScriptBlock]) {
                         & $currentContext.config.taskNameFormat $taskName
                     } else {
-                        Write-ColoredOutput ($currentContext.config.taskNameFormat -f $taskName) -foregroundcolor Blue
+                        Write-ColoredOutput ($currentContext.config.taskNameFormat -f $taskName) -foregroundcolor $textcolor
                     }
 
                     foreach ($variable in $task.requiredVariables) {
@@ -259,7 +259,8 @@ function Invoke-psake {
         [Parameter(Position = 3, Mandatory = 0)][switch] $docs = $false, 
         [Parameter(Position = 4, Mandatory = 0)][hashtable] $parameters = @{}, 
         [Parameter(Position = 5, Mandatory = 0)][hashtable] $properties = @{},
-        [Parameter(Position = 6, Mandatory = 0)][switch] $nologo = $false
+        [Parameter(Position = 6, Mandatory = 0)][switch] $nologo = $false,
+        [Parameter(Position = 7, Mandatory = 0)][string] $textcolor = "Blue"
     )
     try {
         if (-not $nologo) {
