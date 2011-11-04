@@ -52,7 +52,7 @@ function Invoke-Task
     $precondition_is_valid = & $task.Precondition
 
     if (!$precondition_is_valid) {
-        Write-ColoredOutput ($msgs.precondition_was_false -f $taskName) -foregroundcolor Blue
+        Write-ColoredOutput ($msgs.precondition_was_false -f $taskName) -foregroundcolor Cyan
     } else {
         if ($taskKey -ne 'default') {
             $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
@@ -78,7 +78,7 @@ function Invoke-Task
                     if ($currentContext.config.taskNameFormat -is [ScriptBlock]) {
                         & $currentContext.config.taskNameFormat $taskName
                     } else {
-                        Write-ColoredOutput ($currentContext.config.taskNameFormat -f $taskName) -foregroundcolor Blue
+                        Write-ColoredOutput ($currentContext.config.taskNameFormat -f $taskName) -foregroundcolor Cyan
                     }
 
                     foreach ($variable in $task.requiredVariables) {
