@@ -55,7 +55,6 @@ function Invoke-Task
         Write-ColoredOutput ($msgs.precondition_was_false -f $taskName) -foregroundcolor Cyan
     } else {
         if ($taskKey -ne 'default') {
-            $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 
             if ($task.PreAction -or $task.PostAction) {
                 Assert ($task.Action -ne $null) $msgs.error_missing_action_parameter
@@ -67,6 +66,7 @@ function Invoke-Task
                         Invoke-Task $childTask
                     }
 
+                    $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
                     $currentContext.currentTaskName = $taskName
 
                     & $currentContext.taskSetupScriptBlock
@@ -92,11 +92,13 @@ function Invoke-Task
                     }
 
                     & $currentContext.taskTearDownScriptBlock
+                    $task.Duration = $stopwatch.Elapsed
                 } catch {
                     if ($task.ContinueOnError) {
                         "-"*70            
                         $msgs.continue_on_error -f $taskName,$_
                         "-"*70
+                        $task.Duration = $stopwatch.Elapsed
                     }  else {
                         throw $_
                     }
@@ -107,8 +109,6 @@ function Invoke-Task
                     Invoke-Task $childTask
                 }
             }
-            $stopwatch.stop()
-            $task.Duration = $stopwatch.Elapsed
         } else {
             foreach($childTask in $task.DependsOn) {
                 Invoke-Task $childTask
@@ -181,7 +181,7 @@ function Task
         Postcondition = $postcondition
         ContinueOnError = $continueOnError
         Description = $description
-        Duration = 0
+        Duration = [System.TimeSpan]::Zero
         RequiredVariables = $requiredVariables
     }
 
@@ -356,11 +356,9 @@ function Invoke-psake {
             throw $msgs.error_no_default_task
         }
 
-        $stopwatch.Stop()
-
         Write-ColoredOutput ("`n" + $msgs.build_success + "`n") -foregroundcolor Green
 
-        Write-TaskTimeSummary
+        Write-TaskTimeSummary $stopwatch.Elapsed
 
         $psake.build_success = $true
     } catch {
@@ -607,7 +605,7 @@ function Write-Documentation {
     } | sort 'Name' | format-table -Auto -Property Name,Description,"Depends On",Default
 }
 
-function Write-TaskTimeSummary {
+function Write-TaskTimeSummary($invokePsakeDuration) {
     "-" * 70 
     "Build Time Report"
     "-" * 70
@@ -627,9 +625,10 @@ function Write-TaskTimeSummary {
     [Array]::Reverse($list)
     $list += new-object PSObject -property @{
         Name = "Total:";
-        Duration = $stopwatch.Elapsed
+        Duration = $invokePsakeDuration
     }
-    $list | format-table -auto -Property Name,Duration | out-string -stream | ? { $_ } #using "Out-String -Stream" to filter out the blank line that Format-Table prepends
+    # using "out-string | where-object" to filter out the blank line that format-table prepends
+    $list | format-table -autoSize -property Name,Duration | out-string -stream | where-object { $_ }
 }
 
 DATA msgs {
