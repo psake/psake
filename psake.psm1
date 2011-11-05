@@ -35,19 +35,16 @@ function Invoke-Task
     $taskKey = $taskName.ToLower()
 
     $currentContext = $psake.context.Peek()
-    $tasks = $currentContext.tasks
-    $executedTasks = $currentContext.executedTasks
-    $callStack = $currentContext.callStack
 
-    Assert ($tasks.Contains($taskKey)) ($msgs.error_task_name_does_not_exist -f $taskName)
+    Assert ($currentContext.tasks.Contains($taskKey)) ($msgs.error_task_name_does_not_exist -f $taskName)
 
-    if ($executedTasks.Contains($taskKey))  { return }
+    if ($currentContext.executedTasks.Contains($taskKey))  { return }
 
-    Assert (!$callStack.Contains($taskKey)) ($msgs.error_circular_reference -f $taskName)
+    Assert (!$currentContext.callStack.Contains($taskKey)) ($msgs.error_circular_reference -f $taskName)
 
-    $callStack.Push($taskKey)
+    $currentContext.callStack.Push($taskKey)
 
-    $task = $tasks.$taskKey
+    $task = $currentContext.tasks.$taskKey
 
     $precondition_is_valid = & $task.Precondition
 
@@ -57,7 +54,7 @@ function Invoke-Task
         if ($taskKey -ne 'default') {
 
             if ($task.PreAction -or $task.PostAction) {
-                Assert ($task.Action -ne $null) $msgs.error_missing_action_parameter
+                Assert ($task.Action -ne $null) ($msgs.error_missing_action_parameter -f $taskName)
             }
 
             if ($task.Action) {
@@ -95,8 +92,8 @@ function Invoke-Task
                     $task.Duration = $stopwatch.Elapsed
                 } catch {
                     if ($task.ContinueOnError) {
-                        "-"*70            
-                        $msgs.continue_on_error -f $taskName,$_
+                        "-"*70
+                        Write-ColoredOutput ($msgs.continue_on_error -f $taskName,$_) -foregroundcolor Yellow
                         "-"*70
                         $task.Duration = $stopwatch.Elapsed
                     }  else {
@@ -104,7 +101,7 @@ function Invoke-Task
                     }
                 }
             } else { 
-                #no Action was specified but we still execute all the dependencies
+                # no action was specified but we still execute all the dependencies
                 foreach($childTask in $task.DependsOn) {
                     Invoke-Task $childTask
                 }
@@ -118,10 +115,10 @@ function Invoke-Task
         Assert (& $task.Postcondition) ($msgs.postcondition_failed -f $taskName)
     }
 
-    $poppedTaskKey = $callStack.Pop()
+    $poppedTaskKey = $currentContext.callStack.Pop()
     Assert ($poppedTaskKey -eq $taskKey) ($msgs.error_corrupt_callstack -f $taskKey,$poppedTaskKey)
 
-    $executedTasks.Push($taskKey)
+    $currentContext.executedTasks.Push($taskKey)
 }
 
 # .ExternalHelp  psake.psm1-help.xml
@@ -333,8 +330,7 @@ function Invoke-psake {
             }
         }
 
-        # N.B. The initial dot (.) indicates that variables initialized/modified
-        #      in the propertyBlock are available in the parent scope.
+        # The initial dot (.) indicates that variables initialized/modified in the propertyBlock are available in the parent scope.
         foreach ($propertyBlock in $currentContext.properties) {
             . $propertyBlock 
         }
@@ -379,8 +375,8 @@ function Invoke-psake {
         $psake.build_success = $false
 
         if (!$psake.run_by_psake_build_tester) {
-            #if we are running in a nested scope (i.e. running a psake script from a psake script) then we need to re-throw the exception
-            #so that the parent script will fail otherwise the parent script will report a successful build 
+            # if we are running in a nested scope (i.e. running a psake script from a psake script) then we need to re-throw the exception
+            # so that the parent script will fail otherwise the parent script will report a successful build 
             $inNestedScope = ($psake.context.count -gt 1)
             if ( $inNestedScope ) {
                 throw $_
@@ -392,7 +388,7 @@ function Invoke-psake {
     } finally {
         Cleanup-Environment
     }
-} #Invoke-psake
+}
 
 #-- Private Module Functions --#
 function Write-ColoredOutput {
@@ -550,8 +546,8 @@ function Configure-BuildEnvironment {
     $frameworkDirs | foreach { Assert (test-path $_ -pathType Container) ($msgs.error_no_framework_install_dir_found -f $_)}
 
     $env:path = ($frameworkDirs -join ";") + ";$env:path"
-    #if any error occurs in a PS function then "stop" processing immediately
-    #this does not effect any external programs that return a non-zero exit code
+    # if any error occurs in a PS function then "stop" processing immediately
+    # this does not effect any external programs that return a non-zero exit code
     $global:ErrorActionPreference = "Stop"
 }
 
@@ -565,7 +561,7 @@ function Cleanup-Environment {
     }
 }
 
-#borrowed from Jeffrey Snover http://blogs.msdn.com/powershell/archive/2006/12/07/resolve-error.aspx
+# borrowed from Jeffrey Snover http://blogs.msdn.com/powershell/archive/2006/12/07/resolve-error.aspx
 function Resolve-Error($ErrorRecord = $Error[0]) {
     $error_message = "`nErrorRecord:{0}ErrorRecord.InvocationInfo:{1}Exception:{2}"
     $formatted_errorRecord = $ErrorRecord | format-list * -force | out-string
@@ -602,7 +598,7 @@ function Write-Documentation {
             "Depends On" = $task.DependsOn -join ", "
             Default = if ($defaultTaskDependencies -contains $task.Name) { $true }
         }
-    } | sort 'Name' | format-table -Auto -Property Name,Description,"Depends On",Default
+    } | sort 'Name' | format-table -autoSize -property Name,Description,"Depends On",Default
 }
 
 function Write-TaskTimeSummary($invokePsakeDuration) {
@@ -633,28 +629,28 @@ function Write-TaskTimeSummary($invokePsakeDuration) {
 
 DATA msgs {
 convertfrom-stringdata @'
-    error_invalid_task_name = Task name should not be null or empty string
-    error_task_name_does_not_exist = task [{0}] does not exist
-    error_circular_reference = Circular reference found for task, {0}
-    error_missing_action_parameter = Action parameter must be specified when using PreAction or PostAction parameters
-    error_corrupt_callstack = CallStack was corrupt. Expected {0}, but got {1}.
-    error_invalid_framework = Invalid .NET Framework version, {0}, specified
-    error_unknown_framework = Unknown .NET Framework version, {0}, specified in {1}
+    error_invalid_task_name = Task name should not be null or empty string.
+    error_task_name_does_not_exist = Task {0} does not exist.
+    error_circular_reference = Circular reference found for task {0}.
+    error_missing_action_parameter = Action parameter must be specified when using PreAction or PostAction parameters for task {0}.
+    error_corrupt_callstack = Call stack was corrupt. Expected {0}, but got {1}.
+    error_invalid_framework = Invalid .NET Framework version, {0} specified.
+    error_unknown_framework = Unknown .NET Framework version, {0} specified in {1}.
     error_unknown_pointersize = Unknown pointer size ({0}) returned from System.IntPtr.
-    error_unknown_bitnesspart = Unknown .NET Framework bitness, {0}, specified in {1}
-    error_no_framework_install_dir_found = No .NET Framework installation directory found at {0}
-    error_bad_command = Error executing command: {0}
-    error_default_task_cannot_have_action = 'default' task cannot specify an action
+    error_unknown_bitnesspart = Unknown .NET Framework bitness, {0}, specified in {1}.
+    error_no_framework_install_dir_found = No .NET Framework installation directory found at {0}.
+    error_bad_command = Error executing command {0}.
+    error_default_task_cannot_have_action = 'default' task cannot specify an action.
     error_duplicate_task_name = Task {0} has already been defined.
     error_invalid_include_path = Unable to include {0}. File not found.
-    error_build_file_not_found = Could not find the build file, {0}.
-    error_no_default_task = default task required
-    error_loading_module = Error loading module: {0}
-    warning_deprecated_framework_variable = Warning: Using global variable $framework to set .NET framework version used is deprecated. Instead use Framework function or configuration file psake-config.ps1
+    error_build_file_not_found = Could not find the build file {0}.
+    error_no_default_task = 'default' task required.
+    error_loading_module = Error loading module {0}.
+    warning_deprecated_framework_variable = Warning: Using global variable $framework to set .NET framework version used is deprecated. Instead use Framework function or configuration file psake-config.ps1.
     required_variable_not_set = Variable {0} must be set to run task {1}.
-    postcondition_failed = Postcondition failed for {0}
-    precondition_was_false = Precondition was false not executing {0}
-    continue_on_error = Error in Task [{0}] {1}
+    postcondition_failed = Postcondition failed for task {0}.
+    precondition_was_false = Precondition was false, not executing task {0}.
+    continue_on_error = Error in task {0}. {1}
     build_success = Build Succeeded!
 '@
 } 
