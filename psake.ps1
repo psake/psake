@@ -18,14 +18,21 @@ param(
     [Parameter(Position=5, Mandatory=0)]
     [System.Collections.Hashtable]$properties = @{},
     [Parameter(Position=6, Mandatory=0)]
-    [string]$scriptPath = $(Split-Path -parent $MyInvocation.MyCommand.path),
+    [switch]$nologo = $false,
     [Parameter(Position=7, Mandatory=0)]
-    [switch]$nologo = $false
+    [switch]$help = $false,
+    [Parameter(Position=8, Mandatory=0)]
+    [string]$scriptPath = $(Split-Path -parent $MyInvocation.MyCommand.path)
 )
 
 # '[p]sake' is the same as 'psake' but $Error is not polluted
 remove-module [p]sake
 import-module (join-path $scriptPath psake.psm1)
+if ($help) {
+  Get-Help Invoke-psake -full
+  return
+}
+
 if (-not(test-path $buildFile)) {
     $absoluteBuildFile = (join-path $scriptPath $buildFile)
     if (test-path $absoluteBuildFile)	{
