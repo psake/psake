@@ -35,8 +35,8 @@ function Invoke-Task
     $taskKey = $taskName.ToLower()
 
     if ($currentContext.aliases.Contains($taskKey)) {
-        $taskKey = $currentContext.aliases.$taskKey.Name.ToLower()
-        $taskName = $taskKey        
+        $taskName = $currentContext.aliases.$taskKey.Name
+        $taskKey = $taskName.ToLower()
     }
 
     $currentContext = $psake.context.Peek()
