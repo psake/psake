@@ -34,6 +34,11 @@ function Invoke-Task
 
     $taskKey = $taskName.ToLower()
 
+    if ($currentContext.aliases.Contains($taskKey)) {
+        $taskName = $currentContext.aliases.$taskKey.Name
+        $taskKey = $taskName.ToLower()
+    }
+
     $currentContext = $psake.context.Peek()
 
     Assert ($currentContext.tasks.Contains($taskKey)) ($msgs.error_task_name_does_not_exist -f $taskName)
@@ -162,7 +167,8 @@ function Task
         [Parameter(Position=6,Mandatory=0)][switch]$continueOnError = $false,
         [Parameter(Position=7,Mandatory=0)][string[]]$depends = @(),
         [Parameter(Position=8,Mandatory=0)][string[]]$requiredVariables = @(),
-        [Parameter(Position=9,Mandatory=0)][string]$description = $null
+        [Parameter(Position=9,Mandatory=0)][string]$description = $null,
+        [Parameter(Position=10,Mandatory=0)][string]$alias = $null
     )
     if ($name -eq 'default') {
         Assert (!$action) ($msgs.error_default_task_cannot_have_action)
@@ -180,15 +186,25 @@ function Task
         Description = $description
         Duration = [System.TimeSpan]::Zero
         RequiredVariables = $requiredVariables
+        Alias = $alias
     }
 
-    $taskKey = $name.ToLower()
+    $taskKey = $name.ToLower()    
 
     $currentContext = $psake.context.Peek()
 
     Assert (!$currentContext.tasks.ContainsKey($taskKey)) ($msgs.error_duplicate_task_name -f $name) 
 
     $currentContext.tasks.$taskKey = $newTask
+
+    if($alias)
+    {
+        $aliasKey = $alias.ToLower()
+
+        Assert (!$currentContext.aliases.ContainsKey($aliasKey)) ($msgs.error_duplicate_alias_name -f $alias) 
+
+        $currentContext.aliases.$aliasKey = $newTask        
+    }
 }
 
 # .ExternalHelp  psake.psm1-help.xml
@@ -286,6 +302,7 @@ function Invoke-psake {
             "originalDirectory" = get-location;
             "originalErrorActionPreference" = $global:ErrorActionPreference;
             "tasks" = @{};
+            "aliases" = @{};
             "properties" = @();
             "includes" = new-object System.Collections.Queue;
             "config" = Create-ConfigurationForNewContext $buildFile $framework
@@ -642,6 +659,7 @@ convertfrom-stringdata @'
     error_bad_command = Error executing command {0}.
     error_default_task_cannot_have_action = 'default' task cannot specify an action.
     error_duplicate_task_name = Task {0} has already been defined.
+    error_duplicate_alias_name = Alias {0} has already been defined.
     error_invalid_include_path = Unable to include {0}. File not found.
     error_build_file_not_found = Could not find the build file {0}.
     error_no_default_task = 'default' task required.
