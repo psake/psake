@@ -3,7 +3,7 @@
 Defaults
 -------------------------------------------------------------------
 $config.buildFileName="default.ps1"
-$config.framework = "3.5"
+$config.framework = "4.0"
 $config.taskNameFormat="Executing {0}"
 $config.verboseError=$false
 $config.coloredOutput = $true
