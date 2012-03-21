@@ -676,7 +676,7 @@ convertfrom-stringdata @'
 import-localizeddata -bindingvariable msgs -erroraction silentlycontinue
 
 $script:psake = @{}
-$psake.version = "4.00" # contains the current version of psake
+$psake.version = "4.1.0" # contains the current version of psake
 $psake.context = new-object system.collections.stack # holds onto the current state of all variables
 $psake.run_by_psake_build_tester = $false # indicates that build is being run by psake-BuildTester
 $psake.config_default = new-object psobject -property @{
