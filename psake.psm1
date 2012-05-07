@@ -272,7 +272,8 @@ function Invoke-psake {
         [Parameter(Position = 3, Mandatory = 0)][switch] $docs = $false, 
         [Parameter(Position = 4, Mandatory = 0)][hashtable] $parameters = @{}, 
         [Parameter(Position = 5, Mandatory = 0)][hashtable] $properties = @{},
-        [Parameter(Position = 6, Mandatory = 0)][switch] $nologo = $false
+        [Parameter(Position = 6, Mandatory = 0)][alias("init")][scriptblock] $initialization = {},
+        [Parameter(Position = 7, Mandatory = 0)][switch] $nologo = $false
     )
     try {
         if (-not $nologo) {
@@ -357,6 +358,10 @@ function Invoke-psake {
                 set-item -path "variable:\$key" -value $properties.$key | out-null
             }
         }
+
+        # Simple dot sourcing will not work. We have to force the script block into our
+        # module's scope in order to initialize variables properly.
+        . $MyInvocation.MyCommand.Module $initialization
 
         # Execute the list of tasks or the default task
         if ($taskList) {
