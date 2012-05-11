@@ -40,8 +40,7 @@ function runBuilds()
 	{		
 		$testResult = "" | select Name, Result
 		$testResult.Name = $buildFile.Name
-
-		invoke-psake $buildFile.FullName -Parameters @{'p1'='v1'; 'p2'='v2'} -Properties @{'x'='1'; 'y'='2'} | Out-Null			
+		invoke-psake $buildFile.FullName -Parameters @{'p1'='v1'; 'p2'='v2'} -Properties @{'x'='1'; 'y'='2'} -Initialization { if(!$container) { $container = @{}; } $container.bar = "bar"; $container.baz = "baz"; $bar = 2; $baz = 3 } | Out-Null
 		$testResult.Result = (getResult $buildFile.Name $psake.build_success)
 		$testResults += $testResult
 		if ($testResult.Result -eq "Passed")
