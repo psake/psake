@@ -384,6 +384,8 @@ function Invoke-psake {
         if ($currentConfig.verboseError) {
             $error_message = "{0}: An Error Occurred. See Error Details Below: `n" -f (Get-Date) 
             $error_message += ("-" * 70) + "`n"
+            $error_message += "Error: {0}`n" -f (($_ | Out-String) -replace "`n", '')
+            $error_message += ("-" * 70) + "`n"
             $error_message += ResolveError $_
             $error_message += ("-" * 70) + "`n"
             $error_message += "Script Variables" + "`n"
@@ -391,7 +393,7 @@ function Invoke-psake {
             $error_message += get-variable -scope script | format-table | out-string 
         } else {
             # ($_ | Out-String) gets error messages with source information included. 
-            $error_message = "{0}: An Error Occurred: `n{1}" -f (Get-Date), ($_ | Out-String)
+            $error_message = "Error: {0}: `n{1}" -f (Get-Date), ($_ | Out-String)
         }
 
         $psake.build_success = $false
