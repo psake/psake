@@ -54,7 +54,7 @@ function Invoke-Task
     $precondition_is_valid = & $task.Precondition
 
     if (!$precondition_is_valid) {
-        Write-ColoredOutput ($msgs.precondition_was_false -f $taskName) -foregroundcolor Cyan
+        WriteColoredOutput ($msgs.precondition_was_false -f $taskName) -foregroundcolor Cyan
     } else {
         if ($taskKey -ne 'default') {
 
@@ -80,7 +80,7 @@ function Invoke-Task
                     if ($currentContext.config.taskNameFormat -is [ScriptBlock]) {
                         & $currentContext.config.taskNameFormat $taskName
                     } else {
-                        Write-ColoredOutput ($currentContext.config.taskNameFormat -f $taskName) -foregroundcolor Cyan
+                        WriteColoredOutput ($currentContext.config.taskNameFormat -f $taskName) -foregroundcolor Cyan
                     }
 
                     foreach ($variable in $task.requiredVariables) {
@@ -98,7 +98,7 @@ function Invoke-Task
                 } catch {
                     if ($task.ContinueOnError) {
                         "-"*70
-                        Write-ColoredOutput ($msgs.continue_on_error -f $taskName,$_) -foregroundcolor Yellow
+                        WriteColoredOutput ($msgs.continue_on_error -f $taskName,$_) -foregroundcolor Yellow
                         "-"*70
                         $task.Duration = $stopwatch.Elapsed
                     }  else {
@@ -306,12 +306,12 @@ function Invoke-psake {
             "aliases" = @{};
             "properties" = @();
             "includes" = new-object System.Collections.Queue;
-            "config" = Create-ConfigurationForNewContext $buildFile $framework
+            "config" = CreateConfigurationForNewContext $buildFile $framework
         })
 
-        Load-Configuration $psake.build_script_dir
+        LoadConfiguration $psake.build_script_dir
 
-        Load-Modules
+        LoadModules
         
         $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
         
@@ -323,17 +323,17 @@ function Invoke-psake {
         $currentContext = $psake.context.Peek()
 
         if ($framework -ne $frameworkOldValue) {
-            write-coloredoutput $msgs.warning_deprecated_framework_variable -foregroundcolor Yellow
+            writecoloredoutput $msgs.warning_deprecated_framework_variable -foregroundcolor Yellow
             $currentContext.config.framework = $framework
         }
 
         if ($docs) {
-            Write-Documentation
-            Cleanup-Environment
+            WriteDocumentation
+            CleanupEnvironment
             return
         }
 
-        Configure-BuildEnvironment
+        ConfigureBuildEnvironment
 
         while ($currentContext.includes.Count -gt 0) {
             $includeFilename = $currentContext.includes.Dequeue()
@@ -374,17 +374,17 @@ function Invoke-psake {
             throw $msgs.error_no_default_task
         }
 
-        Write-ColoredOutput ("`n" + $msgs.build_success + "`n") -foregroundcolor Green
+        WriteColoredOutput ("`n" + $msgs.build_success + "`n") -foregroundcolor Green
 
-        Write-TaskTimeSummary $stopwatch.Elapsed
+        WriteTaskTimeSummary $stopwatch.Elapsed
 
         $psake.build_success = $true
     } catch {
-        $currentConfig = Get-CurrentConfigurationOrDefault
+        $currentConfig = GetCurrentConfigurationOrDefault
         if ($currentConfig.verboseError) {
             $error_message = "{0}: An Error Occurred. See Error Details Below: `n" -f (Get-Date) 
             $error_message += ("-" * 70) + "`n"
-            $error_message += Resolve-Error $_
+            $error_message += ResolveError $_
             $error_message += ("-" * 70) + "`n"
             $error_message += "Script Variables" + "`n"
             $error_message += ("-" * 70) + "`n"
@@ -403,23 +403,23 @@ function Invoke-psake {
             if ( $inNestedScope ) {
                 throw $_
             } else {
-                Write-ColoredOutput $error_message -foregroundcolor Red
+                WriteColoredOutput $error_message -foregroundcolor Red
             }
 
         }
     } finally {
-        Cleanup-Environment
+        CleanupEnvironment
     }
 }
 
 #-- Private Module Functions --#
-function Write-ColoredOutput {
+function WriteColoredOutput {
     param(
         [string] $message,
         [System.ConsoleColor] $foregroundcolor
     )
 
-    $currentConfig = Get-CurrentConfigurationOrDefault
+    $currentConfig = GetCurrentConfigurationOrDefault
     if ($currentConfig.coloredOutput -eq $true) {
         if (($Host.UI -ne $null) -and ($Host.UI.RawUI -ne $null)) {
             $previousColor = $Host.UI.RawUI.ForegroundColor
@@ -434,7 +434,7 @@ function Write-ColoredOutput {
     }
 }
 
-function Load-Modules {
+function LoadModules {
     $currentConfig = $psake.context.peek().config
     if ($currentConfig.modules) {
         $currentConfig.modules | foreach {
@@ -450,7 +450,7 @@ function Load-Modules {
     }
 }
 
-function Load-Configuration {
+function LoadConfiguration {
     param(
         [string] $configdir = $PSScriptRoot
     )
@@ -459,7 +459,7 @@ function Load-Configuration {
 
     if (test-path $psakeConfigFilePath -pathType Leaf) {
         try {
-            $config = Get-CurrentConfigurationOrDefault
+            $config = GetCurrentConfigurationOrDefault
             . $psakeConfigFilePath
         } catch {
             throw "Error Loading Configuration from psake-config.ps1: " + $_
@@ -467,7 +467,7 @@ function Load-Configuration {
     }
 }
 
-function Get-CurrentConfigurationOrDefault() {
+function GetCurrentConfigurationOrDefault() {
     if ($psake.context.count -gt 0) {
         return $psake.context.peek().config
     } else {
@@ -475,13 +475,13 @@ function Get-CurrentConfigurationOrDefault() {
     }
 }
 
-function Create-ConfigurationForNewContext {
+function CreateConfigurationForNewContext {
     param(
         [string] $buildFile,
         [string] $framework
     )
 
-    $previousConfig = Get-CurrentConfigurationOrDefault
+    $previousConfig = GetCurrentConfigurationOrDefault
 
     $config = new-object psobject -property @{
         buildFileName = $previousConfig.buildFileName;
@@ -503,7 +503,7 @@ function Create-ConfigurationForNewContext {
     return $config
 }
 
-function Configure-BuildEnvironment {
+function ConfigureBuildEnvironment {
     $framework = $psake.context.peek().config.framework
     if ($framework.Length -ne 3 -and $framework.Length -ne 6) {
         throw ($msgs.error_invalid_framework -f $framework)
@@ -573,7 +573,7 @@ function Configure-BuildEnvironment {
     $global:ErrorActionPreference = "Stop"
 }
 
-function Cleanup-Environment {
+function CleanupEnvironment {
     if ($psake.context.Count -gt 0) {
         $currentContext = $psake.context.Peek()
         $env:path = $currentContext.originalEnvPath
@@ -583,8 +583,8 @@ function Cleanup-Environment {
     }
 }
 
-# borrowed from Jeffrey Snover http://blogs.msdn.com/powershell/archive/2006/12/07/resolve-error.aspx
-function Resolve-Error($ErrorRecord = $Error[0]) {
+# borrowed from Jeffrey Snover http://blogs.msdn.com/powershell/archive/2006/12/07/resolveerror.aspx
+function ResolveError($ErrorRecord = $Error[0]) {
     $error_message = "`nErrorRecord:{0}ErrorRecord.InvocationInfo:{1}Exception:{2}"
     $formatted_errorRecord = $ErrorRecord | format-list * -force | out-string
     $formatted_invocationInfo = $ErrorRecord.InvocationInfo | format-list * -force | out-string
@@ -599,7 +599,7 @@ function Resolve-Error($ErrorRecord = $Error[0]) {
     return $error_message -f $formatted_errorRecord, $formatted_invocationInfo, $formatted_exception
 }
 
-function Write-Documentation {
+function WriteDocumentation {
     $currentContext = $psake.context.Peek()
 
     if ($currentContext.tasks.default) {
@@ -623,7 +623,7 @@ function Write-Documentation {
     } | sort 'Name' | format-table -autoSize -property Name,Description,"Depends On",Default
 }
 
-function Write-TaskTimeSummary($invokePsakeDuration) {
+function WriteTaskTimeSummary($invokePsakeDuration) {
     "-" * 70 
     "Build Time Report"
     "-" * 70
@@ -697,6 +697,6 @@ $psake.build_success = $false # indicates that the current build was successful
 $psake.build_script_file = $null # contains a System.IO.FileInfo for the current build script
 $psake.build_script_dir = "" # contains a string with fully-qualified path to current build script
 
-Load-Configuration
+LoadConfiguration
 
 export-modulemember -function invoke-psake, invoke-task, task, properties, include, formattaskname, tasksetup, taskteardown, framework, assert, exec -variable psake
