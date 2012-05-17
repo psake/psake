@@ -384,7 +384,7 @@ function Invoke-psake {
         if ($currentConfig.verboseError) {
             $error_message = "{0}: An Error Occurred. See Error Details Below: `n" -f (Get-Date) 
             $error_message += ("-" * 70) + "`n"
-            $error_message += "Error: {0}`n" -f (($_ | Out-String) -replace "`n", '')
+            $error_message += "Error: {0}`n" -f (ResolveError $_ -Short)
             $error_message += ("-" * 70) + "`n"
             $error_message += ResolveError $_
             $error_message += ("-" * 70) + "`n"
@@ -393,7 +393,7 @@ function Invoke-psake {
             $error_message += get-variable -scope script | format-table | out-string 
         } else {
             # ($_ | Out-String) gets error messages with source information included. 
-            $error_message = "Error: {0}: `n{1}" -f (Get-Date), ($_ | Out-String)
+            $error_message = "Error: {0}: `n{1}" -f (Get-Date), (ResolveError $_ -Short)
         }
 
         $psake.build_success = $false
@@ -585,20 +585,92 @@ function CleanupEnvironment {
     }
 }
 
-# borrowed from Jeffrey Snover http://blogs.msdn.com/powershell/archive/2006/12/07/resolveerror.aspx
-function ResolveError($ErrorRecord = $Error[0]) {
-    $error_message = "`nErrorRecord:{0}ErrorRecord.InvocationInfo:{1}Exception:{2}"
-    $formatted_errorRecord = $ErrorRecord | format-list * -force | out-string
-    $formatted_invocationInfo = $ErrorRecord.InvocationInfo | format-list * -force | out-string
-    $formatted_exception = ""
-    $Exception = $ErrorRecord.Exception
-    for ($i = 0; $Exception; $i++, ($Exception = $Exception.InnerException)) {
-        $formatted_exception += ("$i" * 70) + "`n"
-        $formatted_exception += $Exception | format-list * -force | out-string
-        $formatted_exception += "`n"
-    }
+function SelectObjectWithDefault
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(ValueFromPipeline=$true)]
+        [PSObject]
+        $InputObject,
+        [string]
+        $Name,
+        $Value
+    )
 
-    return $error_message -f $formatted_errorRecord, $formatted_invocationInfo, $formatted_exception
+    process {
+        if ($_ -eq $null) { $Value }
+        elseif ($_ | Get-Member -Name $Name) {
+          $_.$Name
+        }
+        elseif (($_ -is [Hashtable]) -and ($_.Keys -contains $Name)) {
+          $_.$Name
+        }
+        else { $Value }
+    }
+}
+
+# borrowed from Jeffrey Snover http://blogs.msdn.com/powershell/archive/2006/12/07/resolve-error.aspx
+# modified to better handle SQL errors
+function ResolveError
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(ValueFromPipeline=$true)]
+        $ErrorRecord=$Error[0],
+        [Switch]
+        $Short
+    )
+
+    process {
+        if ($_ -eq $null) { $_ = $ErrorRecord }
+        $ex = $_.Exception
+
+        if (-not $Short) {
+            $error_message = "`nErrorRecord:{0}ErrorRecord.InvocationInfo:{1}Exception:`n{2}"
+            $formatted_errorRecord = $_ | format-list * -force | out-string
+            $formatted_invocationInfo = $_.InvocationInfo | format-list * -force | out-string
+            $formatted_exception = ''
+
+            $i = 0
+            while ($ex -ne $null) {
+                $i++
+                $formatted_exception += ("$i" * 70) + "`n" +
+                    ($ex | format-list * -force | out-string) + "`n"
+                $ex = $ex | SelectObjectWithDefault -Name 'InnerException' -Value $null
+            }
+
+            return $error_message -f $formatted_errorRecord, $formatted_invocationInfo, $formatted_exception
+        }
+
+        $lastException = @()
+        while ($ex -ne $null) {
+            $lastMessage = $ex | SelectObjectWithDefault -Name 'Message' -Value ''
+            $lastException += ($lastMessage -replace "`n", '')
+            if ($ex -is [Data.SqlClient.SqlException]) {
+                $lastException += "(Line [$($ex.LineNumber)] " +
+                    "Procedure [$($ex.Procedure)] Class [$($ex.Class)] " +
+                    " Number [$($ex.Number)] State [$($ex.State)] )"
+            }
+            $ex = $ex | SelectObjectWithDefault -Name 'InnerException' -Value $null
+        }
+        $shortException = $lastException -join ' --> '
+
+        $header = $null
+        $current = $_
+        $header = (($_.InvocationInfo |
+            SelectObjectWithDefault -Name 'PositionMessage' -Value '') -replace "`n", ' '),
+            ($_ | SelectObjectWithDefault -Name 'Message' -Value ''),
+            ($_ | SelectObjectWithDefault -Name 'Exception' -Value '') |
+                ? { -not [String]::IsNullOrEmpty($_) } |
+                Select -First 1
+
+        $delimiter = ''
+        if ((-not [String]::IsNullOrEmpty($header)) -and
+            (-not [String]::IsNullOrEmpty($shortException)))
+            { $delimiter = ' [<<==>>] ' }
+
+        return "$($header)$($delimiter)Exception: $($shortException)"
+    }
 }
 
 function WriteDocumentation {
