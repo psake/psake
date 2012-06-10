@@ -1,6 +1,6 @@
 @echo on
 
-:: Assumes robocopy and nuget.exe both on the path
+:: Assumes robocopy on the path
 
 SET DIR=%~dp0%
 SET DESTDIR=%DIR%bin
