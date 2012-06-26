@@ -616,11 +616,12 @@ function Write-Documentation {
         $task = $currentContext.tasks.$_
         new-object PSObject -property @{
             Name = $task.Name;
+            Alias = $task.Alias;
             Description = $task.Description;
             "Depends On" = $task.DependsOn -join ", "
             Default = if ($defaultTaskDependencies -contains $task.Name) { $true }
         }
-    } | sort 'Name' | format-table -autoSize -property Name,Description,"Depends On",Default
+    } | sort 'Name' | format-list -property Name,Alias,Description,"Depends On",Default
 }
 
 function Write-TaskTimeSummary($invokePsakeDuration) {
