@@ -423,7 +423,7 @@ function WriteColoredOutput {
 
     $currentConfig = GetCurrentConfigurationOrDefault
     if ($currentConfig.coloredOutput -eq $true) {
-        if (($Host.UI -ne $null) -and ($Host.UI.RawUI -ne $null)) {
+        if (($Host.UI -ne $null) -and ($Host.UI.RawUI -ne $null) -and ($Host.UI.RawUI.ForegroundColor -ne $null)) {
             $previousColor = $Host.UI.RawUI.ForegroundColor
             $Host.UI.RawUI.ForegroundColor = $foregroundcolor
         }
