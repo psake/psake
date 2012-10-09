@@ -55,6 +55,4 @@ Many thanks for contributions to psake are due (in alphabetical order):
 
 ## License
 
-psake is released under the MIT license:
-
-    [www.opensource.org/licenses/MIT](http://www.opensource.org/licenses/MIT)
+psake is released under the [MIT license](http://www.opensource.org/licenses/MIT).
