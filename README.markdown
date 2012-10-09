@@ -52,3 +52,9 @@ Many thanks for contributions to psake are due (in alphabetical order):
 * lanwin
 * smbecker
 * stej
+
+## License
+
+psake is released under the MIT license:
+
+    [www.opensource.org/licenses/MIT](www.opensource.org/licenses/MIT)
