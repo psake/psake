@@ -464,6 +464,12 @@ function LoadConfiguration {
 
     $psakeConfigFilePath = (join-path $configdir "psake-config.ps1")
 
+	# if there is no config file found in configdir, try load default 
+	# one next to the psake module.
+    if (-not (test-path $psakeConfigFilePath -pathType Leaf)) {
+		$psakeConfigFilePath = (join-path $PSScriptRoot "psake-config.ps1")
+	}
+	
     if (test-path $psakeConfigFilePath -pathType Leaf) {
         try {
             $config = GetCurrentConfigurationOrDefault
