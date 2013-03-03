@@ -342,9 +342,9 @@ function Invoke-psake {
 
         foreach ($key in $parameters.keys) {
             if (test-path "variable:\$key") {
-                set-item -path "variable:\$key" -value $parameters.$key | out-null
+                set-item -path "variable:\$key" -value $parameters.$key -WhatIf:$false -Confirm:$false | out-null
             } else {
-                new-item -path "variable:\$key" -value $parameters.$key | out-null
+                new-item -path "variable:\$key" -value $parameters.$key -WhatIf:$false -Confirm:$false | out-null
             }
         }
 
@@ -355,7 +355,7 @@ function Invoke-psake {
 
         foreach ($key in $properties.keys) {
             if (test-path "variable:\$key") {
-                set-item -path "variable:\$key" -value $properties.$key | out-null
+                set-item -path "variable:\$key" -value $properties.$key -WhatIf:$false -Confirm:$false | out-null
             }
         }
 
