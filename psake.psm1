@@ -398,16 +398,15 @@ function Invoke-psake {
 
         $psake.build_success = $false
 
-        if (!$psake.run_by_psake_build_tester) {
-            # if we are running in a nested scope (i.e. running a psake script from a psake script) then we need to re-throw the exception
-            # so that the parent script will fail otherwise the parent script will report a successful build 
-            $inNestedScope = ($psake.context.count -gt 1)
-            if ( $inNestedScope ) {
-                throw $_
-            } else {
-                WriteColoredOutput $error_message -foregroundcolor Red
-            }
-
+        # if we are running in a nested scope (i.e. running a psake script from a psake script) then we need to re-throw the exception
+        # so that the parent script will fail otherwise the parent script will report a successful build 
+        $inNestedScope = ($psake.context.count -gt 1)
+        if ( $inNestedScope ) {
+            throw $_
+        } else {
+	        if (!$psake.run_by_psake_build_tester) {
+	            WriteColoredOutput $error_message -foregroundcolor Red
+	        }
         }
     } finally {
         CleanupEnvironment
