@@ -772,6 +772,7 @@ $psake.config_default = new-object psobject -property @{
     verboseError = $false;
     coloredOutput = $true;
     modules = $null;
+    moduleScope = "";
 } # contains default configuration, can be overriden in psake-config.ps1 in directory with psake.psm1 or in directory with current build script
 
 $psake.build_success = $false # indicates that the current build was successful
