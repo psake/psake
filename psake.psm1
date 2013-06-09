@@ -87,7 +87,7 @@ function Invoke-Task
                         Assert ((test-path "variable:$variable") -and ((get-variable $variable).Value -ne $null)) ($msgs.required_variable_not_set -f $variable, $taskName)
                     }
 
-                    & $task.Action 
+                    & $task.Action
 
                     if ($task.PostAction) {
                         & $task.PostAction
@@ -105,7 +105,7 @@ function Invoke-Task
                         throw $_
                     }
                 }
-            } else { 
+            } else {
                 # no action was specified but we still execute all the dependencies
                 foreach($childTask in $task.DependsOn) {
                     Invoke-Task $childTask
@@ -148,21 +148,21 @@ function Assert
         [Parameter(Position=0,Mandatory=1)]$conditionToCheck,
         [Parameter(Position=1,Mandatory=1)]$failureMessage
     )
-    if (!$conditionToCheck) { 
-        throw ("Assert: " + $failureMessage) 
+    if (!$conditionToCheck) {
+        throw ("Assert: " + $failureMessage)
     }
 }
 
 # .ExternalHelp  psake.psm1-help.xml
 function Task
 {
-    [CmdletBinding()]  
+    [CmdletBinding()]
     param(
         [Parameter(Position=0,Mandatory=1)][string]$name = $null,
         [Parameter(Position=1,Mandatory=0)][scriptblock]$action = $null,
         [Parameter(Position=2,Mandatory=0)][scriptblock]$preaction = $null,
         [Parameter(Position=3,Mandatory=0)][scriptblock]$postaction = $null,
-        [Parameter(Position=4,Mandatory=0)][scriptblock]$precondition = {$true}, 
+        [Parameter(Position=4,Mandatory=0)][scriptblock]$precondition = {$true},
         [Parameter(Position=5,Mandatory=0)][scriptblock]$postcondition = {$true},
         [Parameter(Position=6,Mandatory=0)][switch]$continueOnError = $false,
         [Parameter(Position=7,Mandatory=0)][string[]]$depends = @(),
@@ -189,11 +189,11 @@ function Task
         Alias = $alias
     }
 
-    $taskKey = $name.ToLower()    
+    $taskKey = $name.ToLower()
 
     $currentContext = $psake.context.Peek()
 
-    Assert (!$currentContext.tasks.ContainsKey($taskKey)) ($msgs.error_duplicate_task_name -f $name) 
+    Assert (!$currentContext.tasks.ContainsKey($taskKey)) ($msgs.error_duplicate_task_name -f $name)
 
     $currentContext.tasks.$taskKey = $newTask
 
@@ -201,9 +201,9 @@ function Task
     {
         $aliasKey = $alias.ToLower()
 
-        Assert (!$currentContext.aliases.ContainsKey($aliasKey)) ($msgs.error_duplicate_alias_name -f $alias) 
+        Assert (!$currentContext.aliases.ContainsKey($aliasKey)) ($msgs.error_duplicate_alias_name -f $alias)
 
-        $currentContext.aliases.$aliasKey = $newTask        
+        $currentContext.aliases.$aliasKey = $newTask
     }
 }
 
@@ -266,11 +266,11 @@ function Framework {
 function Invoke-psake {
     [CmdletBinding()]
     param(
-        [Parameter(Position = 0, Mandatory = 0)][string] $buildFile, 
-        [Parameter(Position = 1, Mandatory = 0)][string[]] $taskList = @(), 
+        [Parameter(Position = 0, Mandatory = 0)][string] $buildFile,
+        [Parameter(Position = 1, Mandatory = 0)][string[]] $taskList = @(),
         [Parameter(Position = 2, Mandatory = 0)][string] $framework,
-        [Parameter(Position = 3, Mandatory = 0)][switch] $docs = $false, 
-        [Parameter(Position = 4, Mandatory = 0)][hashtable] $parameters = @{}, 
+        [Parameter(Position = 3, Mandatory = 0)][switch] $docs = $false,
+        [Parameter(Position = 4, Mandatory = 0)][hashtable] $parameters = @{},
         [Parameter(Position = 5, Mandatory = 0)][hashtable] $properties = @{},
         [Parameter(Position = 6, Mandatory = 0)][alias("init")][scriptblock] $initialization = {},
         [Parameter(Position = 7, Mandatory = 0)][switch] $nologo = $false
@@ -279,9 +279,9 @@ function Invoke-psake {
         if (-not $nologo) {
             "psake version {0}`nCopyright (c) 2010 James Kovacs`n" -f $psake.version
         }
- 
-        # If the default.ps1 file exists and the given "buildfile" isn 't found assume that the given 
-        # $buildFile is actually the target Tasks to execute in the default.ps1 script. 
+
+        # If the default.ps1 file exists and the given "buildfile" isn 't found assume that the given
+        # $buildFile is actually the target Tasks to execute in the default.ps1 script.
         if ($buildFile -and !(test-path $buildFile -pathType Leaf) -and (test-path $psake.config_default.buildFileName -pathType Leaf)) {
             $taskList = $buildFile.Split(', ')
             $buildFile = $psake.config_default.buildFileName
@@ -312,11 +312,11 @@ function Invoke-psake {
         LoadConfiguration $psake.build_script_dir
 
         LoadModules
-        
+
         $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
-        
+
         set-location $psake.build_script_dir
-        
+
         $frameworkOldValue = $framework
         . $psake.build_script_file.FullName
 
@@ -327,17 +327,17 @@ function Invoke-psake {
             $currentContext.config.framework = $framework
         }
 
-        if ($docs) {
-            WriteDocumentation
-            CleanupEnvironment
-            return
-        }
-
         ConfigureBuildEnvironment
 
         while ($currentContext.includes.Count -gt 0) {
             $includeFilename = $currentContext.includes.Dequeue()
             . $includeFilename
+        }
+
+        if ($docs) {
+            WriteDocumentation
+            CleanupEnvironment
+            return
         }
 
         foreach ($key in $parameters.keys) {
@@ -350,7 +350,7 @@ function Invoke-psake {
 
         # The initial dot (.) indicates that variables initialized/modified in the propertyBlock are available in the parent scope.
         foreach ($propertyBlock in $currentContext.properties) {
-            . $propertyBlock 
+            . $propertyBlock
         }
 
         foreach ($key in $properties.keys) {
@@ -382,7 +382,7 @@ function Invoke-psake {
     } catch {
         $currentConfig = GetCurrentConfigurationOrDefault
         if ($currentConfig.verboseError) {
-            $error_message = "{0}: An Error Occurred. See Error Details Below: `n" -f (Get-Date) 
+            $error_message = "{0}: An Error Occurred. See Error Details Below: `n" -f (Get-Date)
             $error_message += ("-" * 70) + "`n"
             $error_message += "Error: {0}`n" -f (ResolveError $_ -Short)
             $error_message += ("-" * 70) + "`n"
@@ -390,9 +390,9 @@ function Invoke-psake {
             $error_message += ("-" * 70) + "`n"
             $error_message += "Script Variables" + "`n"
             $error_message += ("-" * 70) + "`n"
-            $error_message += get-variable -scope script | format-table | out-string 
+            $error_message += get-variable -scope script | format-table | out-string
         } else {
-            # ($_ | Out-String) gets error messages with source information included. 
+            # ($_ | Out-String) gets error messages with source information included.
             $error_message = "Error: {0}: `n{1}" -f (Get-Date), (ResolveError $_ -Short)
         }
 
@@ -400,7 +400,7 @@ function Invoke-psake {
 
         if (!$psake.run_by_psake_build_tester) {
             # if we are running in a nested scope (i.e. running a psake script from a psake script) then we need to re-throw the exception
-            # so that the parent script will fail otherwise the parent script will report a successful build 
+            # so that the parent script will fail otherwise the parent script will report a successful build
             $inNestedScope = ($psake.context.count -gt 1)
             if ( $inNestedScope ) {
                 throw $_
@@ -440,10 +440,10 @@ function LoadModules {
     $currentConfig = $psake.context.peek().config
     if ($currentConfig.modules) {
 
-    	$scope = $currentConfig.moduleScope
+        $scope = $currentConfig.moduleScope
 
-    	$global = [string]::Equals($scope, "global", [StringComparison]::CurrentCultureIgnoreCase)
-		
+        $global = [string]::Equals($scope, "global", [StringComparison]::CurrentCultureIgnoreCase)
+
         $currentConfig.modules | foreach {
             resolve-path $_ | foreach {
                 "Loading module: $_"
@@ -705,7 +705,7 @@ function WriteDocumentation {
 }
 
 function WriteTaskTimeSummary($invokePsakeDuration) {
-    "-" * 70 
+    "-" * 70
     "Build Time Report"
     "-" * 70
     $list = @()
@@ -757,7 +757,7 @@ convertfrom-stringdata @'
     continue_on_error = Error in task {0}. {1}
     build_success = Build Succeeded!
 '@
-} 
+}
 
 import-localizeddata -bindingvariable msgs -erroraction silentlycontinue
 
