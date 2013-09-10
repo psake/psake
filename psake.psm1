@@ -70,40 +70,42 @@ function Invoke-Task
 
                     $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
                     $currentContext.currentTaskName = $taskName
+                    try {
+                        & $currentContext.taskSetupScriptBlock
+                        try {
+                            if ($task.PreAction) {
+                                & $task.PreAction
+                            }
 
-                    & $currentContext.taskSetupScriptBlock
+                            if ($currentContext.config.taskNameFormat -is [ScriptBlock]) {
+                                & $currentContext.config.taskNameFormat $taskName
+                            } else {
+                                WriteColoredOutput ($currentContext.config.taskNameFormat -f $taskName) -foregroundcolor Cyan
+                            }
 
-                    if ($task.PreAction) {
-                        & $task.PreAction
+                            foreach ($variable in $task.requiredVariables) {
+                                Assert ((test-path "variable:$variable") -and ((get-variable $variable).Value -ne $null)) ($msgs.required_variable_not_set -f $variable, $taskName)
+                            }
+
+                            & $task.Action
+                        } finally {
+                            if ($task.PostAction) {
+                                & $task.PostAction
+                            }
+                        }
+                    } finally {
+                        & $currentContext.taskTearDownScriptBlock
                     }
-
-                    if ($currentContext.config.taskNameFormat -is [ScriptBlock]) {
-                        & $currentContext.config.taskNameFormat $taskName
-                    } else {
-                        WriteColoredOutput ($currentContext.config.taskNameFormat -f $taskName) -foregroundcolor Cyan
-                    }
-
-                    foreach ($variable in $task.requiredVariables) {
-                        Assert ((test-path "variable:$variable") -and ((get-variable $variable).Value -ne $null)) ($msgs.required_variable_not_set -f $variable, $taskName)
-                    }
-
-                    & $task.Action 
-
-                    if ($task.PostAction) {
-                        & $task.PostAction
-                    }
-
-                    & $currentContext.taskTearDownScriptBlock
-                    $task.Duration = $stopwatch.Elapsed
                 } catch {
                     if ($task.ContinueOnError) {
                         "-"*70
                         WriteColoredOutput ($msgs.continue_on_error -f $taskName,$_) -foregroundcolor Yellow
                         "-"*70
-                        $task.Duration = $stopwatch.Elapsed
                     }  else {
                         throw $_
                     }
+                } finally {
+                    $task.Duration = $stopwatch.Elapsed
                 }
             } else { 
                 # no action was specified but we still execute all the dependencies
