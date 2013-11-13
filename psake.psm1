@@ -513,11 +513,12 @@ function CreateConfigurationForNewContext {
 
 function ConfigureBuildEnvironment {
     $framework = $psake.context.peek().config.framework
-    if ($framework.Length -ne 3 -and $framework.Length -ne 6) {
+    if ($framework -cmatch '^((?:\d+\.\d+)(?:\.\d+){0,1})(x86|x64){0,1}$') {
+        $versionPart = $matches[1]
+        $bitnessPart = $matches[2]
+    } else {
         throw ($msgs.error_invalid_framework -f $framework)
     }
-    $versionPart = $framework.Substring(0, 3)
-    $bitnessPart = $framework.Substring(3)
     $versions = $null
     switch ($versionPart) {
         '1.0' {
@@ -538,6 +539,10 @@ function ConfigureBuildEnvironment {
         '4.0' {
             $versions = @('v4.0.30319')
         }
+        '4.5.1' {
+            $versions = @('v4.0.30319')
+            $buildToolsVersions = @('12.0')
+        }
         default {
             throw ($msgs.error_unknown_framework -f $versionPart, $framework)
         }
@@ -548,18 +553,22 @@ function ConfigureBuildEnvironment {
         switch ($bitnessPart) {
             'x86' {
                 $bitness = 'Framework'
+                $buildToolsKey = 'MSBuildToolsPath32'
             }
             'x64' {
                 $bitness = 'Framework64'
+                $buildToolsKey = 'MSBuildToolsPath'
             }
             { [string]::IsNullOrEmpty($_) } {
                 $ptrSize = [System.IntPtr]::Size
                 switch ($ptrSize) {
                     4 {
                         $bitness = 'Framework'
+                        $buildToolsKey = 'MSBuildToolsPath32'
                     }
                     8 {
                         $bitness = 'Framework64'
+                        $buildToolsKey = 'MSBuildToolsPath'
                     }
                     default {
                         throw ($msgs.error_unknown_pointersize -f $ptrSize)
@@ -571,7 +580,8 @@ function ConfigureBuildEnvironment {
             }
         }
     }
-    $frameworkDirs = $versions | foreach { "$env:windir\Microsoft.NET\$bitness\$_\" }
+    $frameworkDirs = @($buildToolsVersions | foreach { (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\MSBuild\ToolsVersions\$_" -Name $buildToolsKey).$buildToolsKey })
+    $frameworkDirs = $frameworkDirs + @($versions | foreach { "$env:windir\Microsoft.NET\$bitness\$_\" })
 
     $frameworkDirs | foreach { Assert (test-path $_ -pathType Container) ($msgs.error_no_framework_install_dir_found -f $_)}
 
