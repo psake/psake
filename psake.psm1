@@ -87,7 +87,9 @@ function Invoke-Task
                         Assert ((test-path "variable:$variable") -and ((get-variable $variable).Value -ne $null)) ($msgs.required_variable_not_set -f $variable, $taskName)
                     }
 
-                    & $task.Action
+                    Exec $task.Action `
+                        -maxRetries               $task.MaxRetries `
+                        -retryTriggerErrorPattern $task.RetryTriggerErrorPattern
 
                     if ($task.PostAction) {
                         & $task.PostAction
@@ -132,12 +134,40 @@ function Exec
     [CmdletBinding()]
     param(
         [Parameter(Position=0,Mandatory=1)][scriptblock]$cmd,
-        [Parameter(Position=1,Mandatory=0)][string]$errorMessage = ($msgs.error_bad_command -f $cmd)
+        [Parameter(Position=1,Mandatory=0)][string]$errorMessage = ($msgs.error_bad_command -f $cmd),
+        [Parameter(Position=2,Mandatory=0)][int]$maxRetries = 0,
+        [Parameter(Position=3,Mandatory=0)][string]$retryTriggerErrorPattern = $null
     )
-    & $cmd
-    if ($lastexitcode -ne 0) {
-        throw ("Exec: " + $errorMessage)
+
+    $tryCount = 1
+
+    do {
+        try { 
+            & $cmd
+            break
+        }
+        catch [Exception]
+        {
+            if ($tryCount -gt $maxRetries) {
+                throw $_
+            }
+
+            if ($retryTriggerErrorPattern -ne $null) {
+                $isMatch = [regex]::IsMatch($_.Exception.Message, $retryTriggerErrorPattern)
+
+                if ($isMatch -eq $false) {
+                    throw $_
+                }
+            }
+
+            Write-Host "Try $tryCount failed, retrying again in 1 second..."
+
+            $tryCount++
+
+            [System.Threading.Thread]::Sleep([System.TimeSpan]::FromSeconds(1))
+        }
     }
+    while ($true)
 }
 
 # .ExternalHelp  psake.psm1-help.xml
@@ -168,7 +198,9 @@ function Task
         [Parameter(Position=7,Mandatory=0)][string[]]$depends = @(),
         [Parameter(Position=8,Mandatory=0)][string[]]$requiredVariables = @(),
         [Parameter(Position=9,Mandatory=0)][string]$description = $null,
-        [Parameter(Position=10,Mandatory=0)][string]$alias = $null
+        [Parameter(Position=10,Mandatory=0)][string]$alias = $null,
+        [Parameter(Position=11,Mandatory=0)][string]$maxRetries = 0,
+        [Parameter(Position=12,Mandatory=0)][string]$retryTriggerErrorPattern = $null
     )
     if ($name -eq 'default') {
         Assert (!$action) ($msgs.error_default_task_cannot_have_action)
@@ -187,6 +219,8 @@ function Task
         Duration = [System.TimeSpan]::Zero
         RequiredVariables = $requiredVariables
         Alias = $alias
+        MaxRetries = $maxRetries
+        RetryTriggerErrorPattern = $retryTriggerErrorPattern
     }
 
     $taskKey = $name.ToLower()
