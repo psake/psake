@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>psake</id>
-    <version>4.2.0.1</version>
+    <version>4.3.0.0</version>
     <authors>James Kovacs</authors>
     <owners>James Kovacs, Damian Hickey, Rob Reynolds</owners>
     <projectUrl>https://github.com/psake/psake</projectUrl>
