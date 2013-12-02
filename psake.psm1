@@ -613,7 +613,7 @@ function ConfigureBuildEnvironment {
             }
         }
     }
-    if ($buildToolsVersions -eq $null) {
+    if ($buildToolsVersions -ne $null) {
         $frameworkDirs = @($buildToolsVersions | foreach { (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\MSBuild\ToolsVersions\$_" -Name $buildToolsKey).$buildToolsKey })
     }
     $frameworkDirs = $frameworkDirs + @($versions | foreach { "$env:windir\Microsoft.NET\$bitness\$_\" })
