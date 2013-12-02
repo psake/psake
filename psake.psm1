@@ -582,6 +582,7 @@ function ConfigureBuildEnvironment {
     }
 
     $bitness = 'Framework'
+    $toolsRegKey = "HKLM:\SOFTWARE\Microsoft\MSBuild\ToolsVersions\"
     if ($versionPart -ne '1.0' -and $versionPart -ne '1.1') {
         switch ($bitnessPart) {
             'x86' {
@@ -598,6 +599,7 @@ function ConfigureBuildEnvironment {
                     4 {
                         $bitness = 'Framework'
                         $buildToolsKey = 'MSBuildToolsPath32'
+                        $toolsRegKey = "HKLM:\SOFTWARE\Wow6432Node\Microsoft\MSBuild\ToolsVersions\"
                     }
                     8 {
                         $bitness = 'Framework64'
@@ -614,7 +616,7 @@ function ConfigureBuildEnvironment {
         }
     }
     if ($buildToolsVersions -ne $null) {
-        $frameworkDirs = @($buildToolsVersions | foreach { (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\MSBuild\ToolsVersions\$_" -Name $buildToolsKey).$buildToolsKey })
+        $frameworkDirs = @($buildToolsVersions | foreach { (Get-ItemProperty -Path "$toolsRegKey$_" -Name MSBuildToolsPath).MSBuildToolsPath })
     }
     $frameworkDirs = $frameworkDirs + @($versions | foreach { "$env:windir\Microsoft.NET\$bitness\$_\" })
 
