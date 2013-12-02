@@ -617,7 +617,17 @@ function ConfigureBuildEnvironment {
         $frameworkDirs = @($buildToolsVersions | foreach { (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\MSBuild\ToolsVersions\$_" -Name $buildToolsKey).$buildToolsKey })
     }
     $frameworkDirs = $frameworkDirs + @($versions | foreach { "$env:windir\Microsoft.NET\$bitness\$_\" })
-
+    
+    for ($i = 0; $i -lt $frameworkDirs.Count; $i++) {
+        $dir = $frameworkDirs[$i]
+        if ($dir -Match "\$\(Registry:HKEY_LOCAL_MACHINE(.*?)@(.*)\)") {
+            $key = "HKLM:" + $matches[1]
+            $name = $matches[2]
+            $dir = (Get-ItemProperty -Path $key -Name $name).$name
+            $frameworkDirs[$i] = $dir
+        }
+    }
+    
     $frameworkDirs | foreach { Assert (test-path $_ -pathType Container) ($msgs.error_no_framework_install_dir_found -f $_)}
 
     $env:path = ($frameworkDirs -join ";") + ";$env:path"
