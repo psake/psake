@@ -316,7 +316,7 @@ function Invoke-psake {
 
         # If the default.ps1 file exists and the given "buildfile" isn 't found assume that the given
         # $buildFile is actually the target Tasks to execute in the default.ps1 script.
-        if ($buildFile -and !(test-path $buildFile -pathType Leaf) -and (test-path $psake.config_default.buildFileName -pathType Leaf)) {
+        if (([string]::IsNullOrWhiteSpace($buildFile) -or !(test-path $buildFile -pathType Leaf)) -and (test-path $psake.config_default.buildFileName -pathType Leaf)) {
             $taskList = $buildFile.Split(', ')
             $buildFile = $psake.config_default.buildFileName
         }
