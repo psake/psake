@@ -143,7 +143,7 @@ function Exec
 
     do {
         try {
-            $lastexitcode = 0 
+            $global:lastexitcode = 0                 
             & $cmd
             if ($lastexitcode -ne 0) {
                 throw ("Exec: " + $errorMessage)
