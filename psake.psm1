@@ -142,8 +142,12 @@ function Exec
     $tryCount = 1
 
     do {
-        try { 
+        try {
+            $lastexitcode = 0 
             & $cmd
+            if ($lastexitcode -ne 0) {
+                throw ("Exec: " + $errorMessage)
+            }
             break
         }
         catch [Exception]
@@ -316,7 +320,7 @@ function Invoke-psake {
 
         # If the default.ps1 file exists and the given "buildfile" isn 't found assume that the given
         # $buildFile is actually the target Tasks to execute in the default.ps1 script.
-        if (([string]::IsNullOrWhiteSpace($buildFile) -or !(test-path $buildFile -pathType Leaf)) -and (test-path $psake.config_default.buildFileName -pathType Leaf)) {
+        if ($buildFile -and !(test-path $buildFile -pathType Leaf) -and (test-path $psake.config_default.buildFileName -pathType Leaf)) {
             $taskList = $buildFile.Split(', ')
             $buildFile = $psake.config_default.buildFileName
         }
@@ -817,7 +821,7 @@ convertfrom-stringdata @'
 import-localizeddata -bindingvariable msgs -erroraction silentlycontinue
 
 $script:psake = @{}
-$psake.version = "4.3.0" # contains the current version of psake
+$psake.version = "4.3.1" # contains the current version of psake
 $psake.context = new-object system.collections.stack # holds onto the current state of all variables
 $psake.run_by_psake_build_tester = $false # indicates that build is being run by psake-BuildTester
 $psake.config_default = new-object psobject -property @{
