@@ -7,5 +7,5 @@ task AspNetCompiler {
   if ($LastExitCode -ne 1) {
     throw 'Error: Could not execute aspnet_compiler'
   }
-  $Global:LastExitCode = 0
+  $global:LastExitCode = 0
 }
