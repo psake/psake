@@ -760,7 +760,7 @@ function WriteDocumentation {
             "Depends On" = $task.DependsOn -join ", "
             Default = if ($defaultTaskDependencies -contains $task.Name) { $true }
         }
-    } | sort 'Name' | format-list -property Name,Alias,Description,"Depends On",Default
+    } | sort 'Name' | format-table -autoSize -wrap -property Name,Alias,"Depends On",Default,Description
 }
 
 function WriteTaskTimeSummary($invokePsakeDuration) {
