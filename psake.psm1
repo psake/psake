@@ -557,6 +557,7 @@ function ConfigureBuildEnvironment {
         throw ($msgs.error_invalid_framework -f $framework)
     }
     $versions = $null
+    $buildToolsVersions = $null
     switch ($versionPart) {
         '1.0' {
             $versions = @('v1.0.3705')
@@ -617,6 +618,7 @@ function ConfigureBuildEnvironment {
             }
         }
     }
+    $frameworkDirs = @()
     if ($buildToolsVersions -ne $null) {
         $frameworkDirs = @($buildToolsVersions | foreach { (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\MSBuild\ToolsVersions\$_" -Name $buildToolsKey).$buildToolsKey })
     }
