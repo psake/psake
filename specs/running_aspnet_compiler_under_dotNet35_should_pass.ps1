@@ -1,4 +1,4 @@
-$framework = '3.5'
+Framework '3.5'
 
 task default -depends AspNetCompiler
 
