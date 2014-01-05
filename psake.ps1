@@ -6,7 +6,7 @@
 # otherwise named parameter binding fails
 param(
     [Parameter(Position=0,Mandatory=0)]
-    [string]$buildFile = 'default.ps1',
+    [string]$buildFile,
     [Parameter(Position=1,Mandatory=0)]
     [string[]]$taskList = @(),
     [Parameter(Position=2,Mandatory=0)]

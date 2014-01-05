@@ -318,9 +318,12 @@ function Invoke-psake {
             "psake version {0}`nCopyright (c) 2010 James Kovacs`n" -f $psake.version
         }
 
-        # If the default.ps1 file exists and the given "buildfile" isn 't found assume that the given
-        # $buildFile is actually the target Tasks to execute in the default.ps1 script.
-        if ($buildFile -and !(test-path $buildFile -pathType Leaf) -and (test-path $psake.config_default.buildFileName -pathType Leaf)) {
+        if (!$buildFile) {
+          $buildFile = $psake.config_default.buildFileName
+        }
+        elseif (!(test-path $buildFile -pathType Leaf) -and (test-path $psake.config_default.buildFileName -pathType Leaf)) {
+            # If the $config.buildFileName file exists and the given "buildfile" isn 't found assume that the given
+            # $buildFile is actually the target Tasks to execute in the $config.buildFileName script.
             $taskList = $buildFile.Split(', ')
             $buildFile = $psake.config_default.buildFileName
         }
@@ -442,9 +445,9 @@ function Invoke-psake {
         if ( $inNestedScope ) {
             throw $_
         } else {
-	        if (!$psake.run_by_psake_build_tester) {
-	            WriteColoredOutput $error_message -foregroundcolor Red
-	        }
+            if (!$psake.run_by_psake_build_tester) {
+                WriteColoredOutput $error_message -foregroundcolor Red
+            }
         }
     } finally {
         CleanupEnvironment
