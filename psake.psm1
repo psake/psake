@@ -352,11 +352,11 @@ function Invoke-psake {
 
         LoadConfiguration $psake.build_script_dir
 
-        LoadModules
-
         $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 
         set-location $psake.build_script_dir
+
+        LoadModules
 
         $frameworkOldValue = $framework
         . $psake.build_script_file.FullName
