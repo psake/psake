@@ -25,8 +25,12 @@ param(
     [Parameter(Position=8, Mandatory=0)]
     [switch]$help = $false,
     [Parameter(Position=9, Mandatory=0)]
-    [string]$scriptPath = $(Split-Path -parent $MyInvocation.MyCommand.path)
+    [string]$scriptPath
 )
+
+if (!$scriptPath) {
+  $scriptPath = $(Split-Path -parent $MyInvocation.MyCommand.path)
+}
 
 # '[p]sake' is the same as 'psake' but $Error is not polluted
 remove-module [p]sake
@@ -43,4 +47,4 @@ if ($buildPath -and (-not(test-path $buildFile))) {
     }
 } 
 
-invoke-psake $buildFile $taskList $framework $docs $parameters $properties $initialization $nologo
+Invoke-psake $buildFile $taskList $framework $docs $parameters $properties $initialization $nologo
