@@ -25,8 +25,11 @@ param(
     [Parameter(Position=8, Mandatory=0)]
     [switch]$help = $false,
     [Parameter(Position=9, Mandatory=0)]
-    [string]$scriptPath = $(Split-Path -parent $MyInvocation.MyCommand.path)
+    [string]$scriptPath
 )
+if (!$scriptPath) {
+  $scriptPath = $(Split-Path -parent $MyInvocation.MyCommand.path)
+}
 
 $currentThread = [System.Threading.Thread]::CurrentThread
 $invariantCulture = [System.Globalization.CultureInfo]::InvariantCulture
