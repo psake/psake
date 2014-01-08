@@ -27,6 +27,9 @@ param(
     [Parameter(Position=9, Mandatory=0)]
     [string]$scriptPath
 )
+if (!$scriptPath) {
+  $scriptPath = $(Split-Path -parent $MyInvocation.MyCommand.path)
+}
 
 if (!$scriptPath) {
   $scriptPath = $(Split-Path -parent $MyInvocation.MyCommand.path)
