@@ -1,5 +1,5 @@
 # Helper script for those who want to run psake without importing the module.
-# Example:
+# Example run from PowerShell:
 # .\psake.ps1 "default.ps1" "BuildHelloWord" "4.0" 
 
 # Must match parameter definitions for psake.psm1/invoke-psake 
@@ -27,6 +27,8 @@ param(
     [Parameter(Position=9, Mandatory=0)]
     [string]$scriptPath
 )
+
+# setting $scriptPath here, not as default argument, to support calling as "powershell -File psake.ps1"
 if (!$scriptPath) {
   $scriptPath = $(Split-Path -parent $MyInvocation.MyCommand.path)
 }
@@ -46,4 +48,4 @@ if ($buildPath -and (-not(test-path $buildFile))) {
     }
 } 
 
-invoke-psake $buildFile $taskList $framework $docs $parameters $properties $initialization $nologo
+Invoke-psake $buildFile $taskList $framework $docs $parameters $properties $initialization $nologo
