@@ -296,6 +296,7 @@ function Framework {
         [Parameter(Position=0,Mandatory=1)][string]$framework
     )
     $psake.context.Peek().config.framework = $framework
+	ConfigureBuildEnvironment
 }
 
 # .ExternalHelp  psake.psm1-help.xml
