@@ -87,9 +87,7 @@ function Invoke-Task
                         Assert ((test-path "variable:$variable") -and ((get-variable $variable).Value -ne $null)) ($msgs.required_variable_not_set -f $variable, $taskName)
                     }
 
-                    Exec $task.Action `
-                        -maxRetries               $task.MaxRetries `
-                        -retryTriggerErrorPattern $task.RetryTriggerErrorPattern
+					& $task.Action
 
                     if ($task.PostAction) {
                         & $task.PostAction
