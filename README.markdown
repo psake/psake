@@ -48,9 +48,9 @@ Also check out the **[psake-contrib](http://github.com/psake/psake-contrib)** pr
 Many thanks for contributions to psake are due (in alphabetical order):
 
 * candland
-* Staxmanade
 * lanwin
 * smbecker
+* Staxmanade
 * stej
 
 ## License
