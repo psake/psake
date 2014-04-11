@@ -310,7 +310,8 @@ function Invoke-psake {
         [Parameter(Position = 4, Mandatory = 0)][hashtable] $parameters = @{},
         [Parameter(Position = 5, Mandatory = 0)][hashtable] $properties = @{},
         [Parameter(Position = 6, Mandatory = 0)][alias("init")][scriptblock] $initialization = {},
-        [Parameter(Position = 7, Mandatory = 0)][switch] $nologo = $false
+        [Parameter(Position = 7, Mandatory = 0)][switch] $nologo = $false,
+		[Parameter(Position = 8, Mandatory = 0)][switch] $detailedDocs = $false
     )
     try {
         if (-not $nologo) {
@@ -374,8 +375,8 @@ function Invoke-psake {
             . $includeFilename
         }
 
-        if ($docs) {
-            WriteDocumentation
+        if ($docs -or $detailedDocs) {
+            WriteDocumentation($detailedDocs)
             CleanupEnvironment
             return
         }
@@ -742,7 +743,7 @@ function ResolveError
     }
 }
 
-function WriteDocumentation {
+function WriteDocumentation($showDetailed) {
     $currentContext = $psake.context.Peek()
 
     if ($currentContext.tasks.default) {
@@ -751,7 +752,7 @@ function WriteDocumentation {
         $defaultTaskDependencies = @()
     }
 
-    $currentContext.tasks.Keys | foreach-object {
+    $docs = $currentContext.tasks.Keys | foreach-object {
         if ($_ -eq "default") {
             return
         }
@@ -764,7 +765,13 @@ function WriteDocumentation {
             "Depends On" = $task.DependsOn -join ", "
             Default = if ($defaultTaskDependencies -contains $task.Name) { $true }
         }
-    } | sort 'Name' | format-table -autoSize -wrap -property Name,Alias,"Depends On",Default,Description
+    }
+	if ($showDetailed) {
+		$docs | sort 'Name' | format-list -property Name,Alias,Description,"Depends On",Default
+	} else {
+		$docs | sort 'Name' | format-table -autoSize -wrap -property Name,Alias,"Depends On",Default,Description
+	}
+
 }
 
 function WriteTaskTimeSummary($invokePsakeDuration) {
