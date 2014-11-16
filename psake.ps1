@@ -43,7 +43,7 @@ if ($help) {
   return
 }
 
-if ($buildPath -and (-not(test-path $buildFile))) {
+if ($buildFile -and (-not(test-path $buildFile))) {
     $absoluteBuildFile = (join-path $scriptPath $buildFile)
     if (test-path $absoluteBuildFile) {
         $buildFile = $absoluteBuildFile
