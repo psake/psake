@@ -141,7 +141,7 @@ function Exec
 
     do {
         try {
-            $global:lastexitcode = 0                 
+            $global:lastexitcode = 0
             & $cmd
             if ($lastexitcode -ne 0) {
                 throw ("Exec: " + $errorMessage)
@@ -439,7 +439,7 @@ function Invoke-psake {
         $psake.build_success = $false
 
         # if we are running in a nested scope (i.e. running a psake script from a psake script) then we need to re-throw the exception
-        # so that the parent script will fail otherwise the parent script will report a successful build 
+        # so that the parent script will fail otherwise the parent script will report a successful build
         $inNestedScope = ($psake.context.count -gt 1)
         if ( $inNestedScope ) {
             throw $_
@@ -581,7 +581,7 @@ function ConfigureBuildEnvironment {
         }
         '4.5.1' {
             $versions = @('v4.0.30319')
-            $buildToolsVersions = @('12.0')
+            $buildToolsVersions = @('14.0', '12.0')
         }
         default {
             throw ($msgs.error_unknown_framework -f $versionPart, $framework)
@@ -625,7 +625,7 @@ function ConfigureBuildEnvironment {
         $frameworkDirs = @($buildToolsVersions | foreach { (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\MSBuild\ToolsVersions\$_" -Name $buildToolsKey).$buildToolsKey })
     }
     $frameworkDirs = $frameworkDirs + @($versions | foreach { "$env:windir\Microsoft.NET\$bitness\$_\" })
-    
+
     for ($i = 0; $i -lt $frameworkDirs.Count; $i++) {
         $dir = $frameworkDirs[$i]
         if ($dir -Match "\$\(Registry:HKEY_LOCAL_MACHINE(.*?)@(.*)\)") {
@@ -635,7 +635,7 @@ function ConfigureBuildEnvironment {
             $frameworkDirs[$i] = $dir
         }
     }
-    
+
     $frameworkDirs | foreach { Assert (test-path $_ -pathType Container) ($msgs.error_no_framework_install_dir_found -f $_)}
 
     $env:path = ($frameworkDirs -join ";") + ";$env:path"
@@ -825,7 +825,7 @@ convertfrom-stringdata @'
 import-localizeddata -bindingvariable msgs -erroraction silentlycontinue
 
 $script:psake = @{}
-$psake.version = "4.3.2" # contains the current version of psake
+$psake.version = "4.3.3" # contains the current version of psake
 $psake.context = new-object system.collections.stack # holds onto the current state of all variables
 $psake.run_by_psake_build_tester = $false # indicates that build is being run by psake-BuildTester
 $psake.config_default = new-object psobject -property @{
