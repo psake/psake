@@ -43,16 +43,6 @@ Anyone can fork the main repository and submit patches, as well. And lastly, the
 
 Also check out the **[psake-contrib](http://github.com/psake/psake-contrib)** project for scripts, modules and functions to help you with a build.
 
-## Contributors
-
-Many thanks for contributions to psake are due (in alphabetical order):
-
-* candland
-* Staxmanade
-* lanwin
-* smbecker
-* stej
-
 ## License
 
 psake is released under the [MIT license](http://www.opensource.org/licenses/MIT).
