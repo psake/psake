@@ -2,9 +2,9 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>psake</id>
-    <version>4.3.3</version>
+    <version>0.0.0</version>
     <authors>James Kovacs</authors>
-    <owners>James Kovacs, Damian Hickey, Rob Reynolds</owners>
+    <owners>James Kovacs, Damian Hickey</owners>
     <projectUrl>https://github.com/psake/psake</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <summary>psake is a build automation tool written in PowerShell</summary>
