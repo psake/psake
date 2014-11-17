@@ -315,7 +315,7 @@ function Invoke-psake {
     )
     try {
         if (-not $nologo) {
-            "psake version {0}`nCopyright (c) 2010 James Kovacs`n" -f $psake.version
+            "psake version {0}`nCopyright (c) 2010-2014 James Kovacs & Contributors`n" -f $psake.version
         }
 
         if (!$buildFile) {
