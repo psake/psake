@@ -87,7 +87,7 @@ function Invoke-Task
                         Assert ((test-path "variable:$variable") -and ((get-variable $variable).Value -ne $null)) ($msgs.required_variable_not_set -f $variable, $taskName)
                     }
 
-					& $task.Action
+                    & $task.Action
 
                     if ($task.PostAction) {
                         & $task.PostAction
@@ -296,7 +296,7 @@ function Framework {
         [Parameter(Position=0,Mandatory=1)][string]$framework
     )
     $psake.context.Peek().config.framework = $framework
-	ConfigureBuildEnvironment
+    ConfigureBuildEnvironment
 }
 
 # .ExternalHelp  psake.psm1-help.xml
@@ -311,7 +311,7 @@ function Invoke-psake {
         [Parameter(Position = 5, Mandatory = 0)][hashtable] $properties = @{},
         [Parameter(Position = 6, Mandatory = 0)][alias("init")][scriptblock] $initialization = {},
         [Parameter(Position = 7, Mandatory = 0)][switch] $nologo = $false,
-		[Parameter(Position = 8, Mandatory = 0)][switch] $detailedDocs = $false
+        [Parameter(Position = 8, Mandatory = 0)][switch] $detailedDocs = $false
     )
     try {
         if (-not $nologo) {
@@ -770,40 +770,40 @@ function WriteDocumentation($showDetailed) {
             Default = if ($defaultTaskDependencies -contains $task.Name) { $true }
         }
     }
-	if ($showDetailed) {
-		$docs | sort 'Name' | format-list -property Name,Alias,Description,"Depends On",Default
-	} else {
-		$docs | sort 'Name' | format-table -autoSize -wrap -property Name,Alias,"Depends On",Default,Description
-	}
+    if ($showDetailed) {
+        $docs | sort 'Name' | format-list -property Name,Alias,Description,"Depends On",Default
+    } else {
+        $docs | sort 'Name' | format-table -autoSize -wrap -property Name,Alias,"Depends On",Default,Description
+    }
 
 }
 
 function WriteTaskTimeSummary($invokePsakeDuration) {
     if ($psake.context.count -gt 0) {
-		"-" * 70
-		"Build Time Report"
-		"-" * 70
-		$list = @()
-		$currentContext = $psake.context.Peek()
-		while ($currentContext.executedTasks.Count -gt 0) {
-			$taskKey = $currentContext.executedTasks.Pop()
-			$task = $currentContext.tasks.$taskKey
-			if ($taskKey -eq "default") {
-				continue
-			}
-			$list += new-object PSObject -property @{
-				Name = $task.Name;
-				Duration = $task.Duration
-			}
-		}
-		[Array]::Reverse($list)
-		$list += new-object PSObject -property @{
-			Name = "Total:";
-			Duration = $invokePsakeDuration
-		}
-		# using "out-string | where-object" to filter out the blank line that format-table prepends
-		$list | format-table -autoSize -property Name,Duration | out-string -stream | where-object { $_ }
-	}
+        "-" * 70
+        "Build Time Report"
+        "-" * 70
+        $list = @()
+        $currentContext = $psake.context.Peek()
+        while ($currentContext.executedTasks.Count -gt 0) {
+            $taskKey = $currentContext.executedTasks.Pop()
+            $task = $currentContext.tasks.$taskKey
+            if ($taskKey -eq "default") {
+                continue
+            }
+            $list += new-object PSObject -property @{
+                Name = $task.Name;
+                Duration = $task.Duration
+            }
+        }
+        [Array]::Reverse($list)
+        $list += new-object PSObject -property @{
+            Name = "Total:";
+            Duration = $invokePsakeDuration
+        }
+        # using "out-string | where-object" to filter out the blank line that format-table prepends
+        $list | format-table -autoSize -property Name,Duration | out-string -stream | where-object { $_ }
+    }
 }
 
 DATA msgs {
