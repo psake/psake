@@ -779,29 +779,31 @@ function WriteDocumentation($showDetailed) {
 }
 
 function WriteTaskTimeSummary($invokePsakeDuration) {
-    "-" * 70
-    "Build Time Report"
-    "-" * 70
-    $list = @()
-    $currentContext = $psake.context.Peek()
-    while ($currentContext.executedTasks.Count -gt 0) {
-        $taskKey = $currentContext.executedTasks.Pop()
-        $task = $currentContext.tasks.$taskKey
-        if ($taskKey -eq "default") {
-            continue
-        }
-        $list += new-object PSObject -property @{
-            Name = $task.Name;
-            Duration = $task.Duration
-        }
-    }
-    [Array]::Reverse($list)
-    $list += new-object PSObject -property @{
-        Name = "Total:";
-        Duration = $invokePsakeDuration
-    }
-    # using "out-string | where-object" to filter out the blank line that format-table prepends
-    $list | format-table -autoSize -property Name,Duration | out-string -stream | where-object { $_ }
+    if ($psake.context.count -gt 0) {
+		"-" * 70
+		"Build Time Report"
+		"-" * 70
+		$list = @()
+		$currentContext = $psake.context.Peek()
+		while ($currentContext.executedTasks.Count -gt 0) {
+			$taskKey = $currentContext.executedTasks.Pop()
+			$task = $currentContext.tasks.$taskKey
+			if ($taskKey -eq "default") {
+				continue
+			}
+			$list += new-object PSObject -property @{
+				Name = $task.Name;
+				Duration = $task.Duration
+			}
+		}
+		[Array]::Reverse($list)
+		$list += new-object PSObject -property @{
+			Name = "Total:";
+			Duration = $invokePsakeDuration
+		}
+		# using "out-string | where-object" to filter out the blank line that format-table prepends
+		$list | format-table -autoSize -property Name,Duration | out-string -stream | where-object { $_ }
+	}
 }
 
 DATA msgs {
