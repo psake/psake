@@ -138,10 +138,10 @@ function Exec
         [Parameter(Position=4,Mandatory=0)][string]$workingDirectory = $null
     )
 
-	if($workingDirectory)
-	{
-		Push-Location -Path $workingDirectory
-	}
+    if($workingDirectory)
+    {
+        Push-Location -Path $workingDirectory
+    }
 	
     $tryCount = 1
 	
@@ -177,10 +177,10 @@ function Exec
     }
     while ($true)
 	
-	if($workingDirectory)
-	{
-		Pop-Location
-	}
+    if($workingDirectory)
+    {
+        Pop-Location
+    }
 }
 
 # .ExternalHelp  psake.psm1-help.xml
