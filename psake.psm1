@@ -200,9 +200,7 @@ function Task
         [Parameter(Position=7,Mandatory=0)][string[]]$depends = @(),
         [Parameter(Position=8,Mandatory=0)][string[]]$requiredVariables = @(),
         [Parameter(Position=9,Mandatory=0)][string]$description = $null,
-        [Parameter(Position=10,Mandatory=0)][string]$alias = $null,
-        [Parameter(Position=11,Mandatory=0)][string]$maxRetries = 0,
-        [Parameter(Position=12,Mandatory=0)][string]$retryTriggerErrorPattern = $null
+        [Parameter(Position=10,Mandatory=0)][string]$alias = $null
     )
     if ($name -eq 'default') {
         Assert (!$action) ($msgs.error_default_task_cannot_have_action)
@@ -221,8 +219,6 @@ function Task
         Duration = [System.TimeSpan]::Zero
         RequiredVariables = $requiredVariables
         Alias = $alias
-        MaxRetries = $maxRetries
-        RetryTriggerErrorPattern = $retryTriggerErrorPattern
     }
 
     $taskKey = $name.ToLower()
