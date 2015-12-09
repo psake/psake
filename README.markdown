@@ -1,6 +1,8 @@
 ﻿Welcome to the psake project.
 =============================
 
+[![Join the chat at https://gitter.im/psake/psake](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/psake/psake?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 psake is a build automation tool written in PowerShell. It avoids the angle-bracket tax associated with executable XML by leveraging the PowerShell syntax in your build scripts. 
 psake has a syntax inspired by rake (aka make in Ruby) and bake (aka make in Boo), but is easier to script because it leverages your existing command-line knowledge.
 
