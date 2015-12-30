@@ -311,7 +311,8 @@ function Invoke-psake {
         [Parameter(Position = 5, Mandatory = 0)][hashtable] $properties = @{},
         [Parameter(Position = 6, Mandatory = 0)][alias("init")][scriptblock] $initialization = {},
         [Parameter(Position = 7, Mandatory = 0)][switch] $nologo = $false,
-        [Parameter(Position = 8, Mandatory = 0)][switch] $detailedDocs = $false
+        [Parameter(Position = 8, Mandatory = 0)][switch] $detailedDocs = $false,
+        [Parameter(Position = 9, Mandatory = 0)][switch] $notr = $false # disable time report
     )
     try {
         if (-not $nologo) {
@@ -417,7 +418,10 @@ function Invoke-psake {
 
         WriteColoredOutput ("`n" + $msgs.build_success + "`n") -foregroundcolor Green
 
-        WriteTaskTimeSummary $stopwatch.Elapsed
+        $stopwatch.Stop()
+        if (-not $notr) {
+            WriteTaskTimeSummary $stopwatch.Elapsed
+        }
 
         $psake.build_success = $true
     } catch {
