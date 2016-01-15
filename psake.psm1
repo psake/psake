@@ -20,6 +20,15 @@
 
 #Requires -Version 2.0
 
+if ($PSVersionTable.PSVersion.Major -ge 3)
+{
+    $script:IgnoreError = 'Ignore'
+}
+else
+{
+    $script:IgnoreError = 'SilentlyContinue'
+}
+
 #-- Public Module Functions --#
 
 # .ExternalHelp  psake.psm1-help.xml
@@ -844,7 +853,7 @@ convertfrom-stringdata @'
 '@
 }
 
-import-localizeddata -bindingvariable msgs -erroraction silentlycontinue
+Import-LocalizedData -BindingVariable msgs -ErrorAction $script:IgnoreError
 
 $script:psake = @{}
 $psake.version = "4.5.0" # contains the current version of psake
