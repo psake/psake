@@ -4,4 +4,4 @@ repo_url: https://github.com/psake/psake
 
 pages:
 - What is psake?: index.md
-- How does psake work? How-does-psake-work.md
+- How does psake work? how-does-psake-work.md
