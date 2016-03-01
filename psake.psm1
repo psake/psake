@@ -317,10 +317,11 @@ function Invoke-psake {
         [Parameter(Position = 6, Mandatory = 0)][alias("init")][scriptblock] $initialization = {},
         [Parameter(Position = 7, Mandatory = 0)][switch] $nologo = $false,
         [Parameter(Position = 8, Mandatory = 0)][switch] $detailedDocs = $false,
-        [Parameter(Position = 9, Mandatory = 0)][switch] $notr = $false # disable time report
+        [Parameter(Position = 9, Mandatory = 0)][switch] $structuredDocs = $false,
+        [Parameter(Position = 10, Mandatory = 0)][switch] $notr = $false # disable time report
     )
     try {
-        if (-not $nologo) {
+        if ((-not $nologo) -and (-not $structuredDocs)) {
             "psake version {0}`nCopyright (c) 2010-2014 James Kovacs & Contributors`n" -f $psake.version
         }
 
@@ -381,8 +382,17 @@ function Invoke-psake {
             . $includeFilename
         }
 
-        if ($docs -or $detailedDocs) {
-            WriteDocumentation($detailedDocs)
+        if ($docs -or $detailedDocs -or $structuredDocs) {
+            $docType = 'simple'
+            if ($detailedDocs)
+            {
+                $docType = 'detailed'
+            }
+            elseif ($structuredDocs)
+            {
+                $docType = 'structured'
+            }
+            WriteDocumentation($docType)
             CleanupEnvironment
             return
         }
@@ -761,7 +771,7 @@ function ResolveError
     }
 }
 
-function WriteDocumentation($showDetailed) {
+function WriteDocumentation($docType) {
     $currentContext = $psake.context.Peek()
 
     if ($currentContext.tasks.default) {
@@ -771,7 +781,11 @@ function WriteDocumentation($showDetailed) {
     }
 
     $docs = $currentContext.tasks.Keys | foreach-object {
-        if ($_ -eq "default") {
+
+        # When the user requests structured documentation, we must not hide anything
+        # since it is meant to be interpreted by a script. We will let the responsibility 
+        # of filtering out the default task to the calling script if he wants to.
+        if (($_ -eq "default") -and ($docType -ne 'structured')) {
             return
         }
 
@@ -780,16 +794,22 @@ function WriteDocumentation($showDetailed) {
             Name = $task.Name;
             Alias = $task.Alias;
             Description = $task.Description;
-            "Depends On" = $task.DependsOn -join ", "
+            DependsOn = $task.DependsOn;
             Default = if ($defaultTaskDependencies -contains $task.Name) { $true }
         }
     }
-    if ($showDetailed) {
-        $docs | sort 'Name' | format-list -property Name,Alias,Description,"Depends On",Default
-    } else {
-        $docs | sort 'Name' | format-table -autoSize -wrap -property Name,Alias,"Depends On",Default,Description
+    if ($docType -eq 'structured')
+    {
+        $docs
     }
-
+    else
+    {
+        if ($docType -eq 'detailed') {
+            $docs | sort 'Name' | format-list -property Name,Alias,Description,@{Label="Depends On";Expression={$_.DependsOn -join ', '}},Default
+        } else {
+            $docs | sort 'Name' | format-table -autoSize -wrap -property Name,Alias,@{Label="Depends On";Expression={$_.DependsOn -join ', '}},Default,Description
+        }
+    }
 }
 
 function WriteTaskTimeSummary($invokePsakeDuration) {

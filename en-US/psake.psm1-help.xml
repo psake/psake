@@ -47,6 +47,14 @@
           <maml:name>nologo</maml:name>
           <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
         </command:parameter>
+	<command:parameter require="false" variableLength="false" globbing="false" pipelineInput="false" postion="0">
+          <maml:name>detailedDocs</maml:name>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        </command:parameter>
+	<command:parameter require="false" variableLength="false" globbing="false" pipelineInput="false" postion="0">
+          <maml:name>structuredDocs</maml:name>
+          <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        </command:parameter>
         <command:parameter require="false" variableLength="false" globbing="false" pipelineInput="false" postion="0">
           <maml:name>notr</maml:name>
           <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
@@ -94,7 +102,7 @@ Possible values: '1.0', '1.1', '2.0', '2.0x86', '2.0x64', '3.0', '3.0x86', '3.0x
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false (ByValue)" position="3">
         <maml:name>docs</maml:name>
         <maml:description>
-            <maml:para>Prints a list of tasks and their descriptions</maml:para>
+            <maml:para>Prints a list of tasks and their descriptions.</maml:para>
           </maml:description>
         <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
         <dev:type>
@@ -128,7 +136,7 @@ Possible values: '1.0', '1.1', '2.0', '2.0x86', '2.0x64', '3.0', '3.0x86', '3.0x
         </dev:type>
         <dev:defaultValue />
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false (ByValue)" position="6">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false (ByValue)" position="7">
         <maml:name>nologo</maml:name>
          <maml:description>
             <maml:para>Do not display the startup banner and copyright message.</maml:para>
@@ -140,7 +148,31 @@ Possible values: '1.0', '1.1', '2.0', '2.0x86', '2.0x64', '3.0', '3.0x86', '3.0x
         </dev:type>
         <dev:defaultValue />
       </command:parameter>
-      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false (ByValue)" position="6">
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false (ByValue)" position="8">
+        <maml:name>detailedDocs</maml:name>
+        <maml:description>
+            <maml:para>Prints a detailed list of tasks and their descriptions.</maml:para>
+          </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue />
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false (ByValue)" position="9">
+        <maml:name>structuredDocs</maml:name>
+        <maml:description>
+            <maml:para>Returns objects that represent the different tasks contained in the script.</maml:para>
+          </maml:description>
+        <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+        <dev:type>
+          <maml:name>SwitchParameter</maml:name>
+          <maml:uri />
+        </dev:type>
+        <dev:defaultValue />
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false (ByValue)" position="10">
         <maml:name>notr</maml:name>
          <maml:description>
             <maml:para>Do not display the time report.</maml:para>
