@@ -1,4 +1,4 @@
-<p>*psake* is a domain specific language to create builds using a dependency pattern just like Ant, NAnt, Rake or MSBuild.
+<p>**psake** is a domain specific language to create builds using a dependency pattern just like Ant, NAnt, Rake or MSBuild.
 
 You create a build script using PowerShell that consists of _Tasks_ which are simply function calls.  Each _Task_ function can define dependencies on other _Task_ functions.
 
