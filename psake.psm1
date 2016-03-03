@@ -340,10 +340,11 @@ function Invoke-psake {
         [Parameter(Position = 6, Mandatory = 0)][alias("init")][scriptblock] $initialization = {},
         [Parameter(Position = 7, Mandatory = 0)][switch] $nologo = $false,
         [Parameter(Position = 8, Mandatory = 0)][switch] $detailedDocs = $false,
-        [Parameter(Position = 9, Mandatory = 0)][switch] $notr = $false # disable time report
+        [Parameter(Position = 9, Mandatory = 0)][switch] $structuredDocs = $false,
+        [Parameter(Position = 10, Mandatory = 0)][switch] $notr = $false # disable time report
     )
     try {
-        if (-not $nologo) {
+        if ((-not $nologo) -and (-not $structuredDocs)) {
             "psake version {0}`nCopyright (c) 2010-2014 James Kovacs & Contributors`n" -f $psake.version
         }
 
@@ -360,11 +361,59 @@ function Invoke-psake {
         ExecuteInBuildFileScope $buildFile $MyInvocation.MyCommand.Module {
             param($currentContext, $module)            
 
+<<<<<<< HEAD
             $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
             
             if ($docs -or $detailedDocs) {
                 WriteDocumentation($detailedDocs)
                 return
+=======
+        LoadConfiguration $psake.build_script_dir
+
+        $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+
+        set-location $psake.build_script_dir
+
+        LoadModules
+
+        $frameworkOldValue = $framework
+        . $psake.build_script_file.FullName
+
+        $currentContext = $psake.context.Peek()
+
+        if ($framework -ne $frameworkOldValue) {
+            writecoloredoutput $msgs.warning_deprecated_framework_variable -foregroundcolor Yellow
+            $currentContext.config.framework = $framework
+        }
+
+        ConfigureBuildEnvironment
+
+        while ($currentContext.includes.Count -gt 0) {
+            $includeFilename = $currentContext.includes.Dequeue()
+            . $includeFilename
+        }
+
+        if ($docs -or $detailedDocs -or $structuredDocs) {
+            $docType = 'simple'
+            if ($detailedDocs)
+            {
+                $docType = 'detailed'
+            }
+            elseif ($structuredDocs)
+            {
+                $docType = 'structured'
+            }
+            WriteDocumentation($docType)
+            CleanupEnvironment
+            return
+        }
+
+        foreach ($key in $parameters.keys) {
+            if (test-path "variable:\$key") {
+                set-item -path "variable:\$key" -value $parameters.$key -WhatIf:$false -Confirm:$false | out-null
+            } else {
+                new-item -path "variable:\$key" -value $parameters.$key -WhatIf:$false -Confirm:$false | out-null
+>>>>>>> 85df619dd5555e89241c410a228aa3306dc0fb86
             }
             
             foreach ($key in $parameters.keys) {
@@ -794,9 +843,29 @@ function ResolveError
     }
 }
 
+<<<<<<< HEAD
 function GetTasksFromContext($currentContext) {    
 
     $docs = $currentContext.tasks.Keys | foreach-object {
+=======
+function WriteDocumentation($docType) {
+    $currentContext = $psake.context.Peek()
+
+    if ($currentContext.tasks.default) {
+        $defaultTaskDependencies = $currentContext.tasks.default.DependsOn
+    } else {
+        $defaultTaskDependencies = @()
+    }
+
+    $docs = $currentContext.tasks.Keys | foreach-object {
+
+        # When the user requests structured documentation, we must not hide anything
+        # since it is meant to be interpreted by a script. We will let the responsibility 
+        # of filtering out the default task to the calling script if he wants to.
+        if (($_ -eq "default") -and ($docType -ne 'structured')) {
+            return
+        }
+>>>>>>> 85df619dd5555e89241c410a228aa3306dc0fb86
 
         $task = $currentContext.tasks.$_
         new-object PSObject -property @{
@@ -804,6 +873,7 @@ function GetTasksFromContext($currentContext) {
             Alias = $task.Alias;
             Description = $task.Description;
             DependsOn = $task.DependsOn;
+<<<<<<< HEAD
         }
     }
 
@@ -835,6 +905,23 @@ function WriteDocumentation($showDetailed) {
     } else {
         $docs | sort 'Name' | format-table -autoSize -wrap -property Name,Alias,@{Label="Depends On";Expression={$_.DependsOn -join ', '}},Default,Description
     }
+=======
+            Default = if ($defaultTaskDependencies -contains $task.Name) { $true }
+        }
+    }
+    if ($docType -eq 'structured')
+    {
+        $docs
+    }
+    else
+    {
+        if ($docType -eq 'detailed') {
+            $docs | sort 'Name' | format-list -property Name,Alias,Description,@{Label="Depends On";Expression={$_.DependsOn -join ', '}},Default
+        } else {
+            $docs | sort 'Name' | format-table -autoSize -wrap -property Name,Alias,@{Label="Depends On";Expression={$_.DependsOn -join ', '}},Default,Description
+        }
+    }
+>>>>>>> 85df619dd5555e89241c410a228aa3306dc0fb86
 }
 
 function WriteTaskTimeSummary($invokePsakeDuration) {
