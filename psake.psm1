@@ -894,10 +894,15 @@ convertfrom-stringdata @'
 '@
 }
 
-Import-LocalizedData -BindingVariable msgs -ErrorAction $script:IgnoreError
+Import-LocalizedData -BindingVariable msgs -FileName messages.psd1 -ErrorAction $script:IgnoreError
+
+$scriptDir = Split-Path $MyInvocation.MyCommand.Path
+$manifestPath = Join-Path $scriptDir psake.psd1
+$manifest = Test-ModuleManifest -Path $manifestPath -WarningAction SilentlyContinue
 
 $script:psake = @{}
-$psake.version = "4.5.0" # contains the current version of psake
+
+$psake.version = $manifest.Version.ToString()
 $psake.context = new-object system.collections.stack # holds onto the current state of all variables
 $psake.run_by_psake_build_tester = $false # indicates that build is being run by psake-BuildTester
 $psake.config_default = new-object psobject -property @{

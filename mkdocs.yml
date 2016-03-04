@@ -1,0 +1,29 @@
+site_name: psake
+theme: readthedocs
+repo_url: https://github.com/psake/psake
+
+pages:
+- What is psake?: index.md
+- How does psake work?: how-does-psake-work.md
+- Where can I get psake?: where-can-i-get-psake.md
+- What can I use psake for?: what-can-i-use-psake-for.md
+- What is the structure of a psake build script?: structure-of-a-psake-build-script.md
+- How can I get help on how to use psake?: getting-help.md
+- How do I run psake?: run-psake.md
+- How can I debug my psake script?: debug-script.md
+- How can I use psake to build a VS.NET solution?: dot-net-solution.md
+- How can I change the way psake prints out the name of each task?: print-psake-task-name.md
+- How can I pass parameters to my psake script?: pass-parameters.md
+- How can I override a property defined in my psake script?: property-overrides.md
+- How can I conditionally run a task?: conditional-task.md
+- How can I set a variable in one task and reference it in another?: variable-referencing.md
+- How can I access functions that are in other script files from within psake?: access-functions-in-another-file.md
+- How can I force the build to fail if a command-line program I run from a task fails?: how-to-fail-a-build.md
+- How can I ensure my build script keeps running even if one of my tasks throws an exception?: build-script-resilience.md
+- Can I run a nested build?: nested-build.md
+- How can I log any errors from my build to a file?: logging-errors.md
+- How can I integrate psake with Hudson?: hudson.md
+- How can I integrate psake with Team City?: team-city.md
+- How can I integrate psake with Cruise Control.NET?: cruise-control.md
+- How can I set retry rules for a task?: retry-rules.md
+- Who is using psake?: who-is-using-psake.md
