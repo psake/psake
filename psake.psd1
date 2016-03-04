@@ -5,6 +5,7 @@
     Author            = 'James Kovacs'
     Copyright         = 'Copyright (c) 2012-16 James Kovacs, Damian Hickey and Contributors'
     PowerShellVersion = '2.0'
+    Description       = 'psake is a build automation tool written in PowerShell.'
     FunctionsToExport = @('Invoke-psake',
                           'Invoke-Task',
                           'Task',
@@ -18,13 +19,11 @@
                           'Exec')
     VariablesToExport = 'psake'
 
-    # Description = ''
-
     PrivateData = @{
         PSData = @{
             LicenseUri = 'https://github.com/psake/psake/blob/master/license.txt'
             ProjectUri = 'https://github.com/psake/psake'
-            # Tags     = @()
+            Tags     = @('Build', 'Task')
             # IconUri  = ''
         }
     }
