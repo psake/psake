@@ -304,6 +304,7 @@ function Framework {
     ConfigureBuildEnvironment
 }
 
+# .ExternalHelp  psake.psm1-help.xml
 function Get-PSakeScriptTasks {
     [CmdletBinding()]
     param(
