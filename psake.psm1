@@ -849,7 +849,7 @@ convertfrom-stringdata @'
 '@
 }
 
-Import-LocalizedData -BindingVariable msgs -ErrorAction $script:IgnoreError
+Import-LocalizedData -BindingVariable msgs -FileName messages.psd1 -ErrorAction $script:IgnoreError
 
 $scriptDir = Split-Path $MyInvocation.MyCommand.Path
 $manifestPath = Join-Path $scriptDir psake.psd1
