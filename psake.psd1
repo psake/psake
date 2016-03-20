@@ -25,7 +25,7 @@
             LicenseUri = 'https://github.com/psake/psake/blob/master/license.txt'
             ProjectUri = 'https://github.com/psake/psake'
             Tags     = @('Build', 'Task')
-            IconUri  = 'https://raw.githubusercontent.com/psake/graphics/master/jpg/psake-full-icon-teal-bg-256x256.jpg'
+            IconUri  = 'https://raw.githubusercontent.com/psake/graphics/master/png/psake-single-icon-teal-bg-256x256.png'
         }
     }
 }
