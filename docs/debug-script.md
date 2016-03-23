@@ -1,6 +1,6 @@
 You can debug your psake build script in a couple of ways:
-# Using `Set-PSBreakpoint`, `Get-PSBreakpoint` and `Remove-PSBreakpoint`
-# Use the **PowerShell Integrated Scripting Environment (ISE)**
+* Using `Set-PSBreakpoint`, `Get-PSBreakpoint` and `Remove-PSBreakpoint`
+* Use the **PowerShell Integrated Scripting Environment (ISE)**
 
 With `Set-PSBreakpoint` you need to know what line number you want to set a breakpoint on, but the syntax is pretty simple:
 
