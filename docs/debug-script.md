@@ -1,18 +1,17 @@
-<p>
 You can debug your psake build script in a couple of ways:
 # Using *Set-PSBreakpoint*, *Get-PSBreakpoint* and *Remove-PSBreakpoint*
 # Use the *PowerShell Integrated Scripting Environment (ISE)*
 
 With *Set-PSBreakpoint* you need to know what line number you want to set a breakpoint on, but the syntax is pretty simple:
-</p>
-```
+
+```powershell
 Set-PSBreakpoint [-Script] <string[]> [-Line] <Int32[]> [[-Column] <int>] [-Action <scriptblock>] [<CommonParameters>]
 ex.
 Set-PSBreakPoint -script default.ps1 -line 25
 ```
-<p>
+
 Once the breakpoint is set then you call the invoke-psake function on your script as normal and you should get a prompt from the command window:
-</p>
+
 ```
 Entering debug mode. Use h or ? for help.
 
@@ -21,9 +20,9 @@ Hit Line breakpoint on 'C:\Users\Daddy\Documents\Projects\psake\default.ps1:9'
 default.ps1:9     "TaskA is executing"
 [DBG]: PS C:\Users\Daddy\Documents\Projects\psake>>>
 ```
-<p>
-if you type "h" you will get the following options that will allow you to debug your script:
-</p>
+
+If you type "h" you will get the following options that will allow you to debug your script:
+
 ```
  s, stepInto         Single step (step into functions, scripts, etc.)
  v, stepOver         Step to next statement (step over functions, scripts, etc.)
@@ -43,10 +42,9 @@ if you type "h" you will get the following options that will allow you to debug 
 
  ?, h                Displays this help message
 ```
-<p>
+
 While debugging you are able to inspect the values of your variables by just typing them at the prompt and hitting the [Enter] key
 
 Once you are done debugging you can call *Remove-PSBreakpoint* to remove the breakpoints you've added,  you can use *Get-PSBreakpoint* to get a list of all the current breakpoints in the current session.  
 
 With the *PowerShell Integrated Scripting Environment* all you need to do is to load your build script and click on the left margin to set a breakpoint, then run the invoke-psake function from the command window that is within the ISE (its in the bottom pane of the ISE).  Then you can use the functions keys to debug your build script (F10, F11, etc.. they are under the "Debug" menu).
-</p>
