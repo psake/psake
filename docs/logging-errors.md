@@ -1,9 +1,8 @@
-<p>
-The latest version of *psake* no longer provides a way to log errors to a file.  Most builds are executed by a continuous integration server which already logs all console output so it's redundant to provide that same functionality in psake. If an error does occur detailed error information is emitted to the console so that it will get saved by whatever CI server is running psake.
+The latest version of **psake** no longer provides a way to log errors to a file.  Most builds are executed by a continuous integration server which already logs all console output so it's redundant to provide that same functionality in psake. If an error does occur detailed error information is emitted to the console so that it will get saved by whatever CI server is running psake.
 
 Here is an example of an error from a psake build script:
-</p>
-<pre>
+
+```
 ----------------------------------------------------------------------
 4/25/2010 2:36:21 PM: An Error Occurred. See Error Details Below: 
 ----------------------------------------------------------------------
@@ -69,4 +68,4 @@ null
 psake                          {build_script_file, version, default_build_file_name, use_exit_on_error...}                                   
 this                                                                                                                                         
 true                           True              
-</pre>
+```
