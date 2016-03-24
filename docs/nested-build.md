@@ -1,9 +1,8 @@
-<p>
 Yes, the Invoke-psake function can be called recursively from within a "task" function
 
 The following is an example build script that has tasks that call the invoke-psake function to run other build scripts.
-</p>
-<pre>
+
+```powershell
 Properties {
 	$x = 1
 }
@@ -21,4 +20,4 @@ Task RunNested2 {
 Task CheckX{
 	Assert ($x -eq 1) '$x was not 1' 
 }
-</pre>
+```
