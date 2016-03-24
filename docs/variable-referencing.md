@@ -1,4 +1,4 @@
-Since *psake* is written in PowerShell, all variables follow the PowerShell scoping rules (PS> help about_scope).  All the variables declared in the "properties" function have the "script" level scope and any variables declared within a "task" function are local variables.  
+Since **psake** is written in PowerShell, all variables follow the PowerShell scoping rules (PS> help about_scope).  All the variables declared in the "properties" function have the "script" level scope and any variables declared within a "task" function are local variables.  
 
 This means you can reference the "properties" variables from any "task" function but all variables declared within "task" function are not accessible from other "task" functions in the build script. 
 
