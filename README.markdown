@@ -37,6 +37,10 @@ If you encounter the following error "Import-Module : ...psake.psm1 cannot be lo
 > Invoke-psake .\default.ps1 Clean  
 > - will execute the single task in the default.ps1 script
 
+## Release Notes
+
+You can find all the information about each release of psake in the [releases section](https://github.com/psake/psake/releases).
+
 ## How To Contribute, Collaborate, Communicate
 
 If you'd like to get involved with psake, we have discussion groups over at google: **[psake-dev](http://groups.google.com/group/psake-dev)** **[psake-users](http://groups.google.com/group/psake-users)**
