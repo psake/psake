@@ -34,7 +34,8 @@ Task Clean {
 <hr/>
 <p>The following is a BNF for a psake build script:</p>
 
-pre. <BuildScript> ::= <Includes> 
+```
+<BuildScript> ::= <Includes> 
                 | <Properties>
                 | <FormatTaskName> 
                 | <TaskSetup> 
@@ -58,3 +59,4 @@ pre. <BuildScript> ::= <Includes>
 <TaskNames> ::= <StringLiteral>, | <TaskNames>				
 <ScriptBlock> ::= { <PowerShellStatements> }
 <Boolean> ::= $true | $false
+```
