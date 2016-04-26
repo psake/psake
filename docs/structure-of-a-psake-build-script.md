@@ -3,6 +3,7 @@ A psake build script contains calls to functions that the psake build engine wil
 The functions are the following:
 
 |Function|Description|Required|
+|--------|-----------|--------|
 |_Include()_|Call this function to have psake include the functions of another file into your script|no|
 |_Properties()_|Call this function to set your properties|no|
 |_Task()_|This is the main function that you write to execute a step in your build script. NOTE: There can be only one task function that is named "default" in your psake script and it cannot contain any code. psake will throw an exception if it finds more than one default task function or if the default task function contains code|yes|
