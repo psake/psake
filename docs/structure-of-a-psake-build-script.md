@@ -16,7 +16,7 @@ The functions are the following:
 An example psake script:
 <hr/>
 
-```
+```PowerShell
 Task default -Depends Test
 
 Task Test -Depends Compile, Clean {
