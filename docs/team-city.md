@@ -37,3 +37,10 @@ You can pass multiple parameters by separating them with semicolons:
 ```
 & .\psake.ps1 -parameters @{build_number=%build.number%; personal_build=%build.is.personal%}
 ```
+
+If you are using PowerShell v3.0 or greater, you can get all of the TeamCity parameters into a hash with the following code in your .ps1 file:
+```
+$TCParams = ConvertFrom-StringData (Get-Content $env:TEAMCITY_BUILD_PROPERTIES_FILE -Raw);
+```
+
+After this code executes, you can access any TeamCity parameter as <code>$TCParams['parameter.name']</code> e.g. <code>$TCParams['build.number']</code>
