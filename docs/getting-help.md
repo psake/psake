@@ -54,5 +54,5 @@ SYNOPSIS
     C:\PS>Assert ( ($i % 2) -eq 0 ) "%i is not an even number"
 
 
-    This exmaple may throw an exception if $i is not an even number
+    This example may throw an exception if $i is not an even number
 ```
