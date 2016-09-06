@@ -87,10 +87,11 @@ function Invoke-Task
                     }
 
                     if ($currentContext.config.taskNameFormat -is [ScriptBlock]) {
-                        & $currentContext.config.taskNameFormat $taskName
+                        $taskHeader = & $currentContext.config.taskNameFormat $taskName
                     } else {
-                        WriteColoredOutput ($currentContext.config.taskNameFormat -f $taskName) -foregroundcolor Cyan
+                        $taskHeader = $currentContext.config.taskNameFormat -f $taskName
                     }
+                    WriteColoredOutput $taskHeader -foregroundcolor Cyan
 
                     foreach ($variable in $task.requiredVariables) {
                         Assert ((test-path "variable:$variable") -and ((get-variable $variable).Value -ne $null)) ($msgs.required_variable_not_set -f $variable, $taskName)
