@@ -20,7 +20,7 @@ Invoke-psake .\PSAKE_BUILD_FILENAME.ps1 RunTests
 
 * For 4.0.0: Make sure you have added **<code>$psake.use_exit_on_error = $true</code>** somewhere before the Invoke-psake call (e.g., amend the <code>psake.ps1</code> file)
 * For 4.0.1 unofficial realease on NuGet no additional steps are required
-* For current development version append to '& .\psake.ps1` also `; if ($psake.build_success -eq $false) { exit 1 } else { exit 0 }"` to notify TeamCity about build failure
+* For current development version append to `& .\psake.ps1` also `if ($psake.build_success -eq $false) { exit 1 } else { exit 0 }` to notify TeamCity about build failure
 
 Now you are ready.
 
