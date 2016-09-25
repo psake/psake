@@ -11,7 +11,7 @@ task default -depends TestInit
 task TestInit {
   # values are:
   # 1: original
-  # 2: overide
+  # 2: override
   # 3: new
   
   Assert ($container.foo -eq "foo") "$container.foo should be foo"

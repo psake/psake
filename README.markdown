@@ -12,7 +12,7 @@ psake is pronounced sake – as in Japanese rice wine. It does NOT rhyme with ma
 
 **Step 1:** Download and extract the project
 
-You will need to "unblock" the zip file before extracting - PowerShell by default does not run files downloaded from the internet.
+You will need to "unblock" the zip file before extracting - PowerShell by default does not run files downloaded from the Internet.
 Just right-click the zip and click on "properties" and click on the "unblock" button.
 
 **Step 2:** CD into the directory where you extracted the project (where the psake.psm1 file is)
@@ -43,7 +43,7 @@ You can find all the information about each release of psake in the [releases se
 
 ## How To Contribute, Collaborate, Communicate
 
-If you'd like to get involved with psake, we have discussion groups over at google: **[psake-dev](http://groups.google.com/group/psake-dev)** **[psake-users](http://groups.google.com/group/psake-users)**
+If you'd like to get involved with psake, we have discussion groups over at Google: **[psake-dev](http://groups.google.com/group/psake-dev)** **[psake-users](http://groups.google.com/group/psake-users)**
 
 Anyone can fork the main repository and submit patches, as well. And lastly, the [wiki](http://wiki.github.com/psake/psake/) and [issues list](http://github.com/psake/psake/issues) are also open for additions, edits, and discussion.
 

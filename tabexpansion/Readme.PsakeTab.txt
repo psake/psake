@@ -1,5 +1,5 @@
 _________________________________________________________
-A powershell script for tab completion of psake module build commands
+A PowerShell script for tab completion of psake module build commands
  - tab completion for file name: psake d<tab> -> psake .\default.ps1
  - tab completion for parameters (docs,task,parameters,properties): psake -t<tab> -> psake -task
  - tab completion for task: psake -t<tab> c -> psake -task Clean
