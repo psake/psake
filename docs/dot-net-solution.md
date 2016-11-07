@@ -60,7 +60,7 @@ Import-Module (join-path $scriptPath psake.psm1)
 invoke-psake -framework '4.0'
 ```
 
-I run the build in powershell by just running the script:
+I run the build in PowerShell by just running the script:
 
 ```
 PS > .\run-build.ps1

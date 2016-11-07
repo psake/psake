@@ -352,7 +352,7 @@ function Invoke-psake {
           $buildFile = $psake.config_default.buildFileName
         }
         elseif (!(test-path $buildFile -pathType Leaf) -and (test-path $psake.config_default.buildFileName -pathType Leaf)) {
-            # If the $config.buildFileName file exists and the given "buildfile" isn 't found assume that the given
+            # If the $config.buildFileName file exists and the given "buildfile" isn't found assume that the given
             # $buildFile is actually the target Tasks to execute in the $config.buildFileName script.
             $taskList = $buildFile.Split(', ')
             $buildFile = $psake.config_default.buildFileName
@@ -914,7 +914,7 @@ $psake.config_default = new-object psobject -property @{
     coloredOutput = $true;
     modules = $null;
     moduleScope = "";
-} # contains default configuration, can be overriden in psake-config.ps1 in directory with psake.psm1 or in directory with current build script
+} # contains default configuration, can be overridden in psake-config.ps1 in directory with psake.psm1 or in directory with current build script
 
 $psake.build_success = $false # indicates that the current build was successful
 $psake.build_script_file = $null # contains a System.IO.FileInfo for the current build script

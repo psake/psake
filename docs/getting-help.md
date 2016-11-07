@@ -1,6 +1,6 @@
-You can read this faq for help on how to use psake.
+You can read this FAQ for help on how to use psake.
 
-You can also use the powershell command-let get-help on the *Invoke-psake* function to get more detailed help.
+You can also use the PowerShell command-let get-help on the *Invoke-psake* function to get more detailed help.
 
 ```powershell
 # First import the psake.psm1 file
@@ -28,7 +28,7 @@ Function        TaskSetup                                                     ..
 Function        TaskTearDown                                                  ...
 ```
 
-To Get example usage for individual functions in the psake powershell module, use Get-Help, For example:
+To Get example usage for individual functions in the psake PowerShell module, use Get-Help, For example:
 
 ```
 C:\Software\psake> Get-Help Assert -examples

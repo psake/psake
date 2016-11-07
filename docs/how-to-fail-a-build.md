@@ -42,7 +42,7 @@ task TaskA {
   cmd /c exit (1) 
   if ($lastexitcode -ne 0)
   {
-    throw "Comand-line program failed"
+    throw "Command-line program failed"
   }
 }
 ```
