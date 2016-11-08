@@ -5,14 +5,14 @@ Here's the modified psake.ps1 file
 ```powershell
 # Helper script for those who want to run psake without importing the module.
 # Example:
-# .\psake.ps1 "default.ps1" "BuildHelloWord" "4.0" 
+# .\psake.ps1 "psakefile.ps1" "BuildHelloWord" "4.0" 
 
 # Must match parameter definitions for psake.psm1/invoke-psake 
 # otherwise named parameter binding fails
 
 param(
   [Parameter(Position=0,Mandatory=0)]
-  [string]$buildFile = 'default.ps1',
+  [string]$buildFile = 'psakefile.ps1',
   [Parameter(Position=1,Mandatory=0)]
   [string[]]$taskList = @(),
   [Parameter(Position=2,Mandatory=0)]
@@ -38,7 +38,7 @@ try {
 Configure Hudson to call PowerShell passing in the helper script as a parameter:
 
 ```
-powershell.exe "& 'psake.ps1 default.ps1'"
+powershell.exe "& 'psake.ps1 psakefile.ps1'"
 ```
 
 I've written a blog [post](http://matosjorge.spaces.live.com/blog/cns!2E0DA1D30B684DA8!710.entry) that shows how to do this without using a helper script.  It uses a Hudson PowerShell plug-in that allows you to enter PowerShell commands directly into the Hudson job configuration.

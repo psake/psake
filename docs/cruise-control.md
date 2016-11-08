@@ -11,7 +11,7 @@ For this example, the source control provider has been configured to put the cod
         <script>psake.ps1</script>
         <scriptsDirectory>c:\build\ProjectName.git</scriptsDirectory>
         <executable>powershell.exe</executable>
-        <buildArgs>.\default.ps1 -properties @{ 
+        <buildArgs>.\psakefile.ps1 -properties @{ 
             buildDirectory = 'c:\build\ProjectName.msbuild\';
             tempPath = 'c:\build\ProjectName.TestDatabases';
             sqlConnectionString = 'Database=''MyDB'';Data Source=.\;Integrated Security=True'

@@ -9,14 +9,14 @@ Following is the first option:
 
 ```powershell
 Import-Module .\psake.psml
-Invoke-psake .\default.ps1
+Invoke-psake .\psakefile.ps1
 ```
 
 Second option:
 
 ```powershell
 # call the psake.ps1 file directly
-.\psake.ps1 .\default.ps1
+.\psake.ps1 .\psakefile.ps1
 ```
 
 When you call the psake.ps1 script, it forwards the parameters on to the Invoke-psake function.

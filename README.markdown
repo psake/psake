@@ -32,10 +32,10 @@ If you encounter the following error "Import-Module : ...psake.psm1 cannot be lo
 > CD .\examples
 >
 > Invoke-psake    					
-> - This will execute the "default" task in the "default.ps1"
+> - This will execute the "default" task in the "psakefile.ps1"
 >
-> Invoke-psake .\default.ps1 Clean  
-> - will execute the single task in the default.ps1 script
+> Invoke-psake .\psakefile.ps1 Clean  
+> - will execute the single task in the psakefile.ps1 script
 
 ## Release Notes
 
