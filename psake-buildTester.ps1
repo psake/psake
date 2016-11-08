@@ -27,6 +27,10 @@ function Main()
 function runBuilds()
 {
 	$buildFiles = ls specs\*.ps1
+	if ($buildFiles.GetType().ToString() -ne 'System.Object[]') {
+		# If only one build file is found, force the return type to an array
+		$buildFiles = @($buildFiles)
+  }
 	$testResults = @()
 
 	#Add a fake build file to the $buildFiles array so that we can verify
