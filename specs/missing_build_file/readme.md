@@ -1,0 +1,1 @@
+This folder should not contain a default psake build file.
