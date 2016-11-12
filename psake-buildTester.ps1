@@ -8,7 +8,7 @@ function Main()
 	remove-module psake
 
 	""
-	$results | Sort 'Name' | % { if ($_.Result -eq "Passed") { write-host ($_.Name + " (Passed)") -ForeGroundColor 'GREEN'} else { write-host ($_.Name + " (Failed)") -ForeGroundColor 'RED'}} 
+	$results | Sort-Object 'Name' | % { if ($_.Result -eq "Passed") { write-host ($_.Name + " (Passed)") -ForeGroundColor 'GREEN'} else { write-host ($_.Name + " (Failed)") -ForeGroundColor 'RED'}} 
 	""
 
 	$failed = $results | ? { $_.Result -eq "Failed" }
@@ -26,7 +26,7 @@ function Main()
 
 function runBuilds()
 {
-	$buildFiles = ls specs\*.ps1
+	$buildFiles = Get-ChildItem specs\*.ps1
 	$testResults = @()
 
 	#Add a fake build file to the $buildFiles array so that we can verify

@@ -27,7 +27,7 @@ function HelloYou
 Task CheckGetPSakeScriptTasks {
     
     $tasks = Get-PSakeScriptTasks .\nested\docs.ps1
-    $tasks = $tasks | sort -Property Name
+    $tasks = $tasks | Sort-Object -Property Name
 
     Assert ($tasks.Length -eq 7) 'Unexpected number of tasks.'
 
