@@ -304,6 +304,29 @@ function Framework {
     ConfigureBuildEnvironment
 }
 
+function Get-PSakeScriptTasks {
+    [CmdletBinding()]
+    param(
+        [Parameter(Position = 0, Mandatory = 0)][string] $buildFile
+    )
+
+    if (!$buildFile) {
+        $buildFile = $psake.config_default.buildFileName
+    }
+
+    try
+    {
+        ExecuteInBuildFileScope $buildFile $MyInvocation.MyCommand.Module {
+            param($currentContext, $module)
+            return GetTasksFromContext $currentContext
+        }
+
+    } finally {
+
+        CleanupEnvironment
+    }
+}
+
 # .ExternalHelp  psake.psm1-help.xml
 function Get-PSakeScriptTasks {
     [CmdletBinding()]
