@@ -144,7 +144,13 @@ function Exec
         [Parameter(Position=1,Mandatory=0)][string]$errorMessage = ($msgs.error_bad_command -f $cmd),
         [Parameter(Position=2,Mandatory=0)][int]$maxRetries = 0,
         [Parameter(Position=3,Mandatory=0)][string]$retryTriggerErrorPattern = $null
+        [Parameter(Position=4,Mandatory=0)][string]$workingDirectory = $null
     )
+	
+    if($workingDirectory)
+    {
+        Push-Location -Path $workingDirectory
+    }
 
     $tryCount = 1
 
@@ -176,6 +182,13 @@ function Exec
             $tryCount++
 
             [System.Threading.Thread]::Sleep([System.TimeSpan]::FromSeconds(1))
+        }
+        finally
+        {
+            if($workingDirectory)
+            {
+                Pop-Location
+            }
         }
     }
     while ($true)
