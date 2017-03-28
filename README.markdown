@@ -37,6 +37,10 @@ If you encounter the following error "Import-Module : ...psake.psm1 cannot be lo
 > Invoke-psake .\default.ps1 Clean  
 > - will execute the single task in the default.ps1 script
 
+**Step 4:** Set your PATH variable
+
+If you wish to use the psake command from outside of the install folder, add the folder install directory to your PATH variable.
+
 ## Release Notes
 
 You can find all the information about each release of psake in the [releases section](https://github.com/psake/psake/releases).
