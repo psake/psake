@@ -576,7 +576,7 @@ function ConfigureBuildEnvironment {
             $versions = @('v4.0.30319')
             $buildToolsVersions = @('14.0', '12.0')
         }
-        {($_ -eq '4.6') -or ($_ -eq '4.6.1')} {
+        {($_ -ge '4.6')} {
             $versions = @('v4.0.30319')
             $buildToolsVersions = @('14.0')
         }
