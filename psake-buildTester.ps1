@@ -8,10 +8,10 @@ function Main()
 	remove-module psake
 
 	""
-	$results | Sort 'Name' | % { if ($_.Result -eq "Passed") { write-host ($_.Name + " (Passed)") -ForeGroundColor 'GREEN'} else { write-host ($_.Name + " (Failed)") -ForeGroundColor 'RED'}} 
+	$results | Sort-Object 'Name' | ForEach-Object { if ($_.Result -eq "Passed") { write-host ($_.Name + " (Passed)") -ForeGroundColor 'GREEN'} else { write-host ($_.Name + " (Failed)") -ForeGroundColor 'RED'}} 
 	""
 
-	$failed = $results | ? { $_.Result -eq "Failed" }
+	$failed = $results | Where-Object { $_.Result -eq "Failed" }
 	if ($failed) 
 	{	
 		write-host "One or more of the build files failed" -ForeGroundColor RED
@@ -26,19 +26,19 @@ function Main()
 
 function runBuilds()
 {
-	$buildFiles = ls specs\*.ps1
+	$buildFiles = Get-ChildItem specs\*.ps1
 	$testResults = @()
 
 	#Add a fake build file to the $buildFiles array so that we can verify
 	#that Invoke-psake fails
-	$non_existant_buildfile = "" | select Name, FullName
+	$non_existant_buildfile = "" | Select-Object Name, FullName
 	$non_existant_buildfile.Name = "specifying_a_non_existant_buildfile_should_fail.ps1"
 	$non_existant_buildfile.FullName = "c:\specifying_a_non_existant_buildfile_should_fail.ps1"
 	$buildFiles += $non_existant_buildfile
 
 	foreach($buildFile in $buildFiles) 
 	{		
-		$testResult = "" | select Name, Result
+		$testResult = "" | Select-Object Name, Result
 		$testResult.Name = $buildFile.Name
 		invoke-psake $buildFile.FullName -Parameters @{'p1'='v1'; 'p2'='v2'} -Properties @{'x'='1'; 'y'='2'} -Initialization { if(!$container) { $container = @{}; } $container.bar = "bar"; $container.baz = "baz"; $bar = 2; $baz = 3 } | Out-Null
 		$testResult.Result = (getResult $buildFile.Name $psake.build_success)
