@@ -476,8 +476,8 @@ function LoadModules {
 
         $global = [string]::Equals($scope, "global", [StringComparison]::CurrentCultureIgnoreCase)
 
-        $currentConfig.modules | foreach {
-            resolve-path $_ | foreach {
+        $currentConfig.modules | ForEach-Object {
+            resolve-path $_ | ForEach-Object {
                 "Loading module: $_"
                 $module = import-module $_ -passthru -DisableNameChecking -global:$global
                 if (!$module) {
@@ -626,7 +626,7 @@ function ConfigureBuildEnvironment {
             }
         }
     }
-    $frameworkDirs = $frameworkDirs + @($versions | foreach { "$env:windir\Microsoft.NET\$bitness\$_\" })
+    $frameworkDirs = $frameworkDirs + @($versions | ForEach-Object { "$env:windir\Microsoft.NET\$bitness\$_\" })
 
     for ($i = 0; $i -lt $frameworkDirs.Count; $i++) {
         $dir = $frameworkDirs[$i]
@@ -638,7 +638,7 @@ function ConfigureBuildEnvironment {
         }
     }
 
-    $frameworkDirs | foreach { Assert (test-path $_ -pathType Container) ($msgs.error_no_framework_install_dir_found -f $_)}
+    $frameworkDirs | ForEach-Object { Assert (test-path $_ -pathType Container) ($msgs.error_no_framework_install_dir_found -f $_)}
 
     $env:path = ($frameworkDirs -join ";") + ";$env:path"
     # if any error occurs in a PS function then "stop" processing immediately
@@ -783,8 +783,8 @@ function ResolveError
             SelectObjectWithDefault -Name 'PositionMessage' -Value '') -replace "`n", ' '),
             ($_ | SelectObjectWithDefault -Name 'Message' -Value ''),
             ($_ | SelectObjectWithDefault -Name 'Exception' -Value '') |
-                ? { -not [String]::IsNullOrEmpty($_) } |
-                Select -First 1
+                Where-Object { -not [String]::IsNullOrEmpty($_) } |
+                Select-Object -First 1
 
         $delimiter = ''
         if ((-not [String]::IsNullOrEmpty($header)) -and
@@ -822,8 +822,8 @@ function WriteDocumentation($showDetailed) {
     }
     
     $docs = GetTasksFromContext $currentContext | 
-                Where   {$_.Name -ne 'default'} | 
-                ForEach {
+                Where-Object {$_.Name -ne 'default'} | 
+                ForEach-Object {
                     $isDefault = $null
                     if ($defaultTaskDependencies -contains $_.Name) { 
                         $isDefault = $true 
@@ -832,9 +832,9 @@ function WriteDocumentation($showDetailed) {
                 }
 
     if ($showDetailed) {
-        $docs | sort 'Name' | format-list -property Name,Alias,Description,@{Label="Depends On";Expression={$_.DependsOn -join ', '}},Default
+        $docs | Sort-Object 'Name' | format-list -property Name,Alias,Description,@{Label="Depends On";Expression={$_.DependsOn -join ', '}},Default
     } else {
-        $docs | sort 'Name' | format-table -autoSize -wrap -property Name,Alias,@{Label="Depends On";Expression={$_.DependsOn -join ', '}},Default,Description
+        $docs | Sort-Object 'Name' | format-table -autoSize -wrap -property Name,Alias,@{Label="Depends On";Expression={$_.DependsOn -join ', '}},Default,Description
     }
 }
 
@@ -904,9 +904,9 @@ $manifest = Test-ModuleManifest -Path $manifestPath -WarningAction SilentlyConti
 $script:psake = @{}
 
 $psake.version = $manifest.Version.ToString()
-$psake.context = new-object system.collections.stack # holds onto the current state of all variables
+$psake.context = New-Object system.collections.stack # holds onto the current state of all variables
 $psake.run_by_psake_build_tester = $false # indicates that build is being run by psake-BuildTester
-$psake.config_default = new-object psobject -property @{
+$psake.config_default = New-Object psobject -property @{
     buildFileName = "default.ps1";
     framework = "4.0";
     taskNameFormat = "Executing {0}";
