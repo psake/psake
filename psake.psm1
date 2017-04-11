@@ -576,7 +576,7 @@ function ConfigureBuildEnvironment {
             $versions = @('v4.0.30319')
             $buildToolsVersions = @('14.0', '12.0')
         }
-        {($_ -ge '4.6')} {
+        {($_ -ge '4.6') -and ($_ -le '4.6.9')} {
             $versions = @('v4.0.30319')
             $buildToolsVersions = @('14.0')
         }
@@ -621,6 +621,9 @@ function ConfigureBuildEnvironment {
     $frameworkDirs = @()
     if ($buildToolsVersions -ne $null) {
         foreach($ver in $buildToolsVersions) {
+            if ($ver -eq "15.0" -and (Test-Path "C:\Program Files (x86)\Microsoft Visual Studio\2017")) {
+
+            }
             if (Test-Path "HKLM:\SOFTWARE\Microsoft\MSBuild\ToolsVersions\$ver") {
                 $frameworkDirs += (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\MSBuild\ToolsVersions\$ver" -Name $buildToolsKey).$buildToolsKey
             }
