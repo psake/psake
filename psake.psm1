@@ -622,18 +622,39 @@ function ConfigureBuildEnvironment {
     if ($buildToolsVersions -ne $null) {
         foreach($ver in $buildToolsVersions) {
             if ($ver -eq "15.0") {
-                $vs2017paths = @(
-                    "${env:ProgramFiles(x86)}\Microsoft Visual Studio\2017\Enterprise",
-                    "${env:ProgramFiles(x86)}\Microsoft Visual Studio\2017\Professional",
-                    "${env:ProgramFiles(x86)}\Microsoft Visual Studio\2017\Community"
-                )
-                $vs2017path = $vs2017paths | where { Test-Path $_ } | select -first 1
-                if ($vs2017path -ne $null) {
-                    if ($buildToolsKey -eq 'MSBuildToolsPath32') {
-                        $frameworkDirs += $vs2017path + "\MSBuild\15.0\Bin"
+                # borrowed from nightroman https://github.com/nightroman/Invoke-Build
+                if ($vsInstances = Get-VSSetupInstance) {
+                    $vs = @($vsInstances | Select-VSSetupInstance -Version 15.0 -Require Microsoft.Component.MSBuild)
+                    if ($vs) {
+                        if ($buildToolsKey -eq 'MSBuildToolsPath32') {
+                            $frameworkDirs += Join-Path ($vs[0].InstallationPath) MSBuild\15.0\Bin
+                        }
+                        else {
+                            $frameworkDirs += Join-Path ($vs[0].InstallationPath) MSBuild\15.0\Bin\amd64
+                        }
                     }
-                    else {
-                        $frameworkDirs += $vs2017path + "\MSBuild\15.0\Bin\amd64"
+                    $vs = @($vsInstances | Select-VSSetupInstance -Version 15.0 -Product Microsoft.VisualStudio.Product.BuildTools)
+                    if ($vs) {
+                        if ($buildToolsKey -eq 'MSBuildToolsPath32') {
+                            $frameworkDirs += Join-Path ($vs[0].InstallationPath) MSBuild\15.0\Bin
+                        }
+                        else {
+                            $frameworkDirs += Join-Path ($vs[0].InstallationPath) MSBuild\15.0\Bin\amd64
+                        }
+                    }
+                }
+                else {
+                    if (!($root = ${env:ProgramFiles(x86)})) {$root = $env:ProgramFiles}
+                    if (Test-Path -LiteralPath "$root\Microsoft Visual Studio\2017") {
+                        if ($buildToolsKey -eq 'MSBuildToolsPath32') {
+                            $rp = @(Resolve-Path "$root\Microsoft Visual Studio\2017\*\MSBuild\15.0\Bin" -ErrorAction 0)
+                        }
+                        else {
+                            $rp = @(Resolve-Path "$root\Microsoft Visual Studio\2017\*\MSBuild\15.0\Bin\amd64" -ErrorAction 0)
+                        }
+                        if ($rp) {
+                            $frameworkDirs += $rp[-1].ProviderPath
+                        }
                     }
                 }
             }

@@ -20,6 +20,8 @@
                           'Exec')
     VariablesToExport = 'psake'
 
+    RequiredModules = @('VSSetup')
+    
     PrivateData = @{
         PSData = @{
             LicenseUri = 'https://github.com/psake/psake/blob/master/license.txt'
