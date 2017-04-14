@@ -627,17 +627,17 @@ function ConfigureBuildEnvironment {
                     "C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional",
                     "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community"
                 )
-                $vs2017path = $vs2017paths | where Test-Path $_ | select -first 1
+                $vs2017path = $vs2017paths | where { Test-Path $_ } | select -first 1
                 if ($vs2017path -ne $null) {
                     if ($buildToolsKey -eq 'MSBuildToolsPath32') {
-                        $frameworkDirs += $vs2017path + "MSBuild\15.0\Bin"
+                        $frameworkDirs += $vs2017path + "\MSBuild\15.0\Bin"
                     }
                     else {
-                        $frameworkDirs += $vs2017path + "MSBuild\15.0\Bin\amd64"
+                        $frameworkDirs += $vs2017path + "\MSBuild\15.0\Bin\amd64"
                     }
                 }
             }
-            else if (Test-Path "HKLM:\SOFTWARE\Microsoft\MSBuild\ToolsVersions\$ver") {
+            elseif (Test-Path "HKLM:\SOFTWARE\Microsoft\MSBuild\ToolsVersions\$ver") {
                 $frameworkDirs += (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\MSBuild\ToolsVersions\$ver" -Name $buildToolsKey).$buildToolsKey
             }
         }
