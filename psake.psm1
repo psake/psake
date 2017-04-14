@@ -574,11 +574,11 @@ function ConfigureBuildEnvironment {
         }
         {($_ -eq '4.5.1') -or ($_ -eq '4.5.2')} {
             $versions = @('v4.0.30319')
-            $buildToolsVersions = @('14.0', '12.0')
+            $buildToolsVersions = @('15.0', '14.0', '12.0')
         }
-        {($_ -eq '4.6') -or ($_ -eq '4.6.1')} {
+        {($_ -eq '4.6') -or ($_ -eq '4.6.1') -or ($_ -eq '4.6.2')} {
             $versions = @('v4.0.30319')
-            $buildToolsVersions = @('14.0')
+            $buildToolsVersions = @('15.0', '14.0')
         }
 
         default {
@@ -621,7 +621,23 @@ function ConfigureBuildEnvironment {
     $frameworkDirs = @()
     if ($buildToolsVersions -ne $null) {
         foreach($ver in $buildToolsVersions) {
-            if (Test-Path "HKLM:\SOFTWARE\Microsoft\MSBuild\ToolsVersions\$ver") {
+            if ($ver -eq "15.0") {
+                $vs2017paths = @(
+                    "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise",
+                    "C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional",
+                    "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community"
+                )
+                $vs2017path = $vs2017paths | where Test-Path $_ | select -first 1
+                if ($vs2017path -ne $null) {
+                    if ($buildToolsKey -eq 'MSBuildToolsPath32') {
+                        $frameworkDirs += $vs2017path + "MSBuild\15.0\Bin"
+                    }
+                    else {
+                        $frameworkDirs += $vs2017path + "MSBuild\15.0\Bin\amd64"
+                    }
+                }
+            }
+            else if (Test-Path "HKLM:\SOFTWARE\Microsoft\MSBuild\ToolsVersions\$ver") {
                 $frameworkDirs += (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\MSBuild\ToolsVersions\$ver" -Name $buildToolsKey).$buildToolsKey
             }
         }
