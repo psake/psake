@@ -623,9 +623,9 @@ function ConfigureBuildEnvironment {
         foreach($ver in $buildToolsVersions) {
             if ($ver -eq "15.0") {
                 $vs2017paths = @(
-                    "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise",
-                    "C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional",
-                    "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community"
+                    "${env:ProgramFiles(x86)}\Microsoft Visual Studio\2017\Enterprise",
+                    "${env:ProgramFiles(x86)}\Microsoft Visual Studio\2017\Professional",
+                    "${env:ProgramFiles(x86)}\Microsoft Visual Studio\2017\Community"
                 )
                 $vs2017path = $vs2017paths | where { Test-Path $_ } | select -first 1
                 if ($vs2017path -ne $null) {
