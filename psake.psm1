@@ -580,7 +580,7 @@ function ConfigureBuildEnvironment {
             $versions = @('v4.0.30319')
             $buildToolsVersions = @('15.0','14.0')
         }
-        {($_ -eq '4.7') -or ($_ -eq '4.7.1')} {
+        {($_ -eq '4.7')} {
             $versions = @('v4.0.30319')
             $buildToolsVersions = @('15.0')
         }
@@ -625,8 +625,8 @@ function ConfigureBuildEnvironment {
     $frameworkDirs = @()
     if ($buildToolsVersions -ne $null) {
         foreach($ver in $buildToolsVersions) {
-            if ($ver -eq "15.0" -and (Test-Path "C:\Program Files (x86)\Microsoft Visual Studio\2017")) {
-                $2017BuildTools = get-childitem -Path 'C:\Program Files (x86)\Microsoft Visual Studio\2017\' -Recurse -Filter "msbuild.exe"
+            if ($ver -eq "15.0" -and (Test-Path "${env:ProgramFiles(x86)}\Microsoft Visual Studio\2017")) {
+                $2017BuildTools = Get-Childitem -Path "${env:ProgramFiles(x86)}\Microsoft Visual Studio\2017\" -Recurse -Filter "msbuild.exe"
 
                 if ($buildToolsKey -eq 'MSBuildToolsPath') {
                     $2017BuildTools_AMD64 = $2017BuildTools | Where-Object {$_.directory -match 'amd64'}
