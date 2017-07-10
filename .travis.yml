@@ -10,8 +10,6 @@ sudo: required
 dist: trusty
 osx_image: xcode8.3
 
-before_install:
-
 install:
   - pushd build
   - ./download.sh
