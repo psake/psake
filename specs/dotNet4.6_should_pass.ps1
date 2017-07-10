@@ -3,6 +3,9 @@ Framework "4.6"
 task default -depends MsBuild
 
 task MsBuild {
-  $output = &msbuild /version 2>&1
-  Assert ($output -NotLike "14.0") '$output should contain 14.0'
+    if ( $IsOSX -OR $IsLinux ) {}
+    else {
+        $output = &msbuild /version 2>&1
+        Assert ($output -NotLike "14.0") '$output should contain 14.0'
+    }
 }
