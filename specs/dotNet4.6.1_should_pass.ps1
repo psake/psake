@@ -4,5 +4,6 @@ task default -depends MsBuild
 
 task MsBuild {
   $output = &msbuild /version 2>&1
-  Assert ($output -NotLike "14.0") '$output should contain 14.0'
+  write-host -fore DarkGray $output
+  Assert ($output -match "\s14.0\b") '$output should contain 14.0'
 }
