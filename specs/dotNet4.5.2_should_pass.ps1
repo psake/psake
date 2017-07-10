@@ -1,4 +1,4 @@
-Framework "4.5.1x86"
+Framework "4.5.2"
 
 task default -depends MsBuild
 
