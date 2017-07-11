@@ -5,6 +5,6 @@ task default -depends MsBuild
 task MsBuild {
     if ( $IsOSX -OR $IsLinux ) {}
     else {
-        exec { msbuild /version }
+        exec { msbuild /version /nologo }
     }
 }
