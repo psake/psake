@@ -1,16 +1,19 @@
-﻿task default -depends FrameworkFunction 
+﻿task default -depends FrameworkFunction
 
-task FrameworkFunction  {
-	AssertFramework '2.0'
-	AssertFramework '3.5'
-	AssertFramework '4.0'
+task FrameworkFunction {
+	   if ( $IsOSX -OR $IsLinux ) {}
+    else {
+        AssertFramework '2.0'
+        AssertFramework '3.5'
+        AssertFramework '4.0'
+    }
 }
 
-function AssertFramework{
-	param(
-		[string]$framework
-	)
-	Framework $framework
-	$msBuildVersion = msbuild /version
-	Assert ($msBuildVersion[0].ToLower().StartsWith("microsoft (r) build engine version $framework")) '$msBuildVersion does not start with "$framework"'
+function AssertFramework {
+    param(
+        [string]$framework
+    )
+    Framework $framework
+    $msBuildVersion = msbuild /version
+    Assert ($msBuildVersion[0].ToLower().StartsWith("microsoft (r) build engine version $framework")) '$msBuildVersion does not start with "$framework"'
 }
