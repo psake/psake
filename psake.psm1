@@ -862,13 +862,13 @@ function WriteTaskTimeSummary($invokePsakeDuration) {
             }
             $list += new-object PSObject -property @{
                 Name = $task.Name;
-                Duration = $task.Duration
+                Duration = $task.Duration.ToString("hh\:mm\:ss\.fff")
             }
         }
         [Array]::Reverse($list)
         $list += new-object PSObject -property @{
             Name = "Total:";
-            Duration = $invokePsakeDuration
+            Duration = $invokePsakeDuration.ToString("hh\:mm\:ss\.fff")
         }
         # using "out-string | where-object" to filter out the blank line that format-table prepends
         $list | format-table -autoSize -property Name,Duration | out-string -stream | where-object { $_ }
