@@ -1,3 +1,4 @@
 [B|b]in
 *.nupkg
 Thumbs.db
+dotnet-install.ps1

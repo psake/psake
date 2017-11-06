@@ -1,9 +1,13 @@
 ﻿Welcome to the psake project.
 =============================
 
+[![Build status](https://ci.appveyor.com/api/projects/status/e8b90u1q1ex5hx9m?svg=true)](https://ci.appveyor.com/project/psake/psake)
+
+[![Build Status](https://travis-ci.org/psake/psake.svg?branch=master)](https://travis-ci.org/psake/psake)
+
 [![Join the chat at https://gitter.im/psake/psake](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/psake/psake?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-psake is a build automation tool written in PowerShell. It avoids the angle-bracket tax associated with executable XML by leveraging the PowerShell syntax in your build scripts. 
+psake is a build automation tool written in PowerShell. It avoids the angle-bracket tax associated with executable XML by leveraging the PowerShell syntax in your build scripts.
 psake has a syntax inspired by rake (aka make in Ruby) and bake (aka make in Boo), but is easier to script because it leverages your existing command-line knowledge.
 
 psake is pronounced sake – as in Japanese rice wine. It does NOT rhyme with make, bake, or rake.
@@ -24,17 +28,17 @@ If you encounter the following error "Import-Module : ...psake.psm1 cannot be lo
 1. Run PowerShell as administrator
 2. Set-ExecutionPolicy RemoteSigned
 
-> Get-Help Invoke-psake -Full   
+> Get-Help Invoke-psake -Full
 > - this will show you help and examples of how to use psake
-	
+
 **Step 3:** Run some examples
 
 > CD .\examples
 >
-> Invoke-psake    					
+> Invoke-psake
 > - This will execute the "default" task in the "default.ps1"
 >
-> Invoke-psake .\default.ps1 Clean  
+> Invoke-psake .\default.ps1 Clean
 > - will execute the single task in the default.ps1 script
 
 ## Release Notes

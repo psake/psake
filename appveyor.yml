@@ -1,0 +1,8 @@
+version: 4.6.0.{build}
+image: WMF 5
+skip_commits:
+  message: /updated readme.*|update readme.*s/
+build: off
+
+test_script:
+  - ps: ./build/travis.ps1
