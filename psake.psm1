@@ -143,11 +143,17 @@ function Exec
         [Parameter(Position=0,Mandatory=1)][scriptblock]$cmd,
         [Parameter(Position=1,Mandatory=0)][string]$errorMessage = ($msgs.error_bad_command -f $cmd),
         [Parameter(Position=2,Mandatory=0)][int]$maxRetries = 0,
-        [Parameter(Position=3,Mandatory=0)][string]$retryTriggerErrorPattern = $null
+        [Parameter(Position=3,Mandatory=0)][string]$retryTriggerErrorPattern = $null,
+        [Parameter(Position=4,Mandatory=0)][string]$workingDirectory = $null
     )
 
+    if($workingDirectory)
+    {
+        Push-Location -Path $workingDirectory
+    }
+	
     $tryCount = 1
-
+	
     do {
         try {
             $global:lastexitcode = 0
@@ -179,6 +185,11 @@ function Exec
         }
     }
     while ($true)
+	
+    if($workingDirectory)
+    {
+        Pop-Location
+    }
 }
 
 # .ExternalHelp  psake.psm1-help.xml
