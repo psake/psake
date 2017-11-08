@@ -16,13 +16,13 @@ function script:psakeFiles($filter) {
 function PsakeTabExpansion($lastBlock) {
   switch -regex ($lastBlock) {
     '(invoke-psake|psake) ([^\.]*\.ps1)? ?.* ?\-ta?s?k? (\S*)$' { # tasks only
-      psakeDocs $matches[3] $matches[2] | sort
+      psakeDocs $matches[3] $matches[2] | Sort-Object
     } 
     '(invoke-psake|psake) ([^\.]*\.ps1)? ?.* ?(\-\S*)$' { # switches only
-      psakeSwitches $matches[3] | sort
+      psakeSwitches $matches[3] | Sort-Object
     } 
     '(invoke-psake|psake) ([^\.]*\.ps1) ?.* ?(\S*)$' { # switches or tasks
-      @(psakeDocs $matches[3] $matches[2]) + @(psakeSwitches $matches[3]) | sort
+      @(psakeDocs $matches[3] $matches[2]) + @(psakeSwitches $matches[3]) | Sort-Object
     }
     '(invoke-psake|psake) (\S*)$' {
       @(psakeFiles $matches[2]) + @(psakeDocs $matches[2] 'psakefile.ps1') + @(psakeSwitches $matches[2]) | sort
