@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.7.0] Unreleased
+
+### Improvements
+
+- [**218**](https://github.com/psake/psake/pull/218) Improve Build Time Report by using custom `FormatTaskName` value for header and display task timing at millisecond accuracy instead of microsecond. (via [@theunrepentantgeek](https://github.com/theunrepentantgeek))
+
 ## [4.6.0] 2016-03-20
 
 As part of this release we had [6 issues](https://github.com/psake/psake/issues?milestone=6&state=closed) closed.
