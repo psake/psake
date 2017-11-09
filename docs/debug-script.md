@@ -7,7 +7,7 @@ With `Set-PSBreakpoint` you need to know what line number you want to set a brea
 ```powershell
 Set-PSBreakpoint [-Script] <string[]> [-Line] <Int32[]> [[-Column] <int>] [-Action <scriptblock>] [<CommonParameters>]
 ex.
-Set-PSBreakPoint -script default.ps1 -line 25
+Set-PSBreakPoint -script psakefile.ps1 -line 25
 ```
 
 Once the breakpoint is set then you call the invoke-psake function on your script as normal and you should get a prompt from the command window:
@@ -15,9 +15,9 @@ Once the breakpoint is set then you call the invoke-psake function on your scrip
 ```
 Entering debug mode. Use h or ? for help.
 
-Hit Line breakpoint on 'C:\Users\Daddy\Documents\Projects\psake\default.ps1:9'
+Hit Line breakpoint on 'C:\Users\Daddy\Documents\Projects\psake\psakefile.ps1:9'
 
-default.ps1:9     "TaskA is executing"
+psakefile.ps1:9     "TaskA is executing"
 [DBG]: PS C:\Users\Daddy\Documents\Projects\psake>>>
 ```
 

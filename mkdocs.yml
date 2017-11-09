@@ -10,6 +10,7 @@ pages:
 - What is the structure of a psake build script?: structure-of-a-psake-build-script.md
 - How can I get help on how to use psake?: getting-help.md
 - How do I run psake?: run-psake.md
+- What is the default build file called?: default-build-files.md
 - How can I debug my psake script?: debug-script.md
 - How can I use psake to build a VS.NET solution?: dot-net-solution.md
 - How can I change the way psake prints out the name of each task?: print-psake-task-name.md

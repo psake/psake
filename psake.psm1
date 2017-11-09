@@ -348,15 +348,14 @@ function Invoke-psake {
         if (-not $nologo) {
             "psake version {0}`nCopyright (c) 2010-2014 James Kovacs & Contributors`n" -f $psake.version
         }
-
         if (!$buildFile) {
-          $buildFile = $psake.config_default.buildFileName
+           $buildFile = Get-DefaultBuildFile
         }
-        elseif (!(test-path $buildFile -pathType Leaf) -and (test-path $psake.config_default.buildFileName -pathType Leaf)) {
-            # If the $config.buildFileName file exists and the given "buildfile" isn't found assume that the given
+        elseif (!(test-path $buildFile -pathType Leaf) -and ((Get-DefaultBuildFile -UseDefaultIfNoneExist $false) -ne $null) ) {
+            # If the default file exists and the given "buildfile" isn't found assume that the given
             # $buildFile is actually the target Tasks to execute in the $config.buildFileName script.
             $taskList = $buildFile.Split(', ')
-            $buildFile = $psake.config_default.buildFileName
+            $buildFile = Get-DefaultBuildFile
         }
 
         ExecuteInBuildFileScope $buildFile $MyInvocation.MyCommand.Module {
@@ -448,6 +447,25 @@ function Invoke-psake {
 }
 
 #-- Private Module Functions --#
+
+# Attempt to find the default build file given the config_default of
+# buildFileName and legacyBuildFileName.  If neither exist optionally
+# return the buildFileName or $null
+function Get-DefaultBuildFile {
+    param(
+        [boolean] $UseDefaultIfNoneExist = $true
+    )
+
+    if (test-path $psake.config_default.buildFileName -pathType Leaf) {
+        Write-Output $psake.config_default.buildFileName
+    } elseif (test-path $psake.config_default.legacyBuildFileName -pathType Leaf) {
+        Write-Warning "The default configuration file of default.ps1 is deprecated.  Please use psakefile.ps1"
+        Write-Output $psake.config_default.legacyBuildFileName
+    } elseif ($UseDefaultIfNoneExist) {
+        Write-Output $psake.config_default.buildFileName
+    }
+}
+
 function WriteColoredOutput {
     param(
         [string] $message,
@@ -707,7 +725,7 @@ function ExecuteInBuildFileScope {
 
     # Execute the build file to set up the tasks and defaults
     Assert (test-path $buildFile -pathType Leaf) ($msgs.error_build_file_not_found -f $buildFile)
-
+   
     $psake.build_script_file = get-item $buildFile
     $psake.build_script_dir = $psake.build_script_file.DirectoryName
     $psake.build_success = $false
@@ -971,7 +989,8 @@ $psake.version = $manifest.Version.ToString()
 $psake.context = new-object system.collections.stack # holds onto the current state of all variables
 $psake.run_by_psake_build_tester = $false # indicates that build is being run by psake-BuildTester
 $psake.config_default = new-object psobject -property @{
-    buildFileName = "default.ps1";
+    buildFileName = "psakefile.ps1";
+    legacyBuildFileName = "default.ps1";
     framework = "4.0";
     taskNameFormat = "Executing {0}";
     verboseError = $false;

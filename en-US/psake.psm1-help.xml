@@ -64,7 +64,7 @@
           <maml:name>String</maml:name>
           <maml:uri />
         </dev:type>
-        <dev:defaultValue>'default.ps1'</dev:defaultValue>
+        <dev:defaultValue>'psakefile.ps1'</dev:defaultValue>
       </command:parameter>
       <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false (ByValue)" position="1">
         <maml:name>taskList</maml:name>
@@ -217,7 +217,7 @@ context                        {}
 
 After a build is executed the following $psake values are updated: build_script_file, build_script_dir, build_success
 
-PS projects:\psake> Invoke-psake .\examples\default.ps1
+PS projects:\psake> Invoke-psake .\examples\psakefile.ps1
 Executing task: Clean
 Executed Clean!
 Executing task: Compile
@@ -241,7 +241,7 @@ PS projects:\psake> $psake
 
 Name                           Value
 ----                           -----
-build_script_file              YOUR_PATH\examples\default.ps1
+build_script_file              YOUR_PATH\examples\psakefile.ps1
 run_by_psake_build_tester      False
 build_script_dir               YOUR_PATH\examples
 context                        {}
@@ -303,7 +303,7 @@ config_default                 @{framework=3.5; ...
         <dev:remarks>
           <maml:para>Description</maml:para>
           <maml:para>-----------</maml:para>
-          <maml:para>This example will run the 'Tests' tasks in the 'default.ps1' build script.  The 'default.ps1' is assumed to be in the current directory.</maml:para>
+          <maml:para>This example will run the 'Tests' tasks in the 'psakefile.ps1' build script.  The 'psakefile.ps1' is assumed to be in the current directory.</maml:para>
           <maml:para />
           <maml:para />
           <maml:para />
@@ -323,7 +323,7 @@ config_default                 @{framework=3.5; ...
         <dev:remarks>
           <maml:para>Description</maml:para>
           <maml:para>-----------</maml:para>
-          <maml:para>This example will run the 'Tests' and 'Package' tasks in the 'default.ps1' build script. The 'default.ps1' is assumed to be in the current directory.</maml:para>
+          <maml:para>This example will run the 'Tests' and 'Package' tasks in the 'psakefile.ps1' build script. The 'psakefile.ps1' is assumed to be in the current directory.</maml:para>
           <maml:para>NOTE: The quotes around the list of tasks to execute is required if you want to execute more than 1 task.</maml:para>
           <maml:para />
           <maml:para />
@@ -1134,7 +1134,7 @@ Task TaskC {
 				  <maml:name>String</maml:name>
 				  <maml:uri/>
 			  </dev:type>
-			  <dev:defaultValue>&apos;default.ps1&apos;</dev:defaultValue>
+			  <dev:defaultValue>&apos;psakefile.ps1&apos;</dev:defaultValue>
 		  </command:parameter>
 		  <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
 			  <maml:name>InformationAction</maml:name>

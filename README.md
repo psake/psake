@@ -1,4 +1,5 @@
-﻿# Welcome to the psake project
+Welcome to the psake project
+=============================
 
 [![Build status][appveyor-badge]][appveyor-build]
 [![Build Status][travis-badge]][travis-build]
@@ -33,10 +34,10 @@ If you encounter the following error "Import-Module : ...psake.psm1 cannot be lo
 > CD .\examples
 >
 > Invoke-psake
-> - This will execute the "default" task in the "default.ps1"
+> - This will execute the "default" task in the "psakefile.ps1"
 >
-> Invoke-psake .\default.ps1 Clean
-> - will execute the single task in the default.ps1 script
+> Invoke-psake .\psakefile.ps1 Clean
+> - will execute the single task in the psakefile.ps1 script
 
 **Step 4:** Set your PATH variable
 
