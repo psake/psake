@@ -1,4 +1,4 @@
-﻿Welcome to the psake project.
+Welcome to the psake project
 =============================
 
 [![Build status](https://ci.appveyor.com/api/projects/status/e8b90u1q1ex5hx9m?svg=true)](https://ci.appveyor.com/project/psake/psake)
@@ -10,7 +10,7 @@ psake has a syntax inspired by rake (aka make in Ruby) and bake (aka make in Boo
 
 psake is pronounced sake – as in Japanese rice wine. It does NOT rhyme with make, bake, or rake.
 
-## How to get started:
+## How to get started
 
 **Step 1:** Download and extract the project
 

@@ -359,15 +359,15 @@ function Invoke-psake {
         }
 
         ExecuteInBuildFileScope $buildFile $MyInvocation.MyCommand.Module {
-            param($currentContext, $module)            
+            param($currentContext, $module)
 
             $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
-            
+
             if ($docs -or $detailedDocs) {
                 WriteDocumentation($detailedDocs)
                 return
             }
-            
+
             foreach ($key in $parameters.keys) {
                 if (test-path "variable:\$key") {
                     set-item -path "variable:\$key" -value $parameters.$key -WhatIf:$false -Confirm:$false | out-null
@@ -375,22 +375,22 @@ function Invoke-psake {
                     new-item -path "variable:\$key" -value $parameters.$key -WhatIf:$false -Confirm:$false | out-null
                 }
             }
-            
+
             # The initial dot (.) indicates that variables initialized/modified in the propertyBlock are available in the parent scope.
             foreach ($propertyBlock in $currentContext.properties) {
                 . $propertyBlock
             }
-            
+
             foreach ($key in $properties.keys) {
                 if (test-path "variable:\$key") {
                     set-item -path "variable:\$key" -value $properties.$key -WhatIf:$false -Confirm:$false | out-null
                 }
             }
-            
+
             # Simple dot sourcing will not work. We have to force the script block into our
             # module's scope in order to initialize variables properly.
             . $module $initialization
-            
+
             # Execute the list of tasks or the default task
             if ($taskList) {
                 foreach ($task in $taskList) {
@@ -401,9 +401,9 @@ function Invoke-psake {
             } else {
                 throw $msgs.error_no_default_task
             }
-            
+
             WriteColoredOutput ("`n" + $msgs.build_success + "`n") -foregroundcolor Green
-            
+
             $stopwatch.Stop()
             if (-not $notr) {
                 WriteTaskTimeSummary $stopwatch.Elapsed
@@ -568,7 +568,8 @@ function ConfigureBuildEnvironment {
         if ($framework -cmatch '^((?:\d+\.\d+)(?:\.\d+){0,1})(x86|x64){0,1}$') {
             $versionPart = $matches[1]
             $bitnessPart = $matches[2]
-        } else {
+        }
+        else {
             throw ($msgs.error_invalid_framework -f $framework)
         }
         $versions = $null
@@ -592,13 +593,17 @@ function ConfigureBuildEnvironment {
             '4.0' {
                 $versions = @('v4.0.30319')
             }
-            {($_ -eq '4.5.1') -or ($_ -eq '4.5.2')} {
+            {($_ -eq '4.5') -or ($_ -eq '4.5.1') -or ($_ -eq '4.5.2')} {
                 $versions = @('v4.0.30319')
-                $buildToolsVersions = @('14.0', '12.0')
+                $buildToolsVersions = @('15.0', '14.0', '12.0')
             }
-            {($_ -eq '4.6') -or ($_ -eq '4.6.1')} {
+            {($_ -eq '4.6') -or ($_ -eq '4.6.1') -or ($_ -eq '4.6.2')} {
                 $versions = @('v4.0.30319')
-                $buildToolsVersions = @('14.0')
+                $buildToolsVersions = @('15.0', '14.0')
+            }
+            {($_ -eq '4.7') -or ($_ -eq '4.7.1')} {
+                $versions = @('v4.0.30319')
+                $buildToolsVersions = @('15.0')
             }
 
             default {
@@ -638,16 +643,63 @@ function ConfigureBuildEnvironment {
                 }
             }
         }
+
         $frameworkDirs = @()
         if ($buildToolsVersions -ne $null) {
             foreach($ver in $buildToolsVersions) {
-                if (Test-Path "HKLM:\SOFTWARE\Microsoft\MSBuild\ToolsVersions\$ver") {
+                if ($ver -eq "15.0") {
+                    if ((Get-Module -Name VSSetup -ListAvailable) -eq $null) {
+                        WriteColoredOutput ($msgs.warning_missing_vsssetup_module -f $ver) -foregroundcolor Yellow
+                        continue
+                    }
+
+                    Import-Module VSSetup
+
+                    # borrowed from nightroman https://github.com/nightroman/Invoke-Build
+                    if ($vsInstances = Get-VSSetupInstance) {
+                        $vs = @($vsInstances | Select-VSSetupInstance -Version '[15.0,16.0)' -Require Microsoft.Component.MSBuild)
+                        if ($vs) {
+                            if ($buildToolsKey -eq 'MSBuildToolsPath32') {
+                                $frameworkDirs += Join-Path ($vs[0].InstallationPath) MSBuild\15.0\Bin
+                            }
+                            else {
+                                $frameworkDirs += Join-Path ($vs[0].InstallationPath) MSBuild\15.0\Bin\amd64
+                            }
+                        }
+
+                        $vs = @($vsInstances | Select-VSSetupInstance -Version '[15.0,16.0)' -Product Microsoft.VisualStudio.Product.BuildTools)
+                        if ($vs) {
+                            if ($buildToolsKey -eq 'MSBuildToolsPath32') {
+                                $frameworkDirs += Join-Path ($vs[0].InstallationPath) MSBuild\15.0\Bin
+                            }
+                            else {
+                                $frameworkDirs += Join-Path ($vs[0].InstallationPath) MSBuild\15.0\Bin\amd64
+                            }
+                        }
+                    }
+                    else {
+                        if (!($root = ${env:ProgramFiles(x86)})) {$root = $env:ProgramFiles}
+                        if (Test-Path -LiteralPath "$root\Microsoft Visual Studio\2017") {
+                            if ($buildToolsKey -eq 'MSBuildToolsPath32') {
+                                $rp = @(Resolve-Path "$root\Microsoft Visual Studio\2017\*\MSBuild\15.0\Bin" -ErrorAction SilentlyContinue)
+                            }
+                            else {
+                                $rp = @(Resolve-Path "$root\Microsoft Visual Studio\2017\*\MSBuild\15.0\Bin\amd64" -ErrorAction SilentlyContinue)
+                            }
+
+                            if ($rp) {
+                                $frameworkDirs += $rp[-1].ProviderPath
+                            }
+                        }
+                    }
+                }
+                elseif (Test-Path "HKLM:\SOFTWARE\Microsoft\MSBuild\ToolsVersions\$ver") {
                     $frameworkDirs += (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\MSBuild\ToolsVersions\$ver" -Name $buildToolsKey).$buildToolsKey
                 }
             }
         }
-        $frameworkDirs = $frameworkDirs + @($versions | foreach { "$env:windir\Microsoft.NET\$bitness\$_\" })
 
+        $frameworkDirs = $frameworkDirs + @($versions | ForEach-Object { "$env:windir\Microsoft.NET\$bitness\$_\" })
         for ($i = 0; $i -lt $frameworkDirs.Count; $i++) {
             $dir = $frameworkDirs[$i]
             if ($dir -Match "\$\(Registry:HKEY_LOCAL_MACHINE(.*?)@(.*)\)") {
@@ -658,18 +710,19 @@ function ConfigureBuildEnvironment {
             }
         }
 
-        $frameworkDirs | foreach { Assert (test-path $_ -pathType Container) ($msgs.error_no_framework_install_dir_found -f $_)}
+        $frameworkDirs | ForEach-Object { Assert (test-path $_ -pathType Container) ($msgs.error_no_framework_install_dir_found -f $_)}
 
-        $env:path = ($frameworkDirs -join ";") + ";$env:path"
+        $env:PATH = ($frameworkDirs -join ";") + ";$env:PATH"
     }
+
     # if any error occurs in a PS function then "stop" processing immediately
     # this does not effect any external programs that return a non-zero exit code
     $global:ErrorActionPreference = "Stop"
 }
 
-function ExecuteInBuildFileScope {    
+function ExecuteInBuildFileScope {
     param([string]$buildFile, $module, [scriptblock]$sb)
-    
+
     # Execute the build file to set up the tasks and defaults
     Assert (test-path $buildFile -pathType Leaf) ($msgs.error_build_file_not_found -f $buildFile)
    
@@ -816,7 +869,7 @@ function ResolveError
     }
 }
 
-function GetTasksFromContext($currentContext) {    
+function GetTasksFromContext($currentContext) {
 
     $docs = $currentContext.tasks.Keys | foreach-object {
 
@@ -841,13 +894,13 @@ function WriteDocumentation($showDetailed) {
     } else {
         $defaultTaskDependencies = @()
     }
-    
-    $docs = GetTasksFromContext $currentContext | 
-                Where   {$_.Name -ne 'default'} | 
+
+    $docs = GetTasksFromContext $currentContext |
+                Where   {$_.Name -ne 'default'} |
                 ForEach {
                     $isDefault = $null
-                    if ($defaultTaskDependencies -contains $_.Name) { 
-                        $isDefault = $true 
+                    if ($defaultTaskDependencies -contains $_.Name) {
+                        $isDefault = $true
                     }
                     return Add-Member -InputObject $_ 'Default' $isDefault -PassThru
                 }
@@ -867,7 +920,7 @@ function WriteTaskTimeSummary($invokePsakeDuration) {
         } elseif ($currentContext.config.taskNameFormat -ne "Executing {0}") {
             $currentContext.config.taskNameFormat -f "Build Time Report"
         }
-        else {  
+        else {
             "-" * 70
             "Build Time Report"
             "-" * 70
@@ -915,6 +968,7 @@ convertfrom-stringdata @'
     error_no_default_task = 'default' task required.
     error_loading_module = Error loading module {0}.
     warning_deprecated_framework_variable = Warning: Using global variable $framework to set .NET framework version used is deprecated. Instead use Framework function or configuration file psake-config.ps1.
+    warning_missing_vsssetup_module = Warning: Cannot find build tools version {0} without the module VSSetup. You can install this module with the command: Install-Module VSSetup -Scope CurrentUser
     required_variable_not_set = Variable {0} must be set to run task {1}.
     postcondition_failed = Postcondition failed for task {0}.
     precondition_was_false = Precondition was false, not executing task {0}.

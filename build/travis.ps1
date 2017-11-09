@@ -1,9 +1,9 @@
 
-$dotnetCLIChannel = "Current"
-$dotnetCLIRequiredVersion = "latest"
+$dotnetCLIChannel = 'Current'
+$dotnetCLIRequiredVersion = 'latest'
 $NoSudo = $false
 
-. build/tools.ps1
+. "$PSScriptRoot/tools.ps1"
 
 $DotnetArguments = @{ Channel = $dotnetCLIChannel; Version = $dotnetCLIRequiredVersion; NoSudo = $NoSudo }
 Install-Dotnet @DotnetArguments
@@ -14,7 +14,6 @@ $Env:PATH += "$([IO.Path]::PathSeparator)$Env:HOME/.dotnet"
 # Execute once to configure
 dotnet build -version -nologo
 
-
-
 # Execute Build Tester
-.\psake-buildTester.ps1
+#. "$PSScriptRoot/../build.ps1"
+#.\psake-buildTester.ps1
