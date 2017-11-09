@@ -1,9 +1,9 @@
 Welcome to the psake project
 =============================
 
-[![Build status](https://ci.appveyor.com/api/projects/status/e8b90u1q1ex5hx9m?svg=true)](https://ci.appveyor.com/project/psake/psake)
-[![Build Status](https://travis-ci.org/psake/psake.svg?branch=master)](https://travis-ci.org/psake/psake)
-[![Join the chat at https://gitter.im/psake/psake](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/psake/psake?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Build status][appveyor-badge]][appveyor-build]
+[![Build Status][travis-badge]][travis-build]
+[![Join the chat at https://gitter.im/psake/psake][gitter-badge]][gitter]
 
 psake is a build automation tool written in PowerShell. It avoids the angle-bracket tax associated with executable XML by leveraging the PowerShell syntax in your build scripts.
 psake has a syntax inspired by rake (aka make in Ruby) and bake (aka make in Boo), but is easier to script because it leverages your existing command-line knowledge.
@@ -33,10 +33,10 @@ If you encounter the following error "Import-Module : ...psake.psm1 cannot be lo
 
 > CD .\examples
 >
-> Invoke-psake    					
+> Invoke-psake
 > - This will execute the "default" task in the "psakefile.ps1"
 >
-> Invoke-psake .\psakefile.ps1 Clean  
+> Invoke-psake .\psakefile.ps1 Clean
 > - will execute the single task in the psakefile.ps1 script
 
 **Step 4:** Set your PATH variable
@@ -58,3 +58,10 @@ Also check out the **[psake-contrib](http://github.com/psake/psake-contrib)** pr
 ## License
 
 psake is released under the [MIT license](http://www.opensource.org/licenses/MIT).
+
+[appveyor-badge]: https://ci.appveyor.com/api/projects/status/e8b90u1q1ex5hx9m?svg=true
+[appveyor-build]: https://ci.appveyor.com/project/psake/psake
+[travis-badge]: https://travis-ci.org/psake/psake.svg?branch=master
+[travis-build]: https://travis-ci.org/psake/psake
+[gitter-badge]: https://badges.gitter.im/Join%20Chat.svg
+[gitter]: https://gitter.im/psake/psake?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
