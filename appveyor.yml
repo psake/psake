@@ -4,5 +4,9 @@ skip_commits:
   message: /updated readme.*|update readme.*s/
 build: off
 
+before_test:
+  - echo script1
+  - ps: ./build/dotnet-install.ps1
+
 test_script:
-  - ps: ./build/travis.ps1
+  - ps: ./build.ps1
