@@ -1,17 +1,17 @@
 TaskSetup {
-	"executing task setup"
+    "executing task setup"
 }
 
 Task default -depends Compile, Test, Deploy
 
 Task Compile {
-	"Compiling"
+    "Compiling"
 }
 
 Task Test -depends Compile {
-	"Testing"
+    "Testing"
 }
 
 Task Deploy -depends Test {
-	"Deploying"
+    "Deploying"
 }

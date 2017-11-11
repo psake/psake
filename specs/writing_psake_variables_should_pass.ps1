@@ -2,7 +2,7 @@
   $x = 1
 }
 
-task default -depends Verify 
+task default -depends Verify
 
 task Verify -description "This task verifies psake's variables" {
 
@@ -13,11 +13,11 @@ task Verify -description "This task verifies psake's variables" {
   Assert ($psake.ContainsKey("build_success")) "'psake' variable does not contain key 'build_success'"
   Assert ($psake.ContainsKey("version")) "'psake' variable does not contain key 'version'"
   Assert ($psake.ContainsKey("build_script_file")) "'psake' variable does not contain key 'build_script_file'"
-  Assert ($psake.ContainsKey("build_script_dir")) "'psake' variable does not contain key 'build_script_dir'"  
+  Assert ($psake.ContainsKey("build_script_dir")) "'psake' variable does not contain key 'build_script_dir'"
 
   Assert (!$psake.build_success) '$psake.build_success should be $false'
   Assert ($psake.version) '$psake.version was null or empty'
-  Assert ($psake.build_script_file) '$psake.build_script_file was null' 
+  Assert ($psake.build_script_file) '$psake.build_script_file was null'
   Assert ($psake.build_script_file.Name -eq "writing_psake_variables_should_pass.ps1") '$psake.build_script_file.Name was not equal to "writing_psake_variables_should_pass.ps1"'
   Assert ($psake.build_script_dir) '$psake.build_script_dir was null or empty'
 

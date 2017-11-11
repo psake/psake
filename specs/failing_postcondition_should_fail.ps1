@@ -1,13 +1,13 @@
 task default -depends A,B,C
 
 task A {
-	"TaskA"
+    "TaskA"
 }
 
 task B -postcondition { return $false } {
-	"TaskB"
+    "TaskB"
 }
 
 task C {
-	"TaskC"
+    "TaskC"
 }

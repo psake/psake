@@ -1,5 +1,5 @@
 function Execute-ModuleAFunction {
-	Execute-ModuleBFunction
+    Execute-ModuleBFunction
 }
 
 Export-ModuleMember -Function "Execute-ModuleAFunction"

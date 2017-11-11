@@ -1,6 +1,6 @@
 ﻿properties {
-	$x = $null
-	$y = $null
+    $x = $null
+    $y = $null
 }
 
 task default -depends TestRequired

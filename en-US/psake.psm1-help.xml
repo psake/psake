@@ -182,12 +182,12 @@ Possible values: '1.0', '1.1', '2.0', '2.0x86', '2.0x64', '3.0', '3.0x86', '3.0x
     <maml:alertSet>
       <maml:title></maml:title>
       <maml:alert>
-	  <maml:para>---- Exceptions ----</maml:para>
-	  <maml:para>If there is an exception thrown during the running of a build script psake will set the '$psake.build_success' variable to $false. To detect failue outside PowerShell (for example by build server), finish PowerShell process with non-zero exit code when '$psake.build_success' is $false. Calling psake from 'cmd.exe' with 'psake.cmd' will give you that behaviour.</maml:para>
-	  <maml:para></maml:para>
-	  </maml:alert>
-	  <maml:alert>
-		<maml:para>---- $psake variable ----</maml:para>
+    <maml:para>---- Exceptions ----</maml:para>
+    <maml:para>If there is an exception thrown during the running of a build script psake will set the '$psake.build_success' variable to $false. To detect failue outside PowerShell (for example by build server), finish PowerShell process with non-zero exit code when '$psake.build_success' is $false. Calling psake from 'cmd.exe' with 'psake.cmd' will give you that behaviour.</maml:para>
+    <maml:para></maml:para>
+    </maml:alert>
+    <maml:alert>
+    <maml:para>---- $psake variable ----</maml:para>
         <maml:para>When the psake module is loaded a variable called $psake is created which is a hashtable
 containing some variables:
 
@@ -250,7 +250,7 @@ build_success                  True
 config_default                 @{framework=3.5; ...
 
 </maml:para>
-	<maml:para></maml:para>
+  <maml:para></maml:para>
       </maml:alert>
     </maml:alertSet>
     <command:examples>
@@ -274,7 +274,7 @@ config_default                 @{framework=3.5; ...
           </command:commandLine>
         </command:commandLines>
       </command:example>
-	  <command:example>
+    <command:example>
         <maml:title>--------------  EXAMPLE 2 --------------</maml:title>
         <maml:introduction>
           <maml:para>C:\PS&gt;</maml:para>
@@ -294,7 +294,7 @@ config_default                 @{framework=3.5; ...
           </command:commandLine>
         </command:commandLines>
       </command:example>
-	  <command:example>
+    <command:example>
         <maml:title>--------------  EXAMPLE 3 --------------</maml:title>
         <maml:introduction>
           <maml:para>C:\PS&gt;</maml:para>
@@ -314,7 +314,7 @@ config_default                 @{framework=3.5; ...
           </command:commandLine>
         </command:commandLines>
       </command:example>
-	  <command:example>
+    <command:example>
         <maml:title>--------------  EXAMPLE 4 --------------</maml:title>
         <maml:introduction>
           <maml:para>C:\PS&gt;</maml:para>
@@ -334,7 +334,7 @@ config_default                 @{framework=3.5; ...
           </command:commandLine>
         </command:commandLines>
       </command:example>
-	   <command:example>
+     <command:example>
         <maml:title>--------------  EXAMPLE 5 --------------</maml:title>
         <maml:introduction>
           <maml:para>C:\PS&gt;</maml:para>
@@ -354,7 +354,7 @@ config_default                 @{framework=3.5; ...
           </command:commandLine>
         </command:commandLines>
       </command:example>
-	   <command:example>
+     <command:example>
         <maml:title>--------------  EXAMPLE 6 --------------</maml:title>
         <maml:introduction>
           <maml:para>C:\PS&gt;</maml:para>
@@ -365,9 +365,9 @@ config_default                 @{framework=3.5; ...
           <maml:para>-----------</maml:para>
           <maml:para>Runs the build script called 'parameters.ps1' and passes in parameters 'p1' and 'p2' with values 'v1' and 'v2'</maml:para>
           <maml:para>Here's the .\parameters.ps1 build script:</maml:para>
-		  <maml:para />
-		  <maml:para>
-		  properties {
+      <maml:para />
+      <maml:para>
+      properties {
   $my_property = $p1 + $p2
 }
 
@@ -377,7 +377,7 @@ task TestParams {
   Assert ($my_property -ne $null) '$my_property should not be null'
 }</maml:para>
           <maml:para />
-		  <maml:para>Notice how you can refer to the parameters that were passed into the script from within the “properties” function. The value of the $p1 variable should be the string “v1” and the value of the $p2 variable should be “v2”.</maml:para>
+      <maml:para>Notice how you can refer to the parameters that were passed into the script from within the “properties” function. The value of the $p1 variable should be the string “v1” and the value of the $p2 variable should be “v2”.</maml:para>
           <maml:para />
         </dev:remarks>
         <command:commandLines>
@@ -386,7 +386,7 @@ task TestParams {
           </command:commandLine>
         </command:commandLines>
       </command:example>
-	  <command:example>
+    <command:example>
         <maml:title>--------------  EXAMPLE 7 --------------</maml:title>
         <maml:introduction>
           <maml:para>C:\PS&gt;</maml:para>
@@ -396,13 +396,13 @@ task TestParams {
           <maml:para>Description</maml:para>
           <maml:para>-----------</maml:para>
           <maml:para>Runs the build script called 'properties.ps1' and passes in parameters 'x' and 'y' with values '1' and '2'</maml:para>
-		  <maml:para>This feature allows you to over-ride existing properties in your build script.</maml:para>
+      <maml:para>This feature allows you to over-ride existing properties in your build script.</maml:para>
           <maml:para />
-		  <maml:para>Here's the .\properties.ps1 build script</maml:para>
+      <maml:para>Here's the .\properties.ps1 build script</maml:para>
           <maml:para>properties {
-	$x = $null
-	$y = $null
-	$z = $null
+  $x = $null
+  $y = $null
+  $z = $null
 }
 
 task default -depends TestProperties
@@ -413,7 +413,7 @@ task TestProperties {
   Assert ($z -eq $null) "z should be null"
 }
 </maml:para>
-		<maml:para />
+    <maml:para />
         </dev:remarks>
         <command:commandLines>
           <command:commandLine>
@@ -425,35 +425,35 @@ task TestProperties {
     <maml:relatedLinks>
       <maml:navigationLink>
         <maml:linkText>Task</maml:linkText>
-	     <maml:uri />
+       <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>Include</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>Include</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-	    <maml:linkText>Properties</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+      <maml:linkText>Properties</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>FormatTaskName</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>FormatTaskName</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-	    <maml:linkText>TaskSetup</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+      <maml:linkText>TaskSetup</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>TaskTearDown</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>TaskTearDown</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>Assert</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>Assert</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>Framework</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>Framework</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
     </maml:relatedLinks>
   </command:command>
@@ -484,7 +484,7 @@ task in the build script.</maml:para>
         </command:parameter>
        </command:syntaxItem>
     </command:syntax>
-	 <command:parameters>
+   <command:parameters>
       <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false (ByValue)" position="0">
         <maml:name>teardown</maml:name>
         <maml:description>
@@ -526,8 +526,8 @@ task in the build script.</maml:para>
     <command:nonTerminatingErrors />
     <maml:alertSet>
       <maml:title></maml:title>
-	  <maml:alert>
-		<maml:para></maml:para>
+    <maml:alert>
+    <maml:para></maml:para>
       </maml:alert>
     </maml:alertSet>
     <command:examples>
@@ -576,35 +576,35 @@ Build Succeeded</maml:para>
     <maml:relatedLinks>
       <maml:navigationLink>
         <maml:linkText>Task</maml:linkText>
-	     <maml:uri />
+       <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>Include</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>Include</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-	    <maml:linkText>Properties</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+      <maml:linkText>Properties</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>Invoke-psake</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>Invoke-psake</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-	    <maml:linkText>TaskSetup</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+      <maml:linkText>TaskSetup</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>TaskTearDown</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>TaskTearDown</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>Assert</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>Assert</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>Framework</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>Framework</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
     </maml:relatedLinks>
   </command:command>
@@ -635,7 +635,7 @@ task in the build script.</maml:para>
         </command:parameter>
        </command:syntaxItem>
     </command:syntax>
-	 <command:parameters>
+   <command:parameters>
       <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false (ByValue)" position="0">
         <maml:name>setup</maml:name>
         <maml:description>
@@ -677,8 +677,8 @@ task in the build script.</maml:para>
     <command:nonTerminatingErrors />
     <maml:alertSet>
       <maml:title></maml:title>
-	  <maml:alert>
-		<maml:para></maml:para>
+    <maml:alert>
+    <maml:para></maml:para>
       </maml:alert>
     </maml:alertSet>
     <command:examples>
@@ -727,35 +727,35 @@ Build Succeeded</maml:para>
     <maml:relatedLinks>
       <maml:navigationLink>
         <maml:linkText>Task</maml:linkText>
-	     <maml:uri />
+       <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>Include</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>Include</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-	    <maml:linkText>Properties</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+      <maml:linkText>Properties</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>Invoke-psake</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>Invoke-psake</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-	    <maml:linkText>FormatTaskName</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+      <maml:linkText>FormatTaskName</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>TaskTearDown</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>TaskTearDown</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>Assert</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>Assert</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>Framework</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>Framework</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
     </maml:relatedLinks>
   </command:command>
@@ -785,7 +785,7 @@ Build Succeeded</maml:para>
         </command:parameter>
        </command:syntaxItem>
     </command:syntax>
-	 <command:parameters>
+   <command:parameters>
       <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false (ByValue)" position="0">
         <maml:name>framework</maml:name>
         <maml:description>
@@ -825,13 +825,13 @@ Build Succeeded</maml:para>
     </command:returnValues>
     <command:terminatingErrors />
     <command:nonTerminatingErrors />
-	<maml:alertSet>
+  <maml:alertSet>
       <maml:title></maml:title>
-	  <maml:alert>
-		<maml:para></maml:para>
+    <maml:alert>
+    <maml:para></maml:para>
       </maml:alert>
     </maml:alertSet>
-	<command:examples>
+  <command:examples>
       <command:example>
         <maml:title>--------------  EXAMPLE 1 --------------</maml:title>
         <dev:code>
@@ -855,38 +855,38 @@ Task Compile -depends Clean {
         </command:commandLines>
       </command:example>
     </command:examples>
-	<maml:relatedLinks>
+  <maml:relatedLinks>
       <maml:navigationLink>
         <maml:linkText>Task</maml:linkText>
-	     <maml:uri />
+       <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>Include</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>Include</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-	    <maml:linkText>Properties</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+      <maml:linkText>Properties</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>Invoke-psake</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>Invoke-psake</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-	    <maml:linkText>FormatTaskName</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+      <maml:linkText>FormatTaskName</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>TaskSetup</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>TaskSetup</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>TaskTearDown</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>TaskTearDown</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>Assert</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>Assert</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
     </maml:relatedLinks>
   </command:command>
@@ -916,7 +916,7 @@ Task Compile -depends Clean {
         </command:parameter>
        </command:syntaxItem>
     </command:syntax>
-	 <command:parameters>
+   <command:parameters>
       <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false (ByValue)" position="0">
         <maml:name>format</maml:name>
         <maml:description>
@@ -958,8 +958,8 @@ Task Compile -depends Clean {
     <command:nonTerminatingErrors />
     <maml:alertSet>
       <maml:title></maml:title>
-	  <maml:alert>
-		<maml:para></maml:para>
+    <maml:alert>
+    <maml:para></maml:para>
       </maml:alert>
     </maml:alertSet>
     <command:examples>
@@ -1005,7 +1005,7 @@ Build Succeeded!</maml:para>
           </command:commandLine>
         </command:commandLines>
       </command:example>
-	   <command:example>
+     <command:example>
         <maml:title>--------------  EXAMPLE 2 --------------</maml:title>
         <maml:introduction>
           <maml:para>C:\PS&gt;</maml:para>
@@ -1047,156 +1047,156 @@ Task TaskC {
     <maml:relatedLinks>
       <maml:navigationLink>
         <maml:linkText>Task</maml:linkText>
-	     <maml:uri />
+       <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>Include</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>Include</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-	    <maml:linkText>Properties</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+      <maml:linkText>Properties</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>Invoke-psake</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>Invoke-psake</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-	    <maml:linkText>TaskSetup</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+      <maml:linkText>TaskSetup</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>TaskTearDown</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>TaskTearDown</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>Assert</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>Assert</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>Framework</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>Framework</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
     </maml:relatedLinks>
   </command:command>
 
   <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
   <!--Generated by PS Cmdlet Help Editor-->
-	  <command:details>
-		  <command:name>Get-PSakeScriptTasks</command:name>
-		  <maml:description>
-			  <maml:para>Returns meta data about all the tasks defined in the provided psake script.</maml:para>
-		  </maml:description>
-		  <maml:copyright>
-			  <maml:para />
-		  </maml:copyright>
-		  <command:verb>Get</command:verb>
-		  <command:noun>PSakeScriptTasks</command:noun>
-		  <dev:version />
-	  </command:details>
-	  <maml:description>
-		  <maml:para>Returns meta data about all the tasks defined in the provided psake script. </maml:para>
-	  </maml:description>
-	  <command:syntax>
-		  <command:syntaxItem>
-			  <maml:name>Get-PSakeScriptTasks</maml:name>
-			  <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="0">
-				  <maml:name>buildFile</maml:name>
-				  <maml:description>
-					  <maml:para>The path to the psake build script to read the tasks from.</maml:para>
-				  </maml:description>
-				  <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
-			  </command:parameter>
-			  <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
-				  <maml:name>InformationAction</maml:name>
-				  <maml:description>
-					  <maml:para />
-				  </maml:description>
-				  <command:parameterValue required="true" variableLength="false">ActionPreference</command:parameterValue>
-			  </command:parameter>
-			  <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
-				  <maml:name>InformationVariable</maml:name>
-				  <maml:description>
-					  <maml:para />
-				  </maml:description>
-				  <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
-			  </command:parameter>
-		  </command:syntaxItem>
-	  </command:syntax>
-	  <command:parameters>
-		  <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="0">
-			  <maml:name>buildFile</maml:name>
-			  <maml:description>
-				  <maml:para>The path to the psake build script to read the tasks from.</maml:para>
-			  </maml:description>
-			  <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
-			  <dev:type>
-				  <maml:name>String</maml:name>
-				  <maml:uri/>
-			  </dev:type>
-			  <dev:defaultValue>&apos;psakefile.ps1&apos;</dev:defaultValue>
-		  </command:parameter>
-		  <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
-			  <maml:name>InformationAction</maml:name>
-			  <maml:description>
-				  <maml:para />
-			  </maml:description>
-			  <command:parameterValue required="true" variableLength="false">ActionPreference</command:parameterValue>
-			  <dev:type>
-				  <maml:name>ActionPreference</maml:name>
-				  <maml:uri/>
-			  </dev:type>
-			  <dev:defaultValue></dev:defaultValue>
-		  </command:parameter>
-		  <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
-			  <maml:name>InformationVariable</maml:name>
-			  <maml:description>
-				  <maml:para />
-			  </maml:description>
-			  <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
-			  <dev:type>
-				  <maml:name>String</maml:name>
-				  <maml:uri/>
-			  </dev:type>
-			  <dev:defaultValue></dev:defaultValue>
-		  </command:parameter>
-	  </command:parameters>
-	  <command:inputTypes>
-		  <command:inputType>
-			  <dev:type>
-				  <maml:name></maml:name>
-				  <maml:uri></maml:uri>
-				  <maml:description/>
-			  </dev:type>
-			  <maml:description>
+    <command:details>
+      <command:name>Get-PSakeScriptTasks</command:name>
+      <maml:description>
+        <maml:para>Returns meta data about all the tasks defined in the provided psake script.</maml:para>
+      </maml:description>
+      <maml:copyright>
+        <maml:para />
+      </maml:copyright>
+      <command:verb>Get</command:verb>
+      <command:noun>PSakeScriptTasks</command:noun>
+      <dev:version />
+    </command:details>
+    <maml:description>
+      <maml:para>Returns meta data about all the tasks defined in the provided psake script. </maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Get-PSakeScriptTasks</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="0">
+          <maml:name>buildFile</maml:name>
+          <maml:description>
+            <maml:para>The path to the psake build script to read the tasks from.</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
+          <maml:name>InformationAction</maml:name>
+          <maml:description>
+            <maml:para />
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">ActionPreference</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
+          <maml:name>InformationVariable</maml:name>
+          <maml:description>
+            <maml:para />
+          </maml:description>
+          <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="0">
+        <maml:name>buildFile</maml:name>
+        <maml:description>
+          <maml:para>The path to the psake build script to read the tasks from.</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri/>
+        </dev:type>
+        <dev:defaultValue>&apos;psakefile.ps1&apos;</dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
+        <maml:name>InformationAction</maml:name>
+        <maml:description>
+          <maml:para />
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">ActionPreference</command:parameterValue>
+        <dev:type>
+          <maml:name>ActionPreference</maml:name>
+          <maml:uri/>
+        </dev:type>
+        <dev:defaultValue></dev:defaultValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
+        <maml:name>InformationVariable</maml:name>
+        <maml:description>
+          <maml:para />
+        </maml:description>
+        <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+        <dev:type>
+          <maml:name>String</maml:name>
+          <maml:uri/>
+        </dev:type>
+        <dev:defaultValue></dev:defaultValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <maml:name></maml:name>
+          <maml:uri></maml:uri>
+          <maml:description/>
+        </dev:type>
+        <maml:description>
   <maml:para />
-			  </maml:description>
-		  </command:inputType>
-	  </command:inputTypes>
-	  <command:returnValues>
-		  <command:returnValue>
-			  <dev:type>
-				  <maml:name></maml:name>
-				  <maml:uri></maml:uri>
-				  <maml:description/>
-			  </dev:type>
-			  <maml:description>
+        </maml:description>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <maml:name></maml:name>
+          <maml:uri></maml:uri>
+          <maml:description/>
+        </dev:type>
+        <maml:description>
   <maml:para />
-			  </maml:description>
-		  </command:returnValue>
-	  </command:returnValues>
-	  <command:terminatingErrors></command:terminatingErrors>
-	  <command:nonTerminatingErrors></command:nonTerminatingErrors>
-	  <maml:alertSet>
-		  <maml:title></maml:title>
-		  <maml:alert>
-			  <maml:para />
-		  </maml:alert>
-	  </maml:alertSet>
-	  <command:examples>
-	  </command:examples>
-	  <maml:relatedLinks>
-	  </maml:relatedLinks>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <command:terminatingErrors></command:terminatingErrors>
+    <command:nonTerminatingErrors></command:nonTerminatingErrors>
+    <maml:alertSet>
+      <maml:title></maml:title>
+      <maml:alert>
+        <maml:para />
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples>
+    </command:examples>
+    <maml:relatedLinks>
+    </maml:relatedLinks>
   </command:command>
 
   <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10">
@@ -1224,7 +1224,7 @@ Task TaskC {
         </command:parameter>
        </command:syntaxItem>
     </command:syntax>
-	 <command:parameters>
+   <command:parameters>
       <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false (ByValue)" position="0">
         <maml:name>fileNamePathToInclude</maml:name>
         <maml:description>
@@ -1266,8 +1266,8 @@ Task TaskC {
     <command:nonTerminatingErrors />
     <maml:alertSet>
       <maml:title></maml:title>
-	  <maml:alert>
-		<maml:para></maml:para>
+    <maml:alert>
+    <maml:para></maml:para>
       </maml:alert>
     </maml:alertSet>
     <command:examples>
@@ -1307,35 +1307,35 @@ Task Clean {
     <maml:relatedLinks>
       <maml:navigationLink>
         <maml:linkText>Task</maml:linkText>
-	     <maml:uri />
+       <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>FormatTaskName</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>FormatTaskName</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-	    <maml:linkText>Properties</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+      <maml:linkText>Properties</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>Invoke-psake</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>Invoke-psake</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-	    <maml:linkText>TaskSetup</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+      <maml:linkText>TaskSetup</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>TaskTearDown</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>TaskTearDown</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>Assert</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>Assert</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>Framework</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>Framework</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
     </maml:relatedLinks>
   </command:command>
@@ -1365,7 +1365,7 @@ Task Clean {
         </command:parameter>
        </command:syntaxItem>
     </command:syntax>
-	 <command:parameters>
+   <command:parameters>
       <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false (ByValue)" position="0">
         <maml:name>properties</maml:name>
         <maml:description>
@@ -1407,8 +1407,8 @@ Task Clean {
     <command:nonTerminatingErrors />
     <maml:alertSet>
       <maml:title></maml:title>
-	  <maml:alert>
-		<maml:para></maml:para>
+    <maml:alert>
+    <maml:para></maml:para>
       </maml:alert>
     </maml:alertSet>
     <command:examples>
@@ -1435,12 +1435,12 @@ Task Compile -depends Clean {
 Task Clean {
 }</dev:code>
         <dev:remarks>
-			<maml:para>Description</maml:para>
-			<maml:para>-----------</maml:para>
-			<maml:para>Note: You can have more than 1 "Properties" function defined in the build script</maml:para>
-			<maml:para></maml:para>
-			<maml:para></maml:para>
-			<maml:para></maml:para>
+      <maml:para>Description</maml:para>
+      <maml:para>-----------</maml:para>
+      <maml:para>Note: You can have more than 1 "Properties" function defined in the build script</maml:para>
+      <maml:para></maml:para>
+      <maml:para></maml:para>
+      <maml:para></maml:para>
         </dev:remarks>
         <command:commandLines>
           <command:commandLine>
@@ -1453,35 +1453,35 @@ Task Clean {
     <maml:relatedLinks>
       <maml:navigationLink>
         <maml:linkText>Task</maml:linkText>
-	     <maml:uri />
+       <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>FormatTaskName</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>FormatTaskName</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-	    <maml:linkText>Include</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+      <maml:linkText>Include</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>Invoke-psake</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>Invoke-psake</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-	    <maml:linkText>TaskSetup</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+      <maml:linkText>TaskSetup</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>TaskTearDown</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>TaskTearDown</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>Assert</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>Assert</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>Framework</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>Framework</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
     </maml:relatedLinks>
   </command:command>
@@ -1499,7 +1499,7 @@ Task Clean {
       <command:noun></command:noun>
       <dev:version />
     </command:details>
-	<maml:description>
+  <maml:description>
       <maml:para>This function creates a 'task' object that will be used by the psake engine to execute a build task. Note: There must be at least one task called 'default' in the build script</maml:para>
     </maml:description>
     <command:syntax>
@@ -1509,167 +1509,167 @@ Task Clean {
           <maml:name>Name</maml:name>
           <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
         </command:parameter>
-		<command:parameter require="false" variableLength="false" globbing="false" pipelineInput="false" postion="0">
+    <command:parameter require="false" variableLength="false" globbing="false" pipelineInput="false" postion="0">
           <maml:name>Action</maml:name>
           <command:parameterValue required="true" variableLength="false">ScriptBlock</command:parameterValue>
         </command:parameter>
-		<command:parameter require="false" variableLength="false" globbing="false" pipelineInput="false" postion="0">
+    <command:parameter require="false" variableLength="false" globbing="false" pipelineInput="false" postion="0">
           <maml:name>PreAction</maml:name>
           <command:parameterValue required="false" variableLength="false">ScriptBlock</command:parameterValue>
         </command:parameter>
-		<command:parameter require="false" variableLength="false" globbing="false" pipelineInput="false" postion="0">
+    <command:parameter require="false" variableLength="false" globbing="false" pipelineInput="false" postion="0">
           <maml:name>PostAction</maml:name>
           <command:parameterValue required="false" variableLength="false">ScriptBlock</command:parameterValue>
         </command:parameter>
-		<command:parameter require="false" variableLength="false" globbing="false" pipelineInput="false" postion="0">
+    <command:parameter require="false" variableLength="false" globbing="false" pipelineInput="false" postion="0">
           <maml:name>Precondition</maml:name>
           <command:parameterValue required="false" variableLength="false">ScriptBlock</command:parameterValue>
         </command:parameter>
-		<command:parameter require="false" variableLength="false" globbing="false" pipelineInput="false" postion="0">
+    <command:parameter require="false" variableLength="false" globbing="false" pipelineInput="false" postion="0">
           <maml:name>Postcondition</maml:name>
           <command:parameterValue required="false" variableLength="false">ScriptBlock</command:parameterValue>
         </command:parameter>
-		<command:parameter require="false" variableLength="false" globbing="false" pipelineInput="false" postion="0">
+    <command:parameter require="false" variableLength="false" globbing="false" pipelineInput="false" postion="0">
           <maml:name>ContinueOnError</maml:name>
           <command:parameterValue required="false" variableLength="false">Boolean</command:parameterValue>
         </command:parameter>
-		<command:parameter require="false" variableLength="false" globbing="false" pipelineInput="false" postion="0">
+    <command:parameter require="false" variableLength="false" globbing="false" pipelineInput="false" postion="0">
           <maml:name>Depends</maml:name>
           <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
         </command:parameter>
-		<command:parameter require="false" variableLength="false" globbing="false" pipelineInput="false" postion="0">
+    <command:parameter require="false" variableLength="false" globbing="false" pipelineInput="false" postion="0">
           <maml:name>RequiredVariables</maml:name>
           <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
         </command:parameter>
-		<command:parameter require="false" variableLength="false" globbing="false" pipelineInput="false" postion="0">
+    <command:parameter require="false" variableLength="false" globbing="false" pipelineInput="false" postion="0">
           <maml:name>Description</maml:name>
           <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
         </command:parameter>
        </command:syntaxItem>
     </command:syntax>
-	<command:parameters>
-		<command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false (ByValue)" position="0">
-			<maml:name>Name</maml:name>
-			<maml:description>
-			  <maml:para>The name of the task</maml:para>
-			</maml:description>
-			<command:parameterValue required="true" variableLength="false">String</command:parameterValue>
-			<dev:type>
-			  <maml:name>String</maml:name>
-			  <maml:uri />
-			</dev:type>
-			<dev:defaultValue></dev:defaultValue>
-		</command:parameter>
-		<command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false (ByValue)" position="0">
-			<maml:name>Action</maml:name>
-			<maml:description>
-			  <maml:para>A scriptblock containing the statements to execute for the task.</maml:para>
-			</maml:description>
-			<command:parameterValue required="true" variableLength="false">ScriptBlock</command:parameterValue>
-			<dev:type>
-			  <maml:name>ScriptBlock</maml:name>
-			  <maml:uri />
-			</dev:type>
-			<dev:defaultValue></dev:defaultValue>
-		</command:parameter>
-		<command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false (ByValue)" position="0">
-			<maml:name>PreAction</maml:name>
-			<maml:description>
-			  <maml:para>A scriptblock to be executed before the 'Action' scriptblock.  Note: This parameter is ignored if the 'Action' scriptblock is not defined.</maml:para>
-			</maml:description>
-			<command:parameterValue required="false" variableLength="false">ScriptBlock</command:parameterValue>
-			<dev:type>
-			  <maml:name>ScriptBlock</maml:name>
-			  <maml:uri />
-			</dev:type>
-			<dev:defaultValue></dev:defaultValue>
-		</command:parameter>
-		<command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false (ByValue)" position="0">
-			<maml:name>PostAction</maml:name>
-			<maml:description>
-			  <maml:para>A scriptblock to be executed after the 'Action' scriptblock.  Note: This parameter is ignored if the 'Action' scriptblock is not defined.</maml:para>
-			</maml:description>
-			<command:parameterValue required="false" variableLength="false">ScriptBlock</command:parameterValue>
-			<dev:type>
-			  <maml:name>ScriptBlock</maml:name>
-			  <maml:uri />
-			</dev:type>
-			<dev:defaultValue></dev:defaultValue>
-		</command:parameter>
-		<command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false (ByValue)" position="0">
-			<maml:name>Precondition</maml:name>
-			<maml:description>
-			  <maml:para>A scriptblock that is executed to determine if the task is executed or skipped. This scriptblock should return $true or $false</maml:para>
-			</maml:description>
-			<command:parameterValue required="false" variableLength="false">ScriptBlock</command:parameterValue>
-			<dev:type>
-			  <maml:name>ScriptBlock</maml:name>
-			  <maml:uri />
-			</dev:type>
-			<dev:defaultValue></dev:defaultValue>
-		</command:parameter>
-		<command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false (ByValue)" position="0">
-			<maml:name>Postcondition</maml:name>
-			<maml:description>
-			  <maml:para>A scriptblock that is executed to determine if the task completed its job correctly.  An exception is thrown if the scriptblock returns $false.</maml:para>
-			</maml:description>
-			<command:parameterValue required="false" variableLength="false">ScriptBlock</command:parameterValue>
-			<dev:type>
-			  <maml:name>ScriptBlock</maml:name>
-			  <maml:uri />
-			</dev:type>
-			<dev:defaultValue></dev:defaultValue>
-		</command:parameter>
-		<command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false (ByValue)" position="0">
-			<maml:name>ContinueOnError</maml:name>
-			<maml:description>
-			  <maml:para>If this switch parameter is set then the task will not cause the build to fail when an exception is thrown by the task</maml:para>
-			</maml:description>
-			<command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
-			<dev:type>
-			  <maml:name>SwitchParameter</maml:name>
-			  <maml:uri />
-			</dev:type>
-			<dev:defaultValue></dev:defaultValue>
-		</command:parameter>
-		<command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false (ByValue)" position="0">
-			<maml:name>Depends</maml:name>
-			<maml:description>
-			  <maml:para>An array of task names that this task depends on.  These tasks will be executed before the current task is executed.</maml:para>
-			</maml:description>
-			<command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
-			<dev:type>
-			  <maml:name>String[]</maml:name>
-			  <maml:uri />
-			</dev:type>
-			<dev:defaultValue></dev:defaultValue>
-		</command:parameter>
-		<command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false (ByValue)" position="0">
-			<maml:name>RequiredVariables</maml:name>
-			<maml:description>
-			  <maml:para>An array of names of variables that must be set to run this task.</maml:para>
-			</maml:description>
-			<command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
-			<dev:type>
-			  <maml:name>String[]</maml:name>
-			  <maml:uri />
-			</dev:type>
-			<dev:defaultValue></dev:defaultValue>
-		</command:parameter>
-		<command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false (ByValue)" position="0">
-			<maml:name>Description</maml:name>
-			<maml:description>
-			  <maml:para>A description of the task.</maml:para>
-			</maml:description>
-			<command:parameterValue required="false" variableLength="false">String</command:parameterValue>
-			<dev:type>
-			  <maml:name>String</maml:name>
-			  <maml:uri />
-			</dev:type>
-			<dev:defaultValue></dev:defaultValue>
-		</command:parameter>
-	</command:parameters>
-	 <command:inputTypes>
+  <command:parameters>
+    <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false (ByValue)" position="0">
+      <maml:name>Name</maml:name>
+      <maml:description>
+        <maml:para>The name of the task</maml:para>
+      </maml:description>
+      <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+      <dev:type>
+        <maml:name>String</maml:name>
+        <maml:uri />
+      </dev:type>
+      <dev:defaultValue></dev:defaultValue>
+    </command:parameter>
+    <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false (ByValue)" position="0">
+      <maml:name>Action</maml:name>
+      <maml:description>
+        <maml:para>A scriptblock containing the statements to execute for the task.</maml:para>
+      </maml:description>
+      <command:parameterValue required="true" variableLength="false">ScriptBlock</command:parameterValue>
+      <dev:type>
+        <maml:name>ScriptBlock</maml:name>
+        <maml:uri />
+      </dev:type>
+      <dev:defaultValue></dev:defaultValue>
+    </command:parameter>
+    <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false (ByValue)" position="0">
+      <maml:name>PreAction</maml:name>
+      <maml:description>
+        <maml:para>A scriptblock to be executed before the 'Action' scriptblock.  Note: This parameter is ignored if the 'Action' scriptblock is not defined.</maml:para>
+      </maml:description>
+      <command:parameterValue required="false" variableLength="false">ScriptBlock</command:parameterValue>
+      <dev:type>
+        <maml:name>ScriptBlock</maml:name>
+        <maml:uri />
+      </dev:type>
+      <dev:defaultValue></dev:defaultValue>
+    </command:parameter>
+    <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false (ByValue)" position="0">
+      <maml:name>PostAction</maml:name>
+      <maml:description>
+        <maml:para>A scriptblock to be executed after the 'Action' scriptblock.  Note: This parameter is ignored if the 'Action' scriptblock is not defined.</maml:para>
+      </maml:description>
+      <command:parameterValue required="false" variableLength="false">ScriptBlock</command:parameterValue>
+      <dev:type>
+        <maml:name>ScriptBlock</maml:name>
+        <maml:uri />
+      </dev:type>
+      <dev:defaultValue></dev:defaultValue>
+    </command:parameter>
+    <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false (ByValue)" position="0">
+      <maml:name>Precondition</maml:name>
+      <maml:description>
+        <maml:para>A scriptblock that is executed to determine if the task is executed or skipped. This scriptblock should return $true or $false</maml:para>
+      </maml:description>
+      <command:parameterValue required="false" variableLength="false">ScriptBlock</command:parameterValue>
+      <dev:type>
+        <maml:name>ScriptBlock</maml:name>
+        <maml:uri />
+      </dev:type>
+      <dev:defaultValue></dev:defaultValue>
+    </command:parameter>
+    <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false (ByValue)" position="0">
+      <maml:name>Postcondition</maml:name>
+      <maml:description>
+        <maml:para>A scriptblock that is executed to determine if the task completed its job correctly.  An exception is thrown if the scriptblock returns $false.</maml:para>
+      </maml:description>
+      <command:parameterValue required="false" variableLength="false">ScriptBlock</command:parameterValue>
+      <dev:type>
+        <maml:name>ScriptBlock</maml:name>
+        <maml:uri />
+      </dev:type>
+      <dev:defaultValue></dev:defaultValue>
+    </command:parameter>
+    <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false (ByValue)" position="0">
+      <maml:name>ContinueOnError</maml:name>
+      <maml:description>
+        <maml:para>If this switch parameter is set then the task will not cause the build to fail when an exception is thrown by the task</maml:para>
+      </maml:description>
+      <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+      <dev:type>
+        <maml:name>SwitchParameter</maml:name>
+        <maml:uri />
+      </dev:type>
+      <dev:defaultValue></dev:defaultValue>
+    </command:parameter>
+    <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false (ByValue)" position="0">
+      <maml:name>Depends</maml:name>
+      <maml:description>
+        <maml:para>An array of task names that this task depends on.  These tasks will be executed before the current task is executed.</maml:para>
+      </maml:description>
+      <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
+      <dev:type>
+        <maml:name>String[]</maml:name>
+        <maml:uri />
+      </dev:type>
+      <dev:defaultValue></dev:defaultValue>
+    </command:parameter>
+    <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false (ByValue)" position="0">
+      <maml:name>RequiredVariables</maml:name>
+      <maml:description>
+        <maml:para>An array of names of variables that must be set to run this task.</maml:para>
+      </maml:description>
+      <command:parameterValue required="false" variableLength="false">String[]</command:parameterValue>
+      <dev:type>
+        <maml:name>String[]</maml:name>
+        <maml:uri />
+      </dev:type>
+      <dev:defaultValue></dev:defaultValue>
+    </command:parameter>
+    <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false (ByValue)" position="0">
+      <maml:name>Description</maml:name>
+      <maml:description>
+        <maml:para>A description of the task.</maml:para>
+      </maml:description>
+      <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+      <dev:type>
+        <maml:name>String</maml:name>
+        <maml:uri />
+      </dev:type>
+      <dev:defaultValue></dev:defaultValue>
+    </command:parameter>
+  </command:parameters>
+   <command:inputTypes>
       <command:inputType>
         <dev:type>
           <maml:name>None</maml:name>
@@ -1697,8 +1697,8 @@ Task Clean {
     <command:nonTerminatingErrors />
     <maml:alertSet>
       <maml:title></maml:title>
-	  <maml:alert>
-		<maml:para></maml:para>
+    <maml:alert>
+    <maml:para></maml:para>
       </maml:alert>
     </maml:alertSet>
     <command:examples>
@@ -1773,35 +1773,35 @@ Total:  00:00:00.0782496</dev:code>
     <maml:relatedLinks>
       <maml:navigationLink>
         <maml:linkText>Properties</maml:linkText>
-	     <maml:uri />
+       <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>FormatTaskName</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>FormatTaskName</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-	    <maml:linkText>Include</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+      <maml:linkText>Include</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>Invoke-psake</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>Invoke-psake</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-	    <maml:linkText>TaskSetup</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+      <maml:linkText>TaskSetup</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>TaskTearDown</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>TaskTearDown</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>Assert</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>Assert</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>Framework</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>Framework</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
     </maml:relatedLinks>
   </command:command>
@@ -1835,7 +1835,7 @@ Total:  00:00:00.0782496</dev:code>
         </command:parameter>
        </command:syntaxItem>
     </command:syntax>
-	 <command:parameters>
+   <command:parameters>
       <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false (ByValue)" position="0">
         <maml:name>conditionToCheck</maml:name>
         <maml:description>
@@ -1848,7 +1848,7 @@ Total:  00:00:00.0782496</dev:code>
         </dev:type>
         <dev:defaultValue></dev:defaultValue>
       </command:parameter>
-	  <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="false (ByValue)" position="1">
+    <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="false (ByValue)" position="1">
         <maml:name>failureMessage</maml:name>
         <maml:description>
           <maml:para>The error message used for the exception if the conditionToCheck parameter is false</maml:para>
@@ -1889,8 +1889,8 @@ Total:  00:00:00.0782496</dev:code>
     <command:nonTerminatingErrors />
     <maml:alertSet>
       <maml:title></maml:title>
-	  <maml:alert>
-		<maml:para></maml:para>
+    <maml:alert>
+    <maml:para></maml:para>
       </maml:alert>
     </maml:alertSet>
     <command:examples>
@@ -1911,19 +1911,19 @@ Total:  00:00:00.0782496</dev:code>
           </command:commandLine>
         </command:commandLines>
       </command:example>
-	  <command:example>
+    <command:example>
         <maml:title>--------------  EXAMPLE 2 --------------</maml:title>
         <maml:introduction>
           <maml:para>C:\PS&gt;</maml:para>
         </maml:introduction>
         <dev:code>Assert ( ($i % 2) -eq 0 ) "$i is not an even number"</dev:code>
         <dev:remarks>
-		<maml:para>Description</maml:para>
-		  <maml:para>-----------</maml:para>
+    <maml:para>Description</maml:para>
+      <maml:para>-----------</maml:para>
           <maml:para>This exmaple may throw an exception if $i is not an even number</maml:para>
           <maml:para></maml:para>
           <maml:para>Note:</maml:para>
-		  <maml:para>It might be necessary to wrap the condition with paranthesis to force PS to evaluate the condition
+      <maml:para>It might be necessary to wrap the condition with paranthesis to force PS to evaluate the condition
 so that a boolean value is calculated and passed into the 'conditionToCheck' parameter.
 
 Example:
@@ -1935,7 +1935,7 @@ throw an exception with the following message "A parameter cannot be found that 
 The solution is to wrap the condition in () so that PS will evaluate it first.
 
     Assert (1 -eq 2) "1 doesn't equal 2"
-		  </maml:para>
+      </maml:para>
         </dev:remarks>
         <command:commandLines>
           <command:commandLine>
@@ -1948,36 +1948,36 @@ The solution is to wrap the condition in () so that PS will evaluate it first.
     <maml:relatedLinks>
       <maml:navigationLink>
         <maml:linkText>Task</maml:linkText>
-	     <maml:uri />
+       <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>FormatTaskName</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>FormatTaskName</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-	    <maml:linkText>Include</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+      <maml:linkText>Include</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>Invoke-psake</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>Invoke-psake</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-	    <maml:linkText>TaskSetup</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+      <maml:linkText>TaskSetup</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>TaskTearDown</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>TaskTearDown</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>Properties</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>Properties</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
     </maml:relatedLinks>
-	  <maml:navigationLink>
-		<maml:linkText>Framework</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>Framework</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
   </command:command>
 
@@ -2010,7 +2010,7 @@ The solution is to wrap the condition in () so that PS will evaluate it first.
         </command:parameter>
        </command:syntaxItem>
     </command:syntax>
-	 <command:parameters>
+   <command:parameters>
       <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false (ByValue)" position="0">
         <maml:name>cmd</maml:name>
         <maml:description>
@@ -2023,7 +2023,7 @@ The solution is to wrap the condition in () so that PS will evaluate it first.
         </dev:type>
         <dev:defaultValue></dev:defaultValue>
       </command:parameter>
-	  <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="false (ByValue)" position="1">
+    <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="false (ByValue)" position="1">
         <maml:name>failureMessage</maml:name>
         <maml:description>
           <maml:para>The error message used for the exception that is thrown.</maml:para>
@@ -2064,8 +2064,8 @@ The solution is to wrap the condition in () so that PS will evaluate it first.
     <command:nonTerminatingErrors />
     <maml:alertSet>
       <maml:title></maml:title>
-	  <maml:alert>
-		<maml:para></maml:para>
+    <maml:alert>
+    <maml:para></maml:para>
       </maml:alert>
     </maml:alertSet>
     <command:examples>
@@ -2089,42 +2089,42 @@ The solution is to wrap the condition in () so that PS will evaluate it first.
 
     </command:examples>
     <maml:relatedLinks>
-	  <maml:navigationLink>
-		<maml:linkText>Assert</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>Assert</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>FormatTaskName</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>FormatTaskName</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-	    <maml:linkText>Include</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+      <maml:linkText>Include</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>Invoke-psake</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>Invoke-psake</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>Properties</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>Properties</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
+    <maml:navigationLink>
         <maml:linkText>Task</maml:linkText>
-	     <maml:uri />
+       <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-	    <maml:linkText>TaskSetup</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+      <maml:linkText>TaskSetup</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>TaskTearDown</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>TaskTearDown</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
     </maml:relatedLinks>
-	  <maml:navigationLink>
-		<maml:linkText>Framework</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>Framework</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
   </command:command>
 
@@ -2153,7 +2153,7 @@ The solution is to wrap the condition in () so that PS will evaluate it first.
         </command:parameter>
        </command:syntaxItem>
     </command:syntax>
-	 <command:parameters>
+   <command:parameters>
       <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false (ByValue)" position="0">
         <maml:name>taskName</maml:name>
         <maml:description>
@@ -2195,8 +2195,8 @@ The solution is to wrap the condition in () so that PS will evaluate it first.
     <command:nonTerminatingErrors />
     <maml:alertSet>
       <maml:title></maml:title>
-	  <maml:alert>
-		<maml:para></maml:para>
+    <maml:alert>
+    <maml:para></maml:para>
       </maml:alert>
     </maml:alertSet>
     <command:examples>
@@ -2220,45 +2220,45 @@ The solution is to wrap the condition in () so that PS will evaluate it first.
 
     </command:examples>
     <maml:relatedLinks>
-	  <maml:navigationLink>
-		<maml:linkText>Assert</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>Assert</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>Exec</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>Exec</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>FormatTaskName</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>FormatTaskName</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-	    <maml:linkText>Include</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+      <maml:linkText>Include</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>Invoke-psake</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>Invoke-psake</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>Properties</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>Properties</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
+    <maml:navigationLink>
         <maml:linkText>Task</maml:linkText>
-	     <maml:uri />
+       <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-	    <maml:linkText>TaskSetup</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+      <maml:linkText>TaskSetup</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>TaskTearDown</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>TaskTearDown</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
-	  <maml:navigationLink>
-		<maml:linkText>Framework</maml:linkText>
-		<maml:uri />
+    <maml:navigationLink>
+    <maml:linkText>Framework</maml:linkText>
+    <maml:uri />
       </maml:navigationLink>
     </maml:relatedLinks>
   </command:command>
