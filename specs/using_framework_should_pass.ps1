@@ -1,7 +1,7 @@
 task default -depends FrameworkFunction
 
 task FrameworkFunction  {
-  if ( $IsOSX -OR $IsLinux ) {}
+  if ( $IsMacOS -OR $IsLinux ) {}
   else {
 	  AssertFramework -Framework '2.0' -AcceptableRegEx '2\.0'
 	  AssertFramework -Framework '3.5' -AcceptableRegEx '3\.5'

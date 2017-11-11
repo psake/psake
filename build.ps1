@@ -15,7 +15,7 @@ if ($env:TRAVIS) {
     . "$PSScriptRoot/build/travis.ps1"
 }
 
-$testResults = Invoke-Pester -Path ./tests -PassThru -OutputFile ./testResults.xml
+$testResults = Invoke-Pester -Path ./tests -PassThru -OutputFile ./testResults.xml -OutputFormat NUnitXml
 
 # Upload test artifacts to AppVeyor
 if ($env:APPVEYOR_JOB_ID) {

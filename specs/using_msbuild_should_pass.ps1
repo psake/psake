@@ -1,6 +1,6 @@
 task default -depends DisplayNotice
 task DisplayNotice {
-    if ( $IsOSX -OR $IsLinux ) {}
+    if ( $IsMacOS -OR $IsLinux ) {}
     else {
         exec { msbuild /version }
     }

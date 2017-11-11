@@ -3,7 +3,7 @@ Framework '3.5'
 task default -depends AspNetCompiler
 
 task AspNetCompiler {
-    if ( $IsOSX -OR $IsLinux ) {}
+    if ( $IsMacOS -OR $IsLinux ) {}
     else {
         aspnet_compiler
         if ($LastExitCode -ne 1) {

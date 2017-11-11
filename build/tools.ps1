@@ -30,13 +30,13 @@ function Install-Dotnet {
 
     $obtainUrl = "https://raw.githubusercontent.com/dotnet/cli/master/scripts/obtain"
 
-    # Install for Linux and OS X
-    if ($IsLinux -or $IsOSX) {
+    # Install for Linux and MacOS
+    if ($IsLinux -or $IsMacOS) {
         # Uninstall all previous dotnet packages
         $uninstallScript = if ($IsUbuntu) {
             "dotnet-uninstall-debian-packages.sh"
         }
-        elseif ($IsOSX) {
+        elseif ($IsMacOS) {
             "dotnet-uninstall-pkgs.sh"
         }
 
