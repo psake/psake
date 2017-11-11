@@ -7,9 +7,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [4.7.0] Unreleased
 
+### Features
+
+- [**196**](https://github.com/psake/psake/pull/196) Deprecate default build script name `default.ps1` in favor of `psakefile.ps1`. (via [@glennsarti](https://github.com/glennsarti))
+
 ### Improvements
 
+- [**222**](https://github.com/psake/psake/pull/222) Add support for .Net frameworks 4.6.2, 4.7, and 4.7.1. (via [@rkeithhill](https://github.com/rkeithhill))
+
 - [**218**](https://github.com/psake/psake/pull/218) Improve Build Time Report by using custom `FormatTaskName` value for header and display task timing at millisecond accuracy instead of microsecond. (via [@theunrepentantgeek](https://github.com/theunrepentantgeek))
+
+- [**198**](https://github.com/psake/psake/pull/198) Add support for PowerShell Core on macOS and Linux. (via [@dbroeglin](https://github.com/dbroeglin))
 
 - [**190**](https://github.com/psake/psake/pull/190) Use `WriteColoredOutput` for all task headers. (via [@damianpowell](https://github.com/damianpowell))
 
