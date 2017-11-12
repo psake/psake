@@ -72,48 +72,53 @@ function Invoke-Task
             }
 
             if ($task.Action) {
+
+                $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+
                 try {
                     foreach($childTask in $task.DependsOn) {
                         Invoke-Task $childTask
                     }
 
-                    $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
                     $currentContext.currentTaskName = $taskName
 
-                    & $currentContext.taskSetupScriptBlock
+                    try {
+                        & $currentContext.taskSetupScriptBlock
+                        try {
+                            if ($task.PreAction) {
+                                & $task.PreAction
+                            }
 
-                    if ($task.PreAction) {
-                        & $task.PreAction
+                            if ($currentContext.config.taskNameFormat -is [ScriptBlock]) {
+                                $taskHeader = & $currentContext.config.taskNameFormat $taskName
+                            } else {
+                                $taskHeader = $currentContext.config.taskNameFormat -f $taskName
+                            }
+                            WriteColoredOutput $taskHeader -foregroundcolor Cyan
+
+                            foreach ($variable in $task.requiredVariables) {
+                                Assert ((test-path "variable:$variable") -and ((get-variable $variable).Value -ne $null)) ($msgs.required_variable_not_set -f $variable, $taskName)
+                            }
+
+                            & $task.Action
+                        } finally {
+                            if ($task.PostAction) {
+                                & $task.PostAction
+                            }
+                        }
+                    } finally {
+                        & $currentContext.taskTearDownScriptBlock
                     }
-
-                    if ($currentContext.config.taskNameFormat -is [ScriptBlock]) {
-                        $taskHeader = & $currentContext.config.taskNameFormat $taskName
-                    } else {
-                        $taskHeader = $currentContext.config.taskNameFormat -f $taskName
-                    }
-                    WriteColoredOutput $taskHeader -foregroundcolor Cyan
-
-                    foreach ($variable in $task.requiredVariables) {
-                        Assert ((test-path "variable:$variable") -and ((get-variable $variable).Value -ne $null)) ($msgs.required_variable_not_set -f $variable, $taskName)
-                    }
-
-                    & $task.Action
-
-                    if ($task.PostAction) {
-                        & $task.PostAction
-                    }
-
-                    & $currentContext.taskTearDownScriptBlock
-                    $task.Duration = $stopwatch.Elapsed
                 } catch {
                     if ($task.ContinueOnError) {
                         "-"*70
                         WriteColoredOutput ($msgs.continue_on_error -f $taskName,$_) -foregroundcolor Yellow
                         "-"*70
-                        $task.Duration = $stopwatch.Elapsed
                     }  else {
                         throw $_
                     }
+                } finally {
+                    $task.Duration = $stopwatch.Elapsed
                 }
             } else {
                 # no action was specified but we still execute all the dependencies
@@ -725,7 +730,7 @@ function ExecuteInBuildFileScope {
 
     # Execute the build file to set up the tasks and defaults
     Assert (test-path $buildFile -pathType Leaf) ($msgs.error_build_file_not_found -f $buildFile)
-   
+
     $psake.build_script_file = get-item $buildFile
     $psake.build_script_dir = $psake.build_script_file.DirectoryName
     $psake.build_success = $false
