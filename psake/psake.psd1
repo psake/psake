@@ -8,7 +8,7 @@
     Description       = 'psake is a build automation tool written in PowerShell.'
     FunctionsToExport = @('Invoke-psake',
                           'Invoke-Task',
-                          'Get-PSakeScriptTasks', 
+                          'Get-PSakeScriptTasks',
                           'Task',
                           'Properties',
                           'Include',
