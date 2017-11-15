@@ -1,0 +1,72 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+
+    "type": "process",
+
+    // Start PowerShell (pwsh on *nix)
+    "windows": {
+        "command": "powershell.exe",
+        "args": [ "-NoProfile", "-ExecutionPolicy", "Bypass" ]
+    },
+    "linux": {
+        "command": "/usr/bin/pwsh",
+        "args": [ "-NoProfile" ]
+    },
+    "osx": {
+        "command": "/usr/local/bin/pwsh",
+        "args": [ "-NoProfile" ]
+    },
+
+    "presentation": {
+        "echo": false,
+        "reveal": "always",
+        "focus": false,
+        "panel": "new"
+    },
+
+    "echoCommand": false,
+    "suppressTaskName": true,
+
+    "tasks": [
+        {
+            "taskName": "CreateMarkdownHelp",
+            "args": [
+                "${cwd}/build.ps1 -Task CreateMarkdownHelp -Verbose"
+            ]
+        },
+        {
+            "taskName": "PublishPSGallery",
+            "args": [
+                "${cwd}/build.ps1 -Task PublishPSGallery -Verbose"
+            ]
+        },
+        {
+            "taskName": "PublishChocolatey",
+            "args": [
+                "${cwd}/build.ps1 -Task PublishChocolatey -Verbose"
+            ]
+        },
+        {
+            "taskName": "Test",
+            "args": [
+                "${cwd}/build.ps1 -Task Test -Verbose"
+            ],
+            "problemMatcher": "$pester"
+        },
+        {
+            "taskName": "Analyze",
+            "args": [
+                "${cwd}/build.ps1 -Task Analyze -Verbose"
+            ]
+        },
+        {
+            "taskName": "Pester",
+            "args": [
+                "${cwd}/build.ps1 -Task Pester -Verbose"
+            ],
+            "problemMatcher": "$pester"
+        }
+    ]
+}
