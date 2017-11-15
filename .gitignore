@@ -2,3 +2,4 @@
 *.nupkg
 Thumbs.db
 /dotnet-install.ps1
+testResults.xml
