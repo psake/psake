@@ -7,8 +7,7 @@ task default -depends Verify
 task Verify -description "This task verifies psake's variables" {
 
   #Verify the exported module variables
-  cd variable:
-  Assert (Test-Path "psake") "variable psake was not exported from module"
+  Assert (Test-Path "variable:psake") "variable psake was not exported from module"
 
   Assert ($psake.ContainsKey("build_success")) "'psake' variable does not contain key 'build_success'"
   Assert ($psake.ContainsKey("version")) "'psake' variable does not contain key 'version'"
