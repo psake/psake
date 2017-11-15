@@ -5,6 +5,7 @@ Welcome to the psake project
 [![Build Status][travis-badge]][travis-build]
 [![PowerShell Gallery][psgallery-badge]][psgallery]
 [![Chocolatey][chocolatey-badge]][chocolatey]
+[![Nuget downloads][nuget-downloads]][nuget]
 [![Join the chat at https://gitter.im/psake/psake][gitter-badge]][gitter]
 
 psake is a build automation tool written in PowerShell. It avoids the angle-bracket tax associated with executable XML by leveraging the PowerShell syntax in your build scripts.
@@ -71,3 +72,5 @@ psake is released under the [MIT license](http://www.opensource.org/licenses/MIT
 [psgallery]: https://www.powershellgallery.com/packages/psake
 [chocolatey-badge]: https://img.shields.io/chocolatey/dt/psake.svg
 [chocolatey]: https://chocolatey.org/packages/psake
+[nuget-downloads]: https://img.shields.io/nuget/dt/psake.svg
+[nuget]: https://www.nuget.org/packages/psake/
