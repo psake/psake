@@ -1,4 +1,4 @@
 param($installPath, $toolsPath, $package)
 
-$psakeModule = Join-Path $toolsPath psake.psm1
-import-module $psakeModule
+$psakeModule = Join-Path -Path $toolsPath -ChildPath 'psake/psake.psd1'
+Import-Module -Name $psakeModule
