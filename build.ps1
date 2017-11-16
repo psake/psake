@@ -1,14 +1,15 @@
-#Requires -Version 5.1
+#requires -Version 5.1
 
 [cmdletbinding()]
 param(
-    [validateSet('Test', 'Analyze', 'Pester', 'CreateMarkdownHelp', 'PublishChocolatey', 'PublishPSGallery')]
-    [string]$Task = 'test'
+    [validateSet('Test', 'Analyze', 'Pester', 'CreateMarkdownHelp', 'BuildNuget', 'PublishChocolatey', 'PublishPSGallery')]
+    [string]$Task = 'Test'
 )
 
 $sut = Join-Path -Path $PSScriptRoot -ChildPath 'psake'
 
 $PSDefaultParameterValues = @{
+    'Get-Module:Verbose' = $false
     'Remove-Module:Verbose' = $false
     'Import-Module:Verbose' = $false
 }
@@ -68,25 +69,31 @@ function Invoke-Task {
         }
 
         # Don't reset on nested calls
-        if (((Get-PSCallStack).Command -eq "Invoke-Task").Count -eq 1) {
+        if (((Get-PSCallStack).Command -eq 'Invoke-Task').Count -eq 1) {
             $script:InvokedTasks = @()
         }
     }
 
     end {
-        $taskCommand = Get-Command $Task
+        if ($taskCommand = Get-Command -Name $Task -CommandType Function) {
 
-        $dependencies = $taskCommand.ScriptBlock.Attributes.Where{ $_.TypeId.Name -eq "DependsOn" }.Name
-
-        foreach($dependency in $dependencies) {
-            if($script:InvokedTasks -notcontains $dependency) {
-                Invoke-Task -Task $dependency
+            $dependencies = $taskCommand.ScriptBlock.Attributes.Where{$_.TypeId.Name -eq 'DependsOn'}.Name
+            foreach($dependency in $dependencies) {
+                if ($dependency -notin $script:InvokedTasks) {
+                    Invoke-Task -Task $dependency
+                }
             }
-        }
 
-        Write-Host "Invoking Task: $Task" -ForegroundColor Cyan
-        & $taskCommand
-        $script:InvokedTasks += $Task
+            Write-Host "Invoking Task: $Task" -ForegroundColor Cyan
+            try {
+                & $taskCommand
+                $script:InvokedTasks += $Task
+            } catch {
+                throw $_
+            }
+        } else {
+            throw "Could not find task [$Task]"
+        }
     }
 }
 
@@ -94,8 +101,11 @@ function Init {
     [cmdletbinding()]
     param()
 
-    Get-PackageProvider -Name Nuget -ForceBootstrap -Verbose:$false | Out-Null
-    Set-PSRepository -Name PSGallery -InstallationPolicy Trusted -Verbose:$false
+    $psGallery = Get-PSRepository -Name PSGallery
+    if ($psGallery.InstallationPolicy -ne 'Trusted') {
+        Get-PackageProvider -Name Nuget -ForceBootstrap -Verbose:$false | Out-Null
+        Set-PSRepository -Name PSGallery -InstallationPolicy Trusted -Verbose:$false
+    }
 
     'Pester', 'PlatyPS' | Foreach-Object {
         if (-not (Get-Module -Name $_ -ListAvailable -ErrorAction SilentlyContinue)) {
@@ -188,6 +198,40 @@ function UpdateMarkdownHelp {
     param()
 
     'TODO'
+}
+
+function BuildNuget {
+    [DependsOn('Init')]
+    [cmdletbinding()]
+    param()
+
+    $here = $PSScriptRoot
+    $manifestPath = "$here/psake/psake.psd1"
+
+    try {
+        $manifest = Test-ModuleManifest -Path $manifestPath -WarningAction SilentlyContinue -ErrorAction Stop
+        $version = $manifest.Version.ToString()
+    }
+    catch {
+        throw $_
+    }
+
+    "Building nuget package version [$version]"
+
+    $dest = "$here/bin"
+    if (Test-Path $dest -PathType Container) {
+        Remove-Item -Path $dest -Recurse -Force
+    }
+    $destTools = "$dest/tools"
+
+    Copy-Item -Recurse -Path "$here/nuget" -Destination $dest
+    Copy-Item -Recurse -Path "$here/psake" -Destination $destTools
+    Copy-Item -Recurse -Path "$here/examples" -Destination "$destTools/examples"
+    @('psake.cmd', 'psake.ps1', 'psake-config.ps1', 'README.md', 'license.txt') | Foreach-Object {
+        Copy-Item -Path "$here/$_" -Destination $destTools
+    }
+
+    & "$here/nuget.exe" pack "$dest/psake.nuspec" -Verbosity quiet -Version $version
 }
 
 function PublishChocolatey {

@@ -56,6 +56,12 @@
             "problemMatcher": "$pester"
         },
         {
+            "taskName": "BuildNuget",
+            "args": [
+                "${cwd}/build.ps1 -Task BuildNuget -Verbose"
+            ]
+        },
+        {
             "taskName": "Analyze",
             "args": [
                 "${cwd}/build.ps1 -Task Analyze -Verbose"
