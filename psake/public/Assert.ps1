@@ -66,6 +66,6 @@ function Assert {
     )
 
     if (-not $conditionToCheck) {
-        throw ('Assert: ' -f $failureMessage)
+        throw ('Assert: {0}' -f $failureMessage)
     }
 }
