@@ -18,8 +18,14 @@ function ConfigureBuildEnvironment {
             '1.1' {
                 $versions = @('v1.1.4322')
             }
+            '1.1.0' {
+                $versions = @()
+            }
             '2.0' {
                 $versions = @('v2.0.50727')
+            }
+            '2.0.0' {
+                $versions = @()
             }
             '3.0' {
                 $versions = @('v2.0.50727')
