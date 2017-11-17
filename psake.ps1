@@ -6,22 +6,46 @@
 # otherwise named parameter binding fails
 [cmdletbinding()]
 param(
+    [Parameter(Position = 0, Mandatory = $false)]
     [string]$buildFile,
+
+    [Parameter(Position = 1, Mandatory = $false)]
     [string[]]$taskList = @(),
+
+    [Parameter(Position = 2, Mandatory = $false)]
     [string]$framework,
+
+    [Parameter(Position = 3, Mandatory = $false)]
     [switch]$docs = $false,
+
+    [Parameter(Position = 4, Mandatory = $false)]
     [System.Collections.Hashtable]$parameters = @{},
+
+    [Parameter(Position = 5, Mandatory = $false)]
     [System.Collections.Hashtable]$properties = @{},
-    [alias('init')]
+
+    [Parameter(Position = 6, Mandatory = $false)]
+    [alias("init")]
     [scriptblock]$initialization = {},
+
+    [Parameter(Position = 7, Mandatory = $false)]
     [switch]$nologo = $false,
+
+    [Parameter(Position = 8, Mandatory = $false)]
     [switch]$help = $false,
+
+    [Parameter(Position = 9, Mandatory = $false)]
     [string]$scriptPath,
-    [switch]$detailedDocs = $false
+
+    [Parameter(Position = 10, Mandatory = $false)]
+    [switch]$detailedDocs = $false,
+
+    [Parameter(Position = 11, Mandatory = $false)]
+    [switch]$notr = $false
 )
 
 # setting $scriptPath here, not as default argument, to support calling as "powershell -File psake.ps1"
-if (!$scriptPath) {
+if (-not $scriptPath) {
     $scriptPath = $(Split-Path -Path $MyInvocation.MyCommand.path -Parent)
 }
 
@@ -40,4 +64,4 @@ if ($buildFile -and (-not (Test-Path -Path $buildFile))) {
     }
 }
 
-Invoke-psake $buildFile $taskList $framework $docs $parameters $properties $initialization $nologo $detailedDocs
+Invoke-psake $buildFile $taskList $framework $docs $parameters $properties $initialization $nologo $detailedDocs $notr

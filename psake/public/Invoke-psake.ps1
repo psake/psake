@@ -204,25 +204,35 @@ function Invoke-psake {
     #>
     [CmdletBinding()]
     param(
+        [Parameter(Position = 0, Mandatory = $false)]
         [string]$buildFile,
 
+        [Parameter(Position = 1, Mandatory = $false)]
         [string[]]$taskList = @(),
 
+        [Parameter(Position = 2, Mandatory = $false)]
         [string]$framework,
 
+        [Parameter(Position = 3, Mandatory = $false)]
         [switch]$docs = $false,
 
+        [Parameter(Position = 4, Mandatory = $false)]
         [hashtable]$parameters = @{},
 
+        [Parameter(Position = 5, Mandatory = $false)]
         [hashtable]$properties = @{},
 
+        [Parameter(Position = 6, Mandatory = $false)]
         [alias("init")]
         [scriptblock]$initialization = {},
 
+        [Parameter(Position = 7, Mandatory = $false)]
         [switch]$nologo,
 
+        [Parameter(Position = 8, Mandatory = $false)]
         [switch]$detailedDocs,
 
+        [Parameter(Position = 9, Mandatory = $false)]
         [switch]$notr # disable time report
     )
 
