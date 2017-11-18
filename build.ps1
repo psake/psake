@@ -107,7 +107,7 @@ function Init {
         Set-PSRepository -Name PSGallery -InstallationPolicy Trusted -Verbose:$false
     }
 
-    'Pester', 'PlatyPS' | Foreach-Object {
+    'Pester', 'PlatyPS', 'PSScriptAnalyzer' | Foreach-Object {
         if (-not (Get-Module -Name $_ -ListAvailable -ErrorAction SilentlyContinue)) {
             Install-Module -Name $_ -AllowClobber -Scope CurrentUser -Force
             Import-Module -Name $_
