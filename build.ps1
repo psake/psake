@@ -160,10 +160,10 @@ function Pester {
         . "$PSScriptRoot/build/travis.ps1"
     }
 
-    $testResults = "$PSScriptRoot/testResults.xml"
+    $testResultsPath = "$PSScriptRoot/testResults.xml"
     $pesterParams = @{
         Path = './tests'
-        OutputFile = $testResults
+        OutputFile = $testResultsPath
         OutputFormat = 'NUnitXml'
         PassThru = $true
         PesterOption = @{
@@ -175,7 +175,7 @@ function Pester {
     # Upload test artifacts to AppVeyor
     if ($env:APPVEYOR_JOB_ID) {
         $wc = New-Object 'System.Net.WebClient'
-        $wc.UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", $testResults)
+        $wc.UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", $testResultsPath)
     }
 
     if ($testResults.FailedCount -gt 0) {
