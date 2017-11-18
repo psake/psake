@@ -513,16 +513,30 @@ function LoadModules {
 
         $global = [string]::Equals($scope, "global", [StringComparison]::CurrentCultureIgnoreCase)
 
-        $currentConfig.modules | foreach {
-            resolve-path $_ | foreach {
-                "Loading module: $_"
-                $module = import-module $_ -passthru -DisableNameChecking -global:$global
-                if (!$module) {
-                    throw ($msgs.error_loading_module -f $_.Name)
+        $psake.loaded_modules += (
+            $currentConfig.modules | foreach {
+                resolve-path $_ | foreach {
+                    Write-Host "Loading module: $_"
+                    $module = import-module $_ -passthru -DisableNameChecking -global:$global
+                    if (!$module) {
+                        throw ($msgs.error_loading_module -f $_.Name)
+                    }
+
+                    $module
                 }
             }
-        }
+        )
         ""
+    }
+}
+
+function UnloadModules {
+    if ($psake.loaded_modules) {
+        $psake.loaded_modules | foreach {
+                Write-Verbose "Removing module: $($_.Name)"
+                remove-module $_
+        }
+        $psake.loaded_modules = @()
     }
 }
 
@@ -797,6 +811,10 @@ function CleanupEnvironment {
         $global:ErrorActionPreference = $currentContext.originalErrorActionPreference
         [void] $psake.context.Pop()
     }
+
+    if ($psake.context.Count -eq 0) {
+        UnloadModules
+    }
 }
 
 function SelectObjectWithDefault
@@ -1020,6 +1038,7 @@ $psake.config_default = new-object psobject -property @{
 $psake.build_success = $false # indicates that the current build was successful
 $psake.build_script_file = $null # contains a System.IO.FileInfo for the current build script
 $psake.build_script_dir = "" # contains a string with fully-qualified path to current build script
+$psake.loaded_modules = @()
 
 LoadConfiguration
 
