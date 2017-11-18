@@ -84,12 +84,14 @@ function Invoke-Task {
                 }
             }
 
-            Write-Host "Invoking Task: $Task" -ForegroundColor Cyan
-            try {
-                & $taskCommand
-                $script:InvokedTasks += $Task
-            } catch {
-                throw $_
+            if ($Task -notin $script:InvokedTasks) {
+                Write-Host "Invoking Task: $Task" -ForegroundColor Cyan
+                try {
+                    & $taskCommand
+                    $script:InvokedTasks += $Task
+                } catch {
+                    throw $_
+                }
             }
         } else {
             throw "Could not find task [$Task]"
@@ -122,9 +124,6 @@ function Test {
     [DependsOn(('Analyze', 'Pester'))]
     [cmdletbinding()]
     param()
-
-    Analyze
-    Pester
 }
 
 function Analyze {
