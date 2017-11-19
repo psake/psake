@@ -14,29 +14,6 @@ $testResults = @()
 
 describe 'PSake specs' {
 
-    function GetResult {
-        param(
-            [string]$FileName,
-            [bool]$BuildSucceeded
-        )
-
-        $shouldSucceed = $null
-
-        if ($FileName.EndsWith('_should_pass.ps1')) {
-            $shouldSucceed = $true
-        } elseif ($FileName.EndsWith('_should_fail.ps1')) {
-            $shouldSucceed = $false
-        } else {
-            throw "Invalid specification syntax. Specs should end with _should_pass or _should_fail. $FileName"
-        }
-
-        if ($BuildSucceeded -eq $shouldSucceed) {
-            'Passed'
-        } else {
-            'Failed'
-        }
-    }
-
     $psakeParams = @{
         Parameters = @{
             p1 = 'v1'
@@ -58,18 +35,21 @@ describe 'PSake specs' {
     }
 
     foreach ($buildFile in $buildFiles) {
-        $testResult = '' | Select-Object -Property Name, Result
-        $testResult.Name = $buildFile.Name
 
         it "$($buildFile.BaseName)" {
 
             $psakeParams.BuildFile = $buildFile.FullName
-            Invoke-psake @psakeParams | Out-Null
 
-            $testResult.Result = GetResult -FileName $buildFile.Name -BuildSucceeded $psake.build_success
-            $testResult.Result | Should -Be 'Passed'
+            if ($buildFile.Name.EndsWith('_should_pass.ps1')) {
+                $expectedResult = $true
+            } elseif ($buildFile.Name.EndsWith('_should_fail.ps1')) {
+                $expectedResult = $false
+            } else {
+                throw "Invalid specification syntax. Specs file [$($buildFile.BaseName)] should end with _should_pass or _should_fail."
+            }
+
+            Invoke-psake @psakeParams | Out-Null
+            $psake.build_success | should -be $expectedResult
         }
     }
 }
-
-
