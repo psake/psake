@@ -111,7 +111,7 @@ function Init {
 
     'Pester', 'PlatyPS', 'PSScriptAnalyzer' | Foreach-Object {
         Install-Module -Name $_ -Force -AllowClobber -Scope CurrentUser
-        Import-Module -Name
+        Import-Module -Name $_
     }
 
     Remove-Module -Name psake -Force -ErrorAction SilentlyContinue
