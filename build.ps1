@@ -22,7 +22,7 @@ class DependsOn : System.Attribute {
         $this.Name = $name
     }
 }
-function Invoke-Task {
+function Invoke-Step {
     <#
         .Synopsis
             Runs a command, taking care to run it's dependencies first
@@ -58,7 +58,7 @@ function Invoke-Task {
     #>
     [CmdletBinding()]
     param(
-        [string]$Task,
+        [string]$Step,
         [string]$Script
     )
 
@@ -69,32 +69,32 @@ function Invoke-Task {
         }
 
         # Don't reset on nested calls
-        if (((Get-PSCallStack).Command -eq 'Invoke-Task').Count -eq 1) {
-            $script:InvokedTasks = @()
+        if (((Get-PSCallStack).Command -eq 'Invoke-Step').Count -eq 1) {
+            $script:InvokedSteps = @()
         }
     }
 
     end {
-        if ($taskCommand = Get-Command -Name $Task -CommandType Function) {
+        if ($stepCommand = Get-Command -Name $Step -CommandType Function) {
 
-            $dependencies = $taskCommand.ScriptBlock.Attributes.Where{$_.TypeId.Name -eq 'DependsOn'}.Name
+            $dependencies = $stepCommand.ScriptBlock.Attributes.Where{$_.TypeId.Name -eq 'DependsOn'}.Name
             foreach($dependency in $dependencies) {
-                if ($dependency -notin $script:InvokedTasks) {
-                    Invoke-Task -Task $dependency
+                if ($dependency -notin $script:InvokedSteps) {
+                    Invoke-Step -Step $dependency
                 }
             }
 
-            if ($Task -notin $script:InvokedTasks) {
-                Write-Host "Invoking Task: $Task" -ForegroundColor Cyan
+            if ($Step -notin $script:InvokedSteps) {
+                Write-Host "Invoking Step: $Step" -ForegroundColor Cyan
                 try {
-                    & $taskCommand
-                    $script:InvokedTasks += $Task
+                    & $stepCommand
+                    $script:InvokedSteps += $Step
                 } catch {
                     throw $_
                 }
             }
         } else {
-            throw "Could not find task [$Task]"
+            throw "Could not find step [$Step]"
         }
     }
 }
@@ -124,6 +124,7 @@ function Test {
     [DependsOn(('Analyze', 'Pester'))]
     [cmdletbinding()]
     param()
+    ''
 }
 
 function Analyze {
@@ -251,7 +252,7 @@ function PublishPSGallery {
 
 try {
     Push-Location
-    Invoke-Task $Task
+    Invoke-Step $Task
 } catch {
     throw $_
 } finally {
