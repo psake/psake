@@ -7,71 +7,70 @@
 
     // Start PowerShell (pwsh on *nix)
     "windows": {
-        "command": "powershell.exe",
-        "args": [ "-NoProfile", "-ExecutionPolicy", "Bypass" ]
+        "options": {
+            "shell": {
+                "executable": "powershell.exe",
+                "args": [ "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command" ]
+            }
+        }
     },
     "linux": {
-        "command": "/usr/bin/pwsh",
-        "args": [ "-NoProfile" ]
+        "options": {
+            "shell": {
+                "executable": "/usr/bin/pwsh",
+                "args": [ "-NoProfile", "-Command" ]
+            }
+        }
     },
     "osx": {
-        "command": "/usr/local/bin/pwsh",
-        "args": [ "-NoProfile" ]
+        "options": {
+            "shell": {
+                "executable": "/usr/local/bin/pwsh",
+                "args": [ "-NoProfile", "-Command" ]
+            }
+        }
     },
-
-    "presentation": {
-        "echo": false,
-        "reveal": "always",
-        "focus": false,
-        "panel": "new"
-    },
-
-    "echoCommand": false,
-    "suppressTaskName": true,
 
     "tasks": [
         {
-            "taskName": "CreateMarkdownHelp",
-            "args": [
-                "${cwd}/build.ps1 -Task CreateMarkdownHelp -Verbose"
-            ]
+            "label": "CreateMarkdownHelp",
+            "type": "shell",
+            "command": "${cwd}/build.ps1 -Task CreateMarkdownHelp -Verbose"
         },
         {
-            "taskName": "PublishPSGallery",
-            "args": [
-                "${cwd}/build.ps1 -Task PublishPSGallery -Verbose"
-            ]
+            "label": "PublishPSGallery",
+            "type": "shell",
+            "command": "${cwd}/build.ps1 -Task PublishPSGallery -Verbose"
         },
         {
-            "taskName": "PublishChocolatey",
-            "args": [
-                "${cwd}/build.ps1 -Task PublishChocolatey -Verbose"
-            ]
+            "label": "PublishChocolatey",
+            "type": "shell",
+            "command": "${cwd}/build.ps1 -Task PublishChocolatey -Verbose"
         },
         {
-            "taskName": "Test",
-            "args": [
-                "${cwd}/build.ps1 -Task Test -Verbose"
-            ],
+            "label": "Test",
+            "type": "shell",
+            "command": "${cwd}/build.ps1 -Task Test -Verbose",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
             "problemMatcher": "$pester"
         },
         {
-            "taskName": "BuildNuget",
-            "args": [
-                "${cwd}/build.ps1 -Task BuildNuget -Verbose"
-            ]
+            "label": "BuildNuget",
+            "type": "shell",
+            "command": "${cwd}/build.ps1 -Task BuildNuget -Verbose"
         },
         {
-            "taskName": "Analyze",
-            "args": [
-                "${cwd}/build.ps1 -Task Analyze -Verbose"
-            ]
+            "label": "Analyze",
+            "type": "shell",
+            "command": "${cwd}/build.ps1 -Task Analyze -Verbose"
         },
         {
-            "taskName": "Pester",
-            "args": [
-                "${cwd}/build.ps1 -Task Pester -Verbose"
-            ],
+            "label": "Pester",
+            "type": "shell",
+            "command": "${cwd}/build.ps1 -Task Pester -Verbose",
             "problemMatcher": "$pester"
         }
     ]
