@@ -56,6 +56,15 @@
             "problemMatcher": "$pester"
         },
         {
+            "label": "Build",
+            "type": "shell",
+            "command": "${cwd}/build.ps1 -Task Build -Verbose",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
             "label": "BuildNuget",
             "type": "shell",
             "command": "${cwd}/build.ps1 -Task BuildNuget -Verbose"

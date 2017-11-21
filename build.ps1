@@ -2,14 +2,17 @@
 
 [cmdletbinding()]
 param(
-    [validateSet('Test', 'Analyze', 'Pester', 'CreateMarkdownHelp', 'BuildNuget', 'PublishChocolatey', 'PublishPSGallery')]
+    [validateSet('Test', 'Analyze', 'Pester', 'Clean', 'Build', 'CreateMarkdownHelp', 'BuildNuget', 'PublishChocolatey', 'PublishPSGallery')]
     [string]$Task = 'Test'
 )
 
-$sut = Join-Path -Path $PSScriptRoot -ChildPath 'psake'
+$sut = Join-Path -Path $PSScriptRoot -ChildPath 'src'
+$manifestPath = Join-Path -Path $sut -ChildPath 'psake.psd1'
+$version = (Import-PowerShellDataFile -Path $manifestPath).ModuleVersion
+$outputDir = Join-Path -Path $PSScriptRoot -ChildPath $version
 
 $PSDefaultParameterValues = @{
-    'Get-Module:Verbose' = $false
+    'Get-Module:Verbose'    = $false
     'Remove-Module:Verbose' = $false
     'Import-Module:Verbose' = $false
 }
@@ -78,7 +81,7 @@ function Invoke-Step {
         if ($stepCommand = Get-Command -Name $Step -CommandType Function) {
 
             $dependencies = $stepCommand.ScriptBlock.Attributes.Where{$_.TypeId.Name -eq 'DependsOn'}.Name
-            foreach($dependency in $dependencies) {
+            foreach ($dependency in $dependencies) {
                 if ($dependency -notin $script:InvokedSteps) {
                     Invoke-Step -Step $dependency
                 }
@@ -109,13 +112,19 @@ function Init {
         Set-PSRepository -Name PSGallery -InstallationPolicy Trusted -Verbose:$false
     }
 
-    'Pester', 'PlatyPS', 'PSScriptAnalyzer' | Foreach-Object {
-        Install-Module -Name $_ -Force -AllowClobber -Scope CurrentUser
-        Import-Module -Name $_
+    # Build/test dependencies
+    @(
+        @{ ModuleName = 'Pester';           ModuleVersion = '4.1.0' }
+        @{ ModuleName = 'PlatyPS';          ModuleVersion = '0.8.3' }
+        @{ ModuleName = 'PSScriptAnalyzer'; ModuleVersion = '1.16.1' }
+    ) | Foreach-Object {
+        if (-not (Get-Module -FullyQualifiedName $_ -ListAvailable)) {
+            Install-Module -Name $_ -Force -AllowClobber -Scope CurrentUser -ErrorAction Stop
+        }
+        Import-Module -FullyQualifiedName $_
     }
 
     Remove-Module -Name psake -Force -ErrorAction SilentlyContinue
-    Import-Module -Name $sut -Global
 }
 
 function Test {
@@ -158,12 +167,14 @@ function Pester {
         . "$PSScriptRoot/build/travis.ps1"
     }
 
+    Import-Module -Name $manifestPath
+
     $testResultsPath = "$PSScriptRoot/testResults.xml"
     $pesterParams = @{
-        Path = './tests'
-        OutputFile = $testResultsPath
+        Path         = './tests'
+        OutputFile   = $testResultsPath
         OutputFormat = 'NUnitXml'
-        PassThru = $true
+        PassThru     = $true
         PesterOption = @{
             IncludeVSCodeMarker = $true
         }
@@ -179,6 +190,26 @@ function Pester {
     if ($testResults.FailedCount -gt 0) {
         throw "$($testResults.FailedCount) tests failed!"
     }
+}
+
+function Clean {
+    [DependsOn('Init')]
+    [cmdletbinding()]
+    param()
+
+    if (Test-Path -Path $outputDir) {
+        Remove-Item -Path $outputDir -Recurse -Force
+    }
+}
+
+function Build {
+    [DependsOn('Clean')]
+    [cmdletbinding()]
+    param()
+
+    New-Item -Path $outputDir -ItemType Directory > $null
+    Copy-Item -Path (Join-Path -Path $sut -ChildPath *) -Destination $outputDir -Recurse
+    Copy-Item -Path (Join-Path -Path $PSScriptRoot -ChildPath 'examples') -Destination $outputDir -Recurse
 }
 
 function CreateMarkdownHelp {
@@ -199,37 +230,27 @@ function UpdateMarkdownHelp {
 }
 
 function BuildNuget {
-    [DependsOn('Init')]
+    [DependsOn('Build')]
     [cmdletbinding()]
     param()
 
     $here = $PSScriptRoot
-    $manifestPath = "$here/psake/psake.psd1"
-
-    try {
-        $manifest = Test-ModuleManifest -Path $manifestPath -WarningAction SilentlyContinue -ErrorAction Stop
-        $version = $manifest.Version.ToString()
-    }
-    catch {
-        throw $_
-    }
 
     "Building nuget package version [$version]"
 
-    $dest = "$here/bin"
-    if (Test-Path $dest -PathType Container) {
+    $dest = Join-Path -Path $PSScriptRoot -ChildPath bin
+    if (Test-Path -Path $dest -PathType Container) {
         Remove-Item -Path $dest -Recurse -Force
     }
-    $destTools = "$dest/tools"
+    $destTools = Join-Path -Path $dest -ChildPath tools
 
-    Copy-Item -Recurse -Path "$here/nuget" -Destination $dest
-    Copy-Item -Recurse -Path "$here/psake" -Destination $destTools
-    Copy-Item -Recurse -Path "$here/examples" -Destination "$destTools/examples"
-    @('psake.cmd', 'psake.ps1', 'psake-config.ps1', 'README.md', 'license.txt') | Foreach-Object {
+    Copy-Item -Recurse -Path "$here/build/nuget" -Destination $dest -Exclude 'nuget.exe'
+    Copy-Item -Recurse -Path "$outputDir" -Destination "$destTools/psake"
+    @('README.md', 'license.txt') | Foreach-Object {
         Copy-Item -Path "$here/$_" -Destination $destTools
     }
 
-    & "$here/nuget.exe" pack "$dest/psake.nuspec" -Verbosity quiet -Version $version
+    & "$here/build/nuget/nuget.exe" pack "$dest/psake.nuspec" -Verbosity quiet -Version $version
 }
 
 function PublishChocolatey {
