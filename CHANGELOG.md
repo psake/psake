@@ -5,21 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [4.7.0] Unreleased
+## [4.7.0] 2017-11-21
+
+As part of this release we had [13 issues](https://github.com/psake/psake/issues?q=milestone%3Av4.7.0+is%3Aclosed) closed.
 
 ### Features
 
-- [**196**](https://github.com/psake/psake/pull/196) Deprecate default build script name `default.ps1` in favor of `psakefile.ps1`. (via [@glennsarti](https://github.com/glennsarti))
+- [**#198**](https://github.com/psake/psake/pull/198) Add support for PowerShell Core on macOS and Linux. (via [@dbroeglin](https://github.com/dbroeglin))
+
+- [**#196**](https://github.com/psake/psake/pull/196) Deprecate default build script name `default.ps1` in favor of `psakefile.ps1`. (via [@glennsarti](https://github.com/glennsarti))
+
+- Remove legacy PowerShell v2 support. PSake now supports v3 and above.
 
 ### Improvements
 
-- [**222**](https://github.com/psake/psake/pull/222) Add support for .Net frameworks 4.6.2, 4.7, and 4.7.1. (via [@rkeithhill](https://github.com/rkeithhill))
+- [**#228**](https://github.com/psake/psake/pull/228) Project structure refactor (via [@devblackops](https://github.com/devblackops))
 
-- [**218**](https://github.com/psake/psake/pull/218) Improve Build Time Report by using custom `FormatTaskName` value for header and display task timing at millisecond accuracy instead of microsecond. (via [@theunrepentantgeek](https://github.com/theunrepentantgeek))
+- [**#227**](https://github.com/psake/psake/pull/227) Ensure postAction and taskTeardown tasks get called after action failure (via [@stephan-dowding](https://github.com/stephan-dowding))
 
-- [**198**](https://github.com/psake/psake/pull/198) Add support for PowerShell Core on macOS and Linux. (via [@dbroeglin](https://github.com/dbroeglin))
+- [**#222**](https://github.com/psake/psake/pull/222) Add support for .Net frameworks 4.6.2, 4.7, and 4.7.1. (via [@rkeithhill](https://github.com/rkeithhill))
 
-- [**190**](https://github.com/psake/psake/pull/190) Use `WriteColoredOutput` for all task headers. (via [@damianpowell](https://github.com/damianpowell))
+- [**#218**](https://github.com/psake/psake/pull/218) Improve Build Time Report by using custom `FormatTaskName` value for header and display task timing at millisecond accuracy instead of microsecond. (via [@theunrepentantgeek](https://github.com/theunrepentantgeek))
+
+- [**#200**](https://github.com/psake/psake/pull/200) Add `WorkingDirectory` parameter to `Exec` function. (via [@DaveSenn](https://github.com/DaveSenn))
+
+- [**#190**](https://github.com/psake/psake/pull/190) Use `WriteColoredOutput` for all task headers. (via [@damianpowell](https://github.com/damianpowell))
 
 ## [4.6.0] 2016-03-20
 
