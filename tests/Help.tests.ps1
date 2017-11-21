@@ -2,7 +2,7 @@
 
 # Taken with love from @juneb_get_help (https://raw.githubusercontent.com/juneb/PesterTDD/master/Module.Help.Tests.ps1)
 
-$manifestPath = "$PSScriptRoot/../psake.psd1"
+$manifestPath = "$PSScriptRoot/../src/psake.psd1"
 $manifest = Import-PowerShellDataFile -Path $manifestPath
 
 # Get module commands

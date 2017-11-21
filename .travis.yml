@@ -17,4 +17,4 @@ install:
 
 script:
   - ulimit -n 4096
-  - powershell -file build.ps1
+  - pwsh -file build.ps1

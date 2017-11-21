@@ -40,4 +40,4 @@ Describe 'Text files formatting' {
     }
 }
 
-Remove-Module -Name MetaFixers
+Remove-Module -Name MetaFixers -Verbose:$false
