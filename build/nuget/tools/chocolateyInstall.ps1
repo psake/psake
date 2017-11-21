@@ -4,7 +4,7 @@ $packageBatchFileName = Join-Path -Path $nugetExePath -ChildPath 'psake.bat'
 
 $psakeDir = Split-Path -Path $MyInvocation.MyCommand.Definition -Parent
 #$path = ($psakeDir | Split-Path | Join-Path -ChildPath  'psake.cmd')
-$path = Join-Path -Path $psakeDir -ChildPath 'psake.cmd'
+$path = Join-Path -Path $psakeDir -ChildPath 'psake/psake.cmd'
 Write-Host "Adding $packageBatchFileName and pointing to $path"
 "@echo off
 ""$path"" %*" | Out-File $packageBatchFileName -encoding ASCII
