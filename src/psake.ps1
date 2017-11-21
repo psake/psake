@@ -51,7 +51,7 @@ if (-not $scriptPath) {
 
 # '[p]sake' is the same as 'psake' but $Error is not polluted
 Remove-Module -Name [p]sake -Verbose:$false
-Import-Module -Name (Join-Path -Path $scriptPath -ChildPath 'psake/psake.psd1') -Verbose:$false
+Import-Module -Name (Join-Path -Path $scriptPath -ChildPath 'psake.psd1') -Verbose:$false
 if ($help) {
     Get-Help -Name Invoke-psake -Full
     return
