@@ -119,7 +119,7 @@ function Init {
         @{ ModuleName = 'PSScriptAnalyzer'; ModuleVersion = '1.16.1' }
     ) | Foreach-Object {
         if (-not (Get-Module -FullyQualifiedName $_ -ListAvailable)) {
-            Install-Module -Name $_ -Force -AllowClobber -Scope CurrentUser -ErrorAction Stop
+            Install-Module -Name $_.ModuleName -RequiredVersion $_.ModuleVersion -Force -AllowClobber -Scope CurrentUser -ErrorAction Stop
         }
         Import-Module -FullyQualifiedName $_
     }
