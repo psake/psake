@@ -1,7 +1,7 @@
 
 $projectRoot = "$PSScriptRoot/.."
 $moduleName = 'psake'
-$manifestPath = "$PSScriptRoot/../psake/psake.psd1"
+$manifestPath = "$PSScriptRoot/../src/psake.psd1"
 $manifest = Import-PowerShellDataFile -Path $manifestPath
 
 $changelogPath = Join-Path -Path $projectRoot -Child 'CHANGELOG.md'

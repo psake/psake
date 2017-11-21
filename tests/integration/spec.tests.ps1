@@ -1,6 +1,6 @@
 
 Remove-Module -Name psake -ErrorAction SilentlyContinue
-Import-Module -Name "$PSScriptRoot/../../psake/psake.psd1"
+Import-Module -Name "$PSScriptRoot/../../src/psake.psd1"
 
 $psake.run_by_psake_build_tester = $true
 
