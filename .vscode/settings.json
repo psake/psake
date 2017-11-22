@@ -3,8 +3,7 @@
   "files.insertFinalNewline": true,
   "editor.insertSpaces": true,
   "editor.tabSize": 4,
-  "files.exclude": {
-    "**/.git": true,
+  "search.exclude": {
     "?.?.?/": true
   }
 }
