@@ -1,6 +1,6 @@
 
 function ConfigureBuildEnvironment {
-    if (!(Get-Variable -Name IsWindows -ErrorAction SilentlyContinue) -or $IsWindows) {
+    if (!(Test-Path Variable:\IsWindows) -or $IsWindows) {
         $framework = $psake.context.peek().config.framework
         if ($framework -cmatch '^((?:\d+\.\d+)(?:\.\d+){0,1})(x86|x64){0,1}$') {
             $versionPart = $matches[1]
