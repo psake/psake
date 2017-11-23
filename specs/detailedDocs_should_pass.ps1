@@ -2,11 +2,9 @@
 Task default -depends CheckDetailedDocs
 
 Task CheckDetailedDocs {
-
-    $docArray = (Invoke-psake .\nested\docs.ps1 -detailedDocs -nologo | Out-String).Split("`n")
-    $docString = (($docArray | Foreach-Object {
-        $_.Trim()
-    }) -join "`n").Trim()
+    $NL = [System.Environment]::NewLine
+    $docArray = @(Invoke-psake .\nested\docs.ps1 -detailedDocs -nologo | Out-String -Stream -Width 120)
+    $docString = (($docArray | Foreach-Object Trim) -join $NL).Trim()
 
     $expectedDoc = @"
 Name        : Compile
@@ -44,11 +42,9 @@ Alias       : ut
 Description :
 Depends On  :
 Default     :
-"@
-    $expectedDoc = $expectedDoc.Split("`n")
-    $expectedDocString = (($expectedDoc | Foreach-Object {
-        $_.Trim()
-    }) -join "`n").Trim()
+"@ -split $NL
 
-    Assert ($docString -eq $expectedDocString) "Unexpected simple doc: $doc"
+    $expectedDocString = (($expectedDoc | Foreach-Object Trim) -join $NL).Trim()
+
+    Assert ($docString -eq $expectedDocString) "Unexpected simple doc: $docString"
 }

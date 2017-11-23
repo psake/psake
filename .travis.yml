@@ -18,4 +18,5 @@ install:
 
 script:
   - ulimit -n 4096
-  - pwsh -file build.ps1
+  - pwsh -noprofile -nologo -command \$PSVersionTable
+  - pwsh -noprofile -nologo -file build.ps1

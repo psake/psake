@@ -2,11 +2,9 @@
 Task default -depends CheckDocs
 
 Task CheckDocs {
-
-    $docArray = (Invoke-psake .\nested\docs.ps1 -docs -nologo | Out-String).Split("`n")
-    $docString = (($docArray | Foreach-Object {
-        $_.Trim()
-    }) -join "`n").Trim()
+    $NL = [System.Environment]::NewLine
+    $docArray = @(Invoke-psake .\nested\docs.ps1 -docs -nologo | Out-String -Stream -Width 120)
+    $docString = (($docArray | Foreach-Object Trim) -join $NL).Trim()
 
     $expectedDoc = @"
 Name             Alias Depends On                         Default Description
@@ -17,11 +15,9 @@ CompileSolutionB
 IntegrationTests
 Test                   UnitTests, IntegrationTests           True
 UnitTests        ut
-"@
-    $expectedDoc = $expectedDoc.Split("`n")
-    $expectedDocString = (($expectedDoc | Foreach-Object {
-        $_.Trim()
-    }) -join "`n").Trim()
+"@ -split $NL
 
-    Assert ($docString -eq $expectedDocString) "Unexpected simple doc: $doc"
+    $expectedDocString = (($expectedDoc | Foreach-Object Trim) -join $NL).Trim()
+
+    Assert ($docString -eq $expectedDocString) "Unexpected simple doc: $docString"
 }
