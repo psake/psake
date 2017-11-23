@@ -93,7 +93,7 @@ function Exec {
                 }
             }
 
-            Write-Host "Try $tryCount failed, retrying again in 1 second..."
+            "Try $tryCount failed, retrying again in 1 second..."
 
             $tryCount++
 

@@ -13,7 +13,7 @@ function ExecuteInBuildFileScope {
         "taskTearDownScriptBlock" = {};
         "executedTasks" = new-object System.Collections.Stack;
         "callStack" = new-object System.Collections.Stack;
-        "originalEnvPath" = $env:path;
+        "originalEnvPath" = $env:PATH;
         "originalDirectory" = get-location;
         "originalErrorActionPreference" = $global:ErrorActionPreference;
         "tasks" = @{};

@@ -243,7 +243,7 @@ function Invoke-psake {
         if (!$buildFile) {
            $buildFile = Get-DefaultBuildFile
         }
-        elseif (!(test-path $buildFile -pathType Leaf) -and ((Get-DefaultBuildFile -UseDefaultIfNoneExist $false) -ne $null) ) {
+        elseif (!(Test-Path $buildFile -PathType Leaf) -and ($null -ne (Get-DefaultBuildFile -UseDefaultIfNoneExist $false))) {
             # If the default file exists and the given "buildfile" isn't found assume that the given
             # $buildFile is actually the target Tasks to execute in the $config.buildFileName script.
             $taskList = $buildFile.Split(', ')

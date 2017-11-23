@@ -3,10 +3,11 @@ function LoadConfiguration {
         [string] $configdir = $PSScriptRoot
     )
 
-    $psakeConfigFilePath = (join-path $configdir "psake-config.ps1")
+    $psakeConfigFilePath = (Join-Path $configdir "psake-config.ps1")
 
     if (test-path $psakeConfigFilePath -pathType Leaf) {
         try {
+            [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
             $config = GetCurrentConfigurationOrDefault
             . $psakeConfigFilePath
         } catch {

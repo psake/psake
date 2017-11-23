@@ -122,7 +122,7 @@ function Task {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
-        [string]$name = $null,
+        [string]$name,
 
         [scriptblock]$action = $null,
 
