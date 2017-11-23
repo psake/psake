@@ -57,7 +57,7 @@ function Install-Dotnet {
             bash ./$installScript -c $Channel -v $Version
         }
     }
-    elseif ($IsWindows -or ($PSVersionTable.PSVersion -lt '6.0.0')) {
+    elseif (!(Test-Path Variable:\IsWindows) -or $IsWindows) {
         Remove-Item -ErrorAction SilentlyContinue -Recurse -Force ~\AppData\Local\Microsoft\dotnet
         $installScript = "dotnet-install.ps1"
         Invoke-WebRequest -Uri $obtainUrl/$installScript -OutFile $installScript
