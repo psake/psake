@@ -21,7 +21,7 @@ function ResolveError
             $formatted_exception = ''
 
             $i = 0
-            while ($ex -ne $null) {
+            while ($null -ne $ex) {
                 $i++
                 $formatted_exception += ("$i" * 70) + "`n" +
                     ($ex | format-list * -force | out-string) + "`n"
@@ -32,7 +32,7 @@ function ResolveError
         }
 
         $lastException = @()
-        while ($ex -ne $null) {
+        while ($null -ne $ex) {
             $lastMessage = $ex | SelectObjectWithDefault -Name 'Message' -Value ''
             $lastException += ($lastMessage -replace "`n", '')
             if ($ex -is [Data.SqlClient.SqlException]) {
@@ -45,13 +45,12 @@ function ResolveError
         $shortException = $lastException -join ' --> '
 
         $header = $null
-        $current = $_
         $header = (($_.InvocationInfo |
             SelectObjectWithDefault -Name 'PositionMessage' -Value '') -replace "`n", ' '),
             ($_ | SelectObjectWithDefault -Name 'Message' -Value ''),
             ($_ | SelectObjectWithDefault -Name 'Exception' -Value '') |
-                ? { -not [String]::IsNullOrEmpty($_) } |
-                Select -First 1
+                Where-Object { -not [String]::IsNullOrEmpty($_) } |
+                Select-Object -First 1
 
         $delimiter = ''
         if ((-not [String]::IsNullOrEmpty($header)) -and

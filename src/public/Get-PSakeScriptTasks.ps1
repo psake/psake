@@ -24,6 +24,7 @@ function Get-PSakeScriptTasks {
     .LINK
     Invoke-psake
     #>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseSingularNouns', '')]
     [CmdletBinding()]
     param(
         [string]$buildFile

@@ -88,10 +88,10 @@ function ConfigureBuildEnvironment {
         }
 
         $frameworkDirs = @()
-        if ($buildToolsVersions -ne $null) {
+        if ($null -ne $buildToolsVersions) {
             foreach($ver in $buildToolsVersions) {
                 if ($ver -eq "15.0") {
-                    if ((Get-Module -Name VSSetup -ListAvailable) -eq $null) {
+                    if ($null -eq (Get-Module -Name VSSetup -ListAvailable)) {
                         WriteColoredOutput ($msgs.warning_missing_vsssetup_module -f $ver) -foregroundcolor Yellow
                         continue
                     }

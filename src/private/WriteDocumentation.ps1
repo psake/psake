@@ -9,8 +9,8 @@ function WriteDocumentation($showDetailed) {
         }
 
         $docs = GetTasksFromContext $currentContext |
-                    Where   {$_.Name -ne 'default'} |
-                    ForEach {
+                    Where-Object   {$_.Name -ne 'default'} |
+                    ForEach-Object {
                         $isDefault = $null
                         if ($defaultTaskDependencies -contains $_.Name) {
                             $isDefault = $true

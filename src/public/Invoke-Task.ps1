@@ -72,7 +72,7 @@ function Invoke-Task {
         if ($taskKey -ne 'default') {
 
             if ($task.PreAction -or $task.PostAction) {
-                Assert ($task.Action -ne $null) ($msgs.error_missing_action_parameter -f $taskName)
+                Assert ($null -ne $task.Action) ($msgs.error_missing_action_parameter -f $taskName)
             }
 
             if ($task.Action) {
@@ -101,7 +101,7 @@ function Invoke-Task {
                             WriteColoredOutput $taskHeader -foregroundcolor Cyan
 
                             foreach ($variable in $task.requiredVariables) {
-                                Assert ((test-path "variable:$variable") -and ((get-variable $variable).Value -ne $null)) ($msgs.required_variable_not_set -f $variable, $taskName)
+                                Assert ((Test-Path "variable:$variable") -and ($null -ne (Get-Variable $variable).Value)) ($msgs.required_variable_not_set -f $variable, $taskName)
                             }
 
                             & $task.Action

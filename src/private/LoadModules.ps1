@@ -6,15 +6,16 @@ function LoadModules {
 
         $global = [string]::Equals($scope, "global", [StringComparison]::CurrentCultureIgnoreCase)
 
-        $currentConfig.modules | foreach {
-            resolve-path $_ | foreach {
+        $currentConfig.modules | ForEach-Object {
+            resolve-path $_ | ForEach-Object {
                 "Loading module: $_"
-                $module = import-module $_ -passthru -DisableNameChecking -global:$global
+                $module = Import-Module $_ -passthru -DisableNameChecking -global:$global
                 if (!$module) {
                     throw ($msgs.error_loading_module -f $_.Name)
                 }
             }
         }
+
         ""
     }
 }
