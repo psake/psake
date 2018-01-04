@@ -67,7 +67,7 @@ convertfrom-stringdata @'
     postcondition_failed = Postcondition failed for task {0}.
     precondition_was_false = Precondition was false, not executing task {0}.
     continue_on_error = Error in task {0}. {1}
-    build_success = Build Succeeded!
+    psake_success = psake succeeded executing {0}
 '@
 }
 

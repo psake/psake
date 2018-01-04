@@ -294,7 +294,8 @@ function Invoke-psake {
                 throw $msgs.error_no_default_task
             }
 
-            WriteColoredOutput ("`n" + $msgs.build_success + "`n") -foregroundcolor Green
+            $successMsg = $msgs.psake_success -f $buildFile
+            WriteColoredOutput ("`n${successMsg}`n") -foregroundcolor Green
 
             $stopwatch.Stop()
             if (-not $notr) {
