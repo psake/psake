@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [vNext] Unreleased
+
+### Improvements
+
+- [**#244**] Update build success message to be more general: psake succeeded (via [@rkeithhill](https://github.com/rkeithhill))
+
+### Fixed
+
+- [**#236**] Change check for `$IsWindows` so it doesn't genereate an error record (via [@rkeithhill](https://github.com/rkeithhill))
+
 ## [4.7.0] 2017-11-21
 
 As part of this release we had [13 issues](https://github.com/psake/psake/issues?q=milestone%3Av4.7.0+is%3Aclosed) closed.
