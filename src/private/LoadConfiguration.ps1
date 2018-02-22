@@ -1,17 +1,29 @@
 function LoadConfiguration {
+    <#
+    .SYNOPSIS
+    Load psake-config.ps1 file
+    .DESCRIPTION
+    Load psake-config.ps1 if present in the directory of the current build script.
+    If that file doesn't exist, load the default psake-config.ps1 file from the module directory.
+    #>
     param(
-        [string] $configdir = $PSScriptRoot
+        [string]$configdir = (Split-Path -Path $PSScriptRoot -Parent)
     )
 
-    $psakeConfigFilePath = (Join-Path $configdir "psake-config.ps1")
+    $configFilePath  = Join-Path -Path $configdir -ChildPath $script:psakeConfigFile
+    $defaultConfigFilePath = Join-Path -Path (Split-Path -Path $PSScriptRoot -Parent) -ChildPath $script:psakeConfigFile
 
-    if (test-path $psakeConfigFilePath -pathType Leaf) {
-        try {
-            [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
-            $config = GetCurrentConfigurationOrDefault
-            . $psakeConfigFilePath
-        } catch {
-            throw "Error Loading Configuration from psake-config.ps1: " + $_
-        }
+    if (Test-Path -Path $configFilePath -PathType Leaf) {
+        $configFileToLoad = $configFilePath
+    } elseIf (Test-Path -Path $defaultConfigFilePath -PathType Leaf) {
+        $configFileToLoad = $defaultConfigFilePath
+    }
+
+    try {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseDeclaredVarsMoreThanAssigments', '')]
+        $config = GetCurrentConfigurationOrDefault
+        . $configFileToLoad
+    } catch {
+        throw 'Error Loading Configuration from {0}: {1}' -f $configFileToLoad, $_
     }
 }

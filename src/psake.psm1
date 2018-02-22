@@ -77,6 +77,8 @@ $scriptDir = Split-Path $MyInvocation.MyCommand.Path
 $manifestPath = Join-Path $scriptDir psake.psd1
 $manifest = Test-ModuleManifest -Path $manifestPath -WarningAction SilentlyContinue
 
+$script:psakeConfigFile = 'psake-config.ps1'
+
 $script:psake = @{}
 
 $psake.version = $manifest.Version.ToString()
