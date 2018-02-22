@@ -46,6 +46,10 @@ If you encounter the following error "Import-Module : ...psake.psm1 cannot be lo
 
 If you wish to use the psake command from outside of the install folder, add the folder install directory to your PATH variable.
 
+**Step 5: (With VS2017)** Install the VSSetup dependency
+
+psake uses [VSSetup](https://blogs.msdn.microsoft.com/heaths/2017/01/25/visual-studio-setup-powershell-module-available/) to locate msbuild when using Visual Studio 2017.  The VSSetup PowerShell module must be installed prior to compiling a VS2017 project with psake.  Install instructions for VSSetup can be found [here](https://github.com/Microsoft/vssetup.powershell#installing) and [here](https://www.powershellgallery.com/packages/VSSetup).
+
 ## Release Notes
 
 You can find all the information about each release of psake in the [releases section](https://github.com/psake/psake/releases).
