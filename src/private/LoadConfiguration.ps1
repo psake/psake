@@ -13,10 +13,12 @@ function LoadConfiguration {
     $configFilePath  = Join-Path -Path $configdir -ChildPath $script:psakeConfigFile
     $defaultConfigFilePath = Join-Path -Path (Split-Path -Path $PSScriptRoot -Parent) -ChildPath $script:psakeConfigFile
 
-    if (Test-Path -Path $configFilePath -PathType Leaf) {
+    if (Test-Path -LiteralPath $configFilePath -PathType Leaf) {
         $configFileToLoad = $configFilePath
-    } elseIf (Test-Path -Path $defaultConfigFilePath -PathType Leaf) {
+    } elseIf (Test-Path -LiteralPath $defaultConfigFilePath -PathType Leaf) {
         $configFileToLoad = $defaultConfigFilePath
+    } else {
+        throw 'Cannot find psake-config.ps1'
     }
 
     try {
