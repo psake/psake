@@ -3,4 +3,4 @@
 Thumbs.db
 /dotnet-install.ps1
 testResults.xml
-[0-9].[0-9].[0-9]/
+/[0-9].[0-9].[0-9]/
