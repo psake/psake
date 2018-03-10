@@ -47,12 +47,12 @@ function Invoke-Task {
 
     $taskKey = $taskName.ToLower()
 
+    $currentContext = $psake.context.Peek()
+
     if ($currentContext.aliases.Contains($taskKey)) {
         $taskName = $currentContext.aliases.$taskKey.Name
         $taskKey = $taskName.ToLower()
     }
-
-    $currentContext = $psake.context.Peek()
 
     Assert ($currentContext.tasks.Contains($taskKey)) ($msgs.error_task_name_does_not_exist -f $taskName)
 
@@ -119,6 +119,7 @@ function Invoke-Task {
                         "-"*70
                         WriteColoredOutput ($msgs.continue_on_error -f $taskName,$_) -foregroundcolor Yellow
                         "-"*70
+                        [void]$currentContext.callStack.Pop()
                     }  else {
                         throw $_
                     }

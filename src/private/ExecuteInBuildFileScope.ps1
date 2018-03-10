@@ -8,28 +8,34 @@ function ExecuteInBuildFileScope {
     $psake.build_script_dir = $psake.build_script_file.DirectoryName
     $psake.build_success = $false
 
-    $psake.context.push(@{
-        "taskSetupScriptBlock" = {};
-        "taskTearDownScriptBlock" = {};
-        "executedTasks" = new-object System.Collections.Stack;
-        "callStack" = new-object System.Collections.Stack;
-        "originalEnvPath" = $env:PATH;
-        "originalDirectory" = get-location;
-        "originalErrorActionPreference" = $global:ErrorActionPreference;
-        "tasks" = @{};
-        "aliases" = @{};
-        "properties" = @();
-        "includes" = new-object System.Collections.Queue;
-        "config" = CreateConfigurationForNewContext $buildFile $framework
-    })
+    # Create a new psake context
+    $psake.context.push(
+        @{
+            "taskSetupScriptBlock"          = {}
+            "taskTearDownScriptBlock"       = {}
+            "executedTasks"                 = new-object System.Collections.Stack
+            "callStack"                     = new-object System.Collections.Stack
+            "originalEnvPath"               = $env:PATH
+            "originalDirectory"             = get-location
+            "originalErrorActionPreference" = $global:ErrorActionPreference
+            "tasks"                         = @{}
+            "aliases"                       = @{}
+            "properties"                    = new-object System.Collections.Stack
+            "includes"                      = new-object System.Collections.Queue
+            "config"                        = CreateConfigurationForNewContext $buildFile $framework
+        }
+    )
 
+    # Load in the psake configuration (or default)
     LoadConfiguration $psake.build_script_dir
 
     set-location $psake.build_script_dir
 
+    # Import any modules declared in the build script
     LoadModules
 
     $frameworkOldValue = $framework
+
     . $psake.build_script_file.FullName
 
     $currentContext = $psake.context.Peek()

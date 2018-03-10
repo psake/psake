@@ -5,6 +5,8 @@ function CleanupEnvironment {
         $env:PATH = $currentContext.originalEnvPath
         Set-Location $currentContext.originalDirectory
         $global:ErrorActionPreference = $currentContext.originalErrorActionPreference
+        $psake.LoadedTaskModules = @{}
+        $psake.ReferenceTasks = @{}
         [void] $psake.context.Pop()
     }
 }

@@ -45,6 +45,12 @@ function Task {
         .PARAMETER alias
         An alternate name for the task.
 
+        .PARAMETER FromModule
+        Load in the task from the specified PowerShell module.
+
+        .PARAMETER Version
+        The version of the PowerShell module to load in the task from.
+
         .EXAMPLE
         A sample build script is shown below:
 
@@ -119,65 +125,142 @@ function Task {
         .LINK
         TaskTearDown
     #>
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Normal')]
     param(
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true, Position = 0)]
         [string]$name,
 
+        [Parameter(Position = 1)]
         [scriptblock]$action = $null,
 
+        [Parameter(Position = 2)]
         [scriptblock]$preaction = $null,
 
+        [Parameter(Position = 3)]
         [scriptblock]$postaction = $null,
 
+        [Parameter(Position = 4)]
         [scriptblock]$precondition = {$true},
 
+        [Parameter(Position = 5)]
         [scriptblock]$postcondition = {$true},
 
+        [Parameter(Position = 6)]
         [switch]$continueOnError,
 
+        [Parameter(Position = 7)]
         [string[]]$depends = @(),
 
+        [Parameter(Position = 8)]
         [string[]]$requiredVariables = @(),
 
+        [Parameter(Position = 9)]
         [string]$description = $null,
 
-        [string]$alias = $null
+        [Parameter(Position = 10)]
+        [string]$alias = $null,
+
+        [parameter(Mandatory = $true, ParameterSetName = 'SharedTask', Position = 11)]
+        [ValidateNotNullOrEmpty()]
+        [string]$FromModule,
+
+        [parameter(ParameterSetName = 'SharedTask', Position = 12)]
+        [ValidateNotNullOrEmpty()]
+        [version]$Version
     )
 
+    function CreateTask {
+        @{
+            Name              = $Name
+            DependsOn         = $depends
+            PreAction         = $preaction
+            Action            = $action
+            PostAction        = $postaction
+            Precondition      = $precondition
+            Postcondition     = $postcondition
+            ContinueOnError   = $continueOnError
+            Description       = $description
+            Duration          = [System.TimeSpan]::Zero
+            RequiredVariables = $requiredVariables
+            Alias             = $alias
+        }
+    }
+
+    # Default tasks have no action
     if ($name -eq 'default') {
-        Assert (!$action) ($msgs.error_default_task_cannot_have_action)
+        Assert (!$action) ($msgs.error_shared_task_cannot_have_action)
     }
 
-    $newTask = @{
-        Name = $name
-        DependsOn = $depends
-        PreAction = $preaction
-        Action = $action
-        PostAction = $postaction
-        Precondition = $precondition
-        Postcondition = $postcondition
-        ContinueOnError = $continueOnError
-        Description = $description
-        Duration = [System.TimeSpan]::Zero
-        RequiredVariables = $requiredVariables
-        Alias = $alias
+    # Shared tasks have no action
+    if ($PSCmdlet.ParameterSetName -eq 'SharedTask') {
+        Assert (!$action) ($msgs.error_shared_task_cannot_have_action -f $Name, $FromModule)
     }
-
-    $taskKey = $name.ToLower()
 
     $currentContext = $psake.context.Peek()
 
-    Assert (!$currentContext.tasks.ContainsKey($taskKey)) ($msgs.error_duplicate_task_name -f $name)
+    # Dot source the shared task module to load in its tasks
+    if ($PSCmdlet.ParameterSetName -eq 'SharedTask') {
 
-    $currentContext.tasks.$taskKey = $newTask
+        # Find the module
+        $moduleSpec = @{
+            ModuleName = $FromModule
+        }
+        if ($Version) {
+            $moduleSpec.RequiredVersion = $Version
+        }
+        $getModuleParams = @{
+            ListAvailable = $true
+            ErrorAction   = 'Ignore'
+            Verbose       = $false
+        }
+        if ($moduleSpec.RequiredVersion) {
+            $getModuleParams.FullyQualifiedName = $moduleSpec
+        } else {
+            $getModuleParams.Name = $moduleSpec.ModuleName
+        }
+        $taskModule = Get-Module @getModuleParams | Sort-Object -Property Version | Select-Object -First 1
 
-    if($alias)
-    {
-        $aliasKey = $alias.ToLower()
+        # This task references a task from a module
+        # This reference task "could" include extra data about the task such as
+        # additional dependOn, aliase, etc.
+        # Store this task to the side so after we load the real task, we can combine
+        # this extra data if nesessary
+        $referenceTask = CreateTask
+        Assert (-not $psake.ReferenceTasks.ContainsKey($referenceTask.Name)) ($msgs.error_duplicate_task_name -f $referenceTask)
+        $referenceTaskKey = $referenceTask.Name.ToLower()
+        $psake.ReferenceTasks.Add($referenceTaskKey, $referenceTask)
 
-        Assert (!$currentContext.aliases.ContainsKey($aliasKey)) ($msgs.error_duplicate_alias_name -f $alias)
+        # Load in tasks from shared module into staging area
+        Assert ($null -ne $taskModule) ($msgs.error_unknown_module -f $moduleSpec.ModuleName)
+        $psakeFilePath = Join-Path -Path $taskModule.ModuleBase -ChildPath 'psakeFile.ps1'
+        if (-not $psake.LoadedTaskModules.ContainsKey($psakeFilePath)) {
+            Write-Debug -Message "Loading tasks from task module [$psakeFilePath]"
+            . $psakeFilePath
+            $psake.LoadedTaskModules.Add($psakeFilePath, $null)
+        }
+    } else {
+        # Create new task object
+        $newTask = CreateTask
+        $taskKey = $newTask.Name.ToLower()
 
-        $currentContext.aliases.$aliasKey = $newTask
+        # If this task was referenced from a parent build script
+        # check to see if that reference task has extra data to add
+        $refTask = $psake.ReferenceTasks.$taskKey
+        if ($refTask) {
+            if ($refTask.DependsOn.Count -gt 0) { $newTask.DependsOn += $refTask.DependsOn }
+            if ($refTask.ContinueOnError) { $newTask.ContinueOnError = $refTask.ContinueOnError }
+            if ($refTask.RequiredVariables.Count -gt 0) { $newTask.RequiredVariables += $refTask.RequiredVariables }
+        }
+
+        # Add the task to the context
+        Assert (-not $currentContext.tasks.ContainsKey($taskKey)) ($msgs.error_duplicate_task_name -f $taskKey)
+        Write-Debug "Adding task [$taskKey)]"
+        $currentContext.tasks.$taskKey = $newTask
+
+        if ($alias) {
+            $aliasKey = $alias.ToLower()
+            Assert (-not $currentContext.aliases.ContainsKey($aliasKey)) ($msgs.error_duplicate_alias_name -f $alias)
+            $currentContext.aliases.$aliasKey = $newTask
+        }
     }
 }
