@@ -47,16 +47,10 @@ Describe 'Module manifest' {
             $script:manifest.CopyRight | Should Not BeNullOrEmpty
         }
 
-        # Only for DSC modules
-        # It 'exports DSC resources' {
-        #     $dscResources = ($Manifest.psobject.Properties | Where Name -eq 'ExportedDscResources').Value
-        #     @($dscResources).Count | Should Not Be 0
-        # }
-
         $script:changelogVersion = $null
         It 'has a valid version in the changelog' {
             foreach ($line in (Get-Content $changelogPath)) {
-                if ($line -match "^##\s\[(?<Version>(\d+\.){1,3}\d+)\]") {
+                if ($line -match "^## \[(?<Version>(\d+\.){1,3}\d+)\]") {
                     $script:changelogVersion = $matches.Version
                     break
                 }
