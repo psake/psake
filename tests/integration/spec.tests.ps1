@@ -14,6 +14,15 @@ $testResults = @()
 
 describe 'PSake specs' {
 
+    BeforeAll {
+        $oldPSPath = $env:PSModulePath
+        $env:PSModulePath += "$([IO.Path]::PathSeparator)PSScriptRoot/../../specs/SharedTaskModules"
+    }
+
+    AfterAll {
+        $env:PSModulePath = $oldPSPath
+    }
+
     $psakeParams = @{
         Parameters = @{
             p1 = 'v1'
