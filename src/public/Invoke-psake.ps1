@@ -241,7 +241,7 @@ function Invoke-psake {
 
     try {
         if (-not $nologo) {
-            "psake version {0}`nCopyright (c) 2010-2017 James Kovacs & Contributors`n" -f $psake.version
+            "psake version {0}`nCopyright (c) 2010-2018 James Kovacs & Contributors`n" -f $psake.version
         }
         if (!$buildFile) {
            $buildFile = Get-DefaultBuildFile
@@ -277,7 +277,8 @@ function Invoke-psake {
             }
 
             # The initial dot (.) indicates that variables initialized/modified in the propertyBlock are available in the parent scope.
-            foreach ($propertyBlock in $currentContext.properties) {
+            while ($currentContext.properties.Count -gt 0) {
+                $propertyBlock = $currentContext.properties.Pop()
                 . $propertyBlock
             }
 

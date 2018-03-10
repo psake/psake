@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+### Features
+
+- Add support for loading in tasks contained in PowerShell modules
+
 ### Improvements
 
 - [**#267**](https://github.com/psake/psake/pull/267) Add wrapper script for Linux and macOS. (via [@dermeister0](https://github.com/dermeister0))

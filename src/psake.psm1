@@ -20,29 +20,30 @@
 
 #Requires -Version 2.0
 
-if ($PSVersionTable.PSVersion.Major -ge 3)
-{
+if ($PSVersionTable.PSVersion.Major -ge 3) {
     $script:IgnoreError = 'Ignore'
-}
-else
-{
+} else {
     $script:IgnoreError = 'SilentlyContinue'
 }
 
 # Dot source public/private functions
-$public = @(Get-ChildItem -Path (Join-Path -Path $PSScriptRoot -ChildPath 'public/*.ps1') -Recurse -ErrorAction Stop)
-$private = @(Get-ChildItem -Path (Join-Path -Path $PSScriptRoot -ChildPath 'private/*.ps1') -Recurse -ErrorAction Stop)
+$dotSourceParams = @{
+    Filter      = '*.ps1'
+    Recurse     = $true
+    ErrorAction = 'Stop'
+}
+$public = @(Get-ChildItem -Path (Join-Path -Path $PSScriptRoot -ChildPath 'public') @dotSourceParams )
+$private = @(Get-ChildItem -Path (Join-Path -Path $PSScriptRoot -ChildPath 'private/*.ps1') @dotSourceParams)
 foreach ($import in @($public + $private)) {
     try {
         . $import.FullName
-    }
-    catch {
+    } catch {
         throw "Unable to dot source [$($import.FullName)]"
     }
 }
 
 DATA msgs {
-convertfrom-stringdata @'
+    convertfrom-stringdata @'
     error_invalid_task_name = Task name should not be null or empty string.
     error_task_name_does_not_exist = Task {0} does not exist.
     error_circular_reference = Circular reference found for task {0}.
@@ -52,9 +53,11 @@ convertfrom-stringdata @'
     error_unknown_framework = Unknown .NET Framework version, {0} specified in {1}.
     error_unknown_pointersize = Unknown pointer size ({0}) returned from System.IntPtr.
     error_unknown_bitnesspart = Unknown .NET Framework bitness, {0}, specified in {1}.
+    error_unknown_module = Unable to find module [{0}].
     error_no_framework_install_dir_found = No .NET Framework installation directory found at {0}.
     error_bad_command = Error executing command {0}.
     error_default_task_cannot_have_action = 'default' task cannot specify an action.
+    error_shared_task_cannot_have_action = '{0} references a shared task from module {1} and cannot have an action.
     error_duplicate_task_name = Task {0} has already been defined.
     error_duplicate_alias_name = Alias {0} has already been defined.
     error_invalid_include_path = Unable to include {0}. File not found.
@@ -84,15 +87,17 @@ $script:psake = @{}
 $psake.version = $manifest.Version.ToString()
 $psake.context = new-object system.collections.stack # holds onto the current state of all variables
 $psake.run_by_psake_build_tester = $false # indicates that build is being run by psake-BuildTester
+$psake.LoadedTaskModules = @{}
+$psake.ReferenceTasks = @{}
 $psake.config_default = new-object psobject -property @{
-    buildFileName = "psakefile.ps1";
-    legacyBuildFileName = "default.ps1";
-    framework = "4.0";
-    taskNameFormat = "Executing {0}";
-    verboseError = $false;
-    coloredOutput = $true;
-    modules = $null;
-    moduleScope = "";
+    buildFileName       = "psakefile.ps1"
+    legacyBuildFileName = "default.ps1"
+    framework           = "4.0"
+    taskNameFormat      = "Executing {0}"
+    verboseError        = $false
+    coloredOutput       = $true
+    modules             = $null
+    moduleScope         = ""
 } # contains default configuration, can be overridden in psake-config.ps1 in directory with psake.psm1 or in directory with current build script
 
 $psake.build_success = $false # indicates that the current build was successful
@@ -102,4 +107,4 @@ $psake.error_message = $null # contains the error message which caused the scrip
 
 LoadConfiguration
 
-export-modulemember -function Invoke-psake, Invoke-Task, Get-PSakeScriptTasks, Task, Properties, Include, FormatTaskName, TaskSetup, TaskTearDown, Framework, Assert, Exec -variable psake
+export-modulemember -function $public.BaseName -variable psake

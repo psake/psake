@@ -57,5 +57,5 @@ function Properties {
         [scriptblock]$properties
     )
 
-    $psake.context.Peek().properties += $properties
+    $psake.context.Peek().properties.Push($properties)
 }
