@@ -91,12 +91,14 @@ function ConfigureBuildEnvironment {
         if ($null -ne $buildToolsVersions) {
             foreach($ver in $buildToolsVersions) {
                 if ($ver -eq "15.0") {
-                    if ($null -eq (Get-Module -Name VSSetup -ListAvailable)) {
-                        WriteColoredOutput ($msgs.warning_missing_vsssetup_module -f $ver) -foregroundcolor Yellow
-                        continue
-                    }
+                    if ($null -eq (Get-Module -Name VSSetup)) {
+                        if ($null -eq (Get-Module -Name VSSetup -ListAvailable)) {
+                            WriteColoredOutput ($msgs.warning_missing_vsssetup_module -f $ver) -foregroundcolor Yellow
+                            continue
+                        }
 
-                    Import-Module VSSetup
+                        Import-Module VSSetup
+                    }
 
                     # borrowed from nightroman https://github.com/nightroman/Invoke-Build
                     if ($vsInstances = Get-VSSetupInstance) {
