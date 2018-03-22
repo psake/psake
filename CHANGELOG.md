@@ -9,11 +9,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Improvements
 
-- [**#244**] Update build success message to be more general: psake succeeded (via [@rkeithhill](https://github.com/rkeithhill))
+- [**#244**](https://github.com/psake/psake/pull/244) Update build success message to be more general: psake succeeded (via [@rkeithhill](https://github.com/rkeithhill))
+- [**#249**](https://github.com/psake/psake/pull/249) Allow working with preloaded VSSetup module (via [@havranek1024](https://github.com/havranek1024))
 
 ### Fixed
 
-- [**#236**] Change check for `$IsWindows` so it doesn't genereate an error record (via [@rkeithhill](https://github.com/rkeithhill))
+- [**#236**](https://github.com/psake/psake/pull/236) Change check for `$IsWindows` so it doesn't genereate an error record (via [@rkeithhill](https://github.com/rkeithhill))
 
 ## [4.7.0] 2017-11-21
 
