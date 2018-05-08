@@ -53,4 +53,10 @@ The following is an example:
 
 ```powershell
 task default -depends TaskA
+
+task TaskA {
+  #use cmd.exe and the DOS exit() function to simulate a failed command-line execution
+  "Executing command-line program"
+  exec { cmd /c exit (1) }
+}
 ```
