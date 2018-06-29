@@ -3,5 +3,8 @@ Framework '4.0'
 task default -depends MsBuild
 
 task MsBuild {
-  exec { msbuild /version }
+    if ( $IsMacOS -OR $IsLinux ) {}
+    else {
+        exec { msbuild /version /nologo }
+    }
 }

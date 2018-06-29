@@ -1,9 +1,9 @@
 ﻿properties {
-	$container = @{}
-	$container.foo = "foo"
-	$container.bar = $null
-	$foo = 1
-	$bar = 1
+  $container = @{}
+  $container.foo = "foo"
+  $container.bar = $null
+  $foo = 1
+  $bar = 1
 }
 
 task default -depends TestInit
@@ -11,9 +11,9 @@ task default -depends TestInit
 task TestInit {
   # values are:
   # 1: original
-  # 2: overide
+  # 2: override
   # 3: new
-  
+
   Assert ($container.foo -eq "foo") "$container.foo should be foo"
   Assert ($container.bar -eq "bar") "$container.bar should be bar"
   Assert ($container.baz -eq "baz") "$container.baz should be baz"

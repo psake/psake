@@ -1,5 +1,8 @@
 task default -depends MSBuildWithError
 
 task MSBuildWithError {
-   msbuild ThisFileDoesNotExist.sln
+    if ( $IsMacOS -OR $IsLinux ) {}
+    else {
+        msbuild ThisFileDoesNotExist.sln
+    }
 }

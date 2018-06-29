@@ -8,14 +8,14 @@ task default -depends Test
 
 formatTaskName "-------{0}-------"
 
-task Test -depends Compile, Clean { 
+task Test -depends Compile, Clean {
   $testMessage
 }
 
-task Compile -depends Clean { 
+task Compile -depends Clean {
   $compileMessage
 }
 
-task Clean { 
+task Clean {
   $cleanMessage
 }

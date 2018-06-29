@@ -7,18 +7,18 @@ properties {
 task default -depends Test
 
 formatTaskName {
-	param($taskName)
-	write-host $taskName -foregroundcolor Green
+  param($taskName)
+  write-host $taskName -foregroundcolor Green
 }
 
-task Test -depends Compile, Clean { 
+task Test -depends Compile, Clean {
   $testMessage
 }
 
-task Compile -depends Clean { 
+task Compile -depends Clean {
   $compileMessage
 }
 
-task Clean { 
+task Clean {
   $cleanMessage
 }
