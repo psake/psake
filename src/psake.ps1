@@ -10,7 +10,7 @@ param(
     [string]$buildFile,
 
     [Parameter(Position = 1, Mandatory = $false)]
-    [string[]]$taskList = @(),
+    [string]$task,
 
     [Parameter(Position = 2, Mandatory = $false)]
     [string]$framework,
@@ -64,4 +64,4 @@ if ($buildFile -and (-not (Test-Path -Path $buildFile))) {
     }
 }
 
-Invoke-psake $buildFile $taskList $framework $docs $parameters $properties $initialization $nologo $detailedDocs $notr
+Invoke-psake $buildFile $task $framework $docs $parameters $properties $initialization $nologo $detailedDocs $notr

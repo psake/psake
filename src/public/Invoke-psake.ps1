@@ -9,8 +9,8 @@ function Invoke-psake {
         .PARAMETER buildFile
         The path to the psake build script to execute
 
-        .PARAMETER taskList
-        A comma-separated list of task names to execute
+        .PARAMETER task
+        The task name to execute
 
         .PARAMETER framework
         The version of the .NET framework you want to use during build. You can append x86 or x64 to force a specific framework.
@@ -208,7 +208,7 @@ function Invoke-psake {
         [string]$buildFile,
 
         [Parameter(Position = 1, Mandatory = $false)]
-        [string[]]$taskList = @(),
+        [string]$task,
 
         [Parameter(Position = 2, Mandatory = $false)]
         [string]$framework,
@@ -246,7 +246,7 @@ function Invoke-psake {
         elseif (!(Test-Path $buildFile -PathType Leaf) -and ($null -ne (Get-DefaultBuildFile -UseDefaultIfNoneExist $false))) {
             # If the default file exists and the given "buildfile" isn't found assume that the given
             # $buildFile is actually the target Tasks to execute in the $config.buildFileName script.
-            $taskList = $buildFile.Split(', ')
+            $task = $buildFile.Split(', ') | Select -First 1
             $buildFile = Get-DefaultBuildFile
         }
 
@@ -284,10 +284,8 @@ function Invoke-psake {
             . $module $initialization
 
             # Execute the list of tasks or the default task
-            if ($taskList) {
-                foreach ($task in $taskList) {
-                    invoke-task $task
-                }
+            if ($task) {
+                invoke-task $task
             } elseif ($currentContext.tasks.default) {
                 invoke-task default
             } else {

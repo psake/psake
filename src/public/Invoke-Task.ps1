@@ -43,6 +43,11 @@ function Invoke-Task {
         [string]$taskName
     )
 
+    $entireTask = $taskName
+    if ($taskName.Contains(' ')) {
+        $taskName = $taskName.Split(' ', [StringSplitOptions]::RemoveEmptyEntries) | Select -First 1
+    }
+
     Assert $taskName ($msgs.error_invalid_task_name)
 
     $taskKey = $taskName.ToLower()
@@ -103,8 +108,27 @@ function Invoke-Task {
                             foreach ($variable in $task.requiredVariables) {
                                 Assert ((Test-Path "variable:$variable") -and ($null -ne (Get-Variable $variable).Value)) ($msgs.required_variable_not_set -f $variable, $taskName)
                             }
+                            
+                            $argsTable = @{}
+                            $parsedArgs = [management.automation.psparser]::Tokenize($entireTask, [ref]$null)
+                            
+                            foreach ($p in $parsedArgs) {
+                                # skip the "-" in front of the arg
+                                $arg = $p.Content.Substring(1)
 
-                            & $task.Action
+                                # if there isn't a "=", it's a switch parameter
+                                if (-not ($arg.Contains("="))) {
+                                    $argsTable.Add($arg, $true)
+                                    continue
+                                }
+                                # todo: split on only the first instance...
+                                $parts = $arg.Split("=")
+                                $arg = $parts[0]
+                                $val = $parts[1]
+                                $argsTable.Add($arg, $val)
+                            }    
+                            # splat args so it's bound to the task args properly
+                            & $task.Action @argsTable
                         } finally {
                             if ($task.PostAction) {
                                 & $task.PostAction
