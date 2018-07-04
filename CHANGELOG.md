@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [vNext] Unreleased
+## [4.7.1] 2018-07-03
 
 ### Improvements
 
@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
-- [**#236**](https://github.com/psake/psake/pull/236) Change check for `$IsWindows` so it doesn't genereate an error record (via [@rkeithhill](https://github.com/rkeithhill))
+- [**#236**](https://github.com/psake/psake/pull/236) Change check for `$IsWindows` so it doesn't generate an error record (via [@rkeithhill](https://github.com/rkeithhill))
 
 ## [4.7.0] 2017-11-21
 
