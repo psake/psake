@@ -1,6 +1,5 @@
-$nugetPath = $env:ChocolateyInstall
-$nugetExePath = Join-Path -Path $nuGetPath -ChildPath 'bin'
-$packageBatchFileName = Join-Path -Path $nugetExePath -ChildPath 'psake.bat'
+$nugetExecutablePath = Join-Path -Path $env:ChocolateyInstall -ChildPath 'bin'
+$packageBatchFileName = Join-Path -Path $nugetExecutablePath -ChildPath 'psake.bat'
 
 $psakeDir = Split-Path -Path $MyInvocation.MyCommand.Definition -Parent
 #$path = ($psakeDir | Split-Path | Join-Path -ChildPath  'psake.cmd')
