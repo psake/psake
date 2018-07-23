@@ -246,7 +246,7 @@ function BuildNuget {
 
     Copy-Item -Recurse -Path "$here/build/nuget" -Destination $dest -Exclude 'nuget.exe'
     Copy-Item -Recurse -Path "$outputDir" -Destination "$destTools/psake"
-    @('README.md', 'license.txt') | Foreach-Object {
+    @('README.md', 'license') | Foreach-Object {
         Copy-Item -Path "$here/$_" -Destination $destTools
     }
 
