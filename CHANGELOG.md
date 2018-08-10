@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.7.2] 2018-08-09
+
+### Improvements
+
+- [**#257**](https://github.com/psake/psake/pull/257) Add support for .Net 4.7.2 (via [@dawoodmm](https://github.com/dawoodmm))
+
 ## [4.7.1] 2018-07-03
 
 ### Improvements
