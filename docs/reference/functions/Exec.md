@@ -1,7 +1,7 @@
 ---
 external help file: psake-help.xml
 Module Name: psake
-online version: 
+online version:
 schema: 2.0.0
 ---
 
@@ -14,7 +14,7 @@ Helper function for executing command-line programs.
 
 ```
 Exec [-cmd] <ScriptBlock> [[-errorMessage] <String>] [[-maxRetries] <Int32>]
- [[-retryTriggerErrorPattern] <String>] [[-workingDirectory] <String>]
+ [[-retryTriggerErrorPattern] <String>] [[-workingDirectory] <String>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -24,7 +24,7 @@ This function allows you to run command-line programs without having to explicit
 
 ## EXAMPLES
 
-### -------------------------- EXAMPLE 1 --------------------------
+### EXAMPLE 1
 ```
 exec { svn info $repository_trunk } "Error executing SVN. Please verify SVN command-line client is installed"
 ```
@@ -40,7 +40,7 @@ This scriptblock will typically contain the command-line invocation.
 ```yaml
 Type: ScriptBlock
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: True
 Position: 1
@@ -55,7 +55,7 @@ The error message to display if the external command returned a non-zero exit co
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: 2
@@ -70,7 +70,7 @@ The maximum number of times to retry the command before failing.
 ```yaml
 Type: Int32
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: 3
@@ -86,7 +86,7 @@ If a match is found, the command will be retried provided \[maxRetries\] has not
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: 4
@@ -101,7 +101,7 @@ The working directory to set before running the external command.
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: 5
@@ -109,6 +109,10 @@ Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
+
+### CommonParameters
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable.
+For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 

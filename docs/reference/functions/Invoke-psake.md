@@ -1,7 +1,7 @@
 ---
 external help file: psake-help.xml
 Module Name: psake
-online version: 
+online version:
 schema: 2.0.0
 ---
 
@@ -15,7 +15,7 @@ Runs a psake build script.
 ```
 Invoke-psake [[-buildFile] <String>] [[-taskList] <String[]>] [[-framework] <String>] [-docs]
  [[-parameters] <Hashtable>] [[-properties] <Hashtable>] [[-initialization] <ScriptBlock>] [-nologo]
- [-detailedDocs] [-notr]
+ [-detailedDocs] [-notr] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -23,21 +23,21 @@ This function runs a psake build script
 
 ## EXAMPLES
 
-### -------------------------- EXAMPLE 1 --------------------------
+### EXAMPLE 1
 ```
 Invoke-psake
 ```
 
 Runs the 'default' task in the '.build.ps1' build script
 
-### -------------------------- EXAMPLE 2 --------------------------
+### EXAMPLE 2
 ```
 Invoke-psake '.\build.ps1' Tests,Package
 ```
 
 Runs the 'Tests' and 'Package' tasks in the '.build.ps1' build script
 
-### -------------------------- EXAMPLE 3 --------------------------
+### EXAMPLE 3
 ```
 Invoke-psake Tests
 ```
@@ -45,7 +45,7 @@ Invoke-psake Tests
 This example will run the 'Tests' tasks in the 'psakefile.ps1' build script.
 The 'psakefile.ps1' is assumed to be in the current directory.
 
-### -------------------------- EXAMPLE 4 --------------------------
+### EXAMPLE 4
 ```
 Invoke-psake 'Tests, Package'
 ```
@@ -53,14 +53,14 @@ Invoke-psake 'Tests, Package'
 This example will run the 'Tests' and 'Package' tasks in the 'psakefile.ps1' build script.
 The 'psakefile.ps1' is assumed to be in the current directory.
 
-### -------------------------- EXAMPLE 5 --------------------------
+### EXAMPLE 5
 ```
 Invoke-psake .\build.ps1 -docs
 ```
 
 Prints a report of all the tasks and their dependencies and descriptions and then exits
 
-### -------------------------- EXAMPLE 6 --------------------------
+### EXAMPLE 6
 ```
 Invoke-psake .\parameters.ps1 -parameters @{"p1"="v1";"p2"="v2"}
 ```
@@ -82,7 +82,7 @@ task TestParams {
 Notice how you can refer to the parameters that were passed into the script from within the "properties" function.
 The value of the $p1 variable should be the string "v1" and the value of the $p2 variable should be "v2".
 
-### -------------------------- EXAMPLE 7 --------------------------
+### EXAMPLE 7
 ```
 Invoke-psake .\properties.ps1 -properties @{"x"="1";"y"="2"}
 ```
@@ -115,7 +115,7 @@ The path to the psake build script to execute
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: 1
@@ -130,7 +130,7 @@ A comma-separated list of task names to execute
 ```yaml
 Type: String[]
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: 2
@@ -148,7 +148,7 @@ Possible values: '1.0', '1.1', '2.0', '2.0x86', '2.0x64', '3.0', '3.0x86', '3.0x
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: 3
@@ -163,10 +163,10 @@ Prints a list of tasks and their descriptions
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
-Position: Named
+Position: 4
 Default value: False
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -180,10 +180,10 @@ This means you can access parameters from within the 'Properties' function!
 ```yaml
 Type: Hashtable
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
-Position: 4
+Position: 5
 Default value: @{}
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -196,10 +196,10 @@ These properties will override matching properties that are found in the 'Proper
 ```yaml
 Type: Hashtable
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
-Position: 5
+Position: 6
 Default value: @{}
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -214,7 +214,7 @@ Parameter Sets: (All)
 Aliases: init
 
 Required: False
-Position: 6
+Position: 7
 Default value: {}
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -226,10 +226,10 @@ Do not display the startup banner and copyright message.
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
-Position: Named
+Position: 8
 Default value: False
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -241,10 +241,10 @@ Prints a more descriptive list of tasks and their descriptions.
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
-Position: Named
+Position: 9
 Default value: False
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -256,14 +256,18 @@ Do not display the time report.
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
-Position: Named
+Position: 10
 Default value: False
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
+
+### CommonParameters
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable.
+For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 

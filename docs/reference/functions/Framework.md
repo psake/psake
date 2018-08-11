@@ -1,7 +1,7 @@
 ---
 external help file: psake-help.xml
 Module Name: psake
-online version: 
+online version:
 schema: 2.0.0
 ---
 
@@ -13,7 +13,7 @@ Sets the version of the .NET framework you want to use during build.
 ## SYNTAX
 
 ```
-Framework [-framework] <String>
+Framework [-framework] <String> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -23,7 +23,7 @@ Default is '3.5*', where x86 or x64 will be detected based on the bitness of the
 
 ## EXAMPLES
 
-### -------------------------- EXAMPLE 1 --------------------------
+### EXAMPLE 1
 ```
 Framework "4.0"
 ```
@@ -45,7 +45,7 @@ Version of the .NET framework to use during build.
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: True
 Position: 1
@@ -53,6 +53,10 @@ Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
+
+### CommonParameters
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable.
+For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 

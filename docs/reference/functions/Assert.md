@@ -1,7 +1,7 @@
 ---
 external help file: psake-help.xml
 Module Name: psake
-online version: 
+online version:
 schema: 2.0.0
 ---
 
@@ -13,7 +13,7 @@ Helper function for "Design by Contract" assertion checking.
 ## SYNTAX
 
 ```
-Assert [-conditionToCheck] <Object> [-failureMessage] <String>
+Assert [-conditionToCheck] <Object> [-failureMessage] <String> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -21,14 +21,14 @@ This is a helper function that makes the code less noisy by eliminating many of 
 
 ## EXAMPLES
 
-### -------------------------- EXAMPLE 1 --------------------------
+### EXAMPLE 1
 ```
 Assert $false "This always throws an exception"
 ```
 
 Example of an assertion that will always fail.
 
-### -------------------------- EXAMPLE 2 --------------------------
+### EXAMPLE 2
 ```
 Assert ( ($i % 2) -eq 0 ) "$i is not an even number"
 ```
@@ -57,7 +57,7 @@ The boolean condition to evaluate
 ```yaml
 Type: Object
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: True
 Position: 1
@@ -72,7 +72,7 @@ The error message used for the exception if the conditionToCheck parameter is fa
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: True
 Position: 2
@@ -80,6 +80,10 @@ Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
+
+### CommonParameters
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable.
+For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 

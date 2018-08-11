@@ -1,7 +1,7 @@
 ---
 external help file: psake-help.xml
 Module Name: psake
-online version: 
+online version:
 schema: 2.0.0
 ---
 
@@ -13,7 +13,7 @@ Define a scriptblock that contains assignments to variables that will be availab
 ## SYNTAX
 
 ```
-Properties [-properties] <ScriptBlock>
+Properties [-properties] <ScriptBlock> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -21,7 +21,7 @@ A build script may declare a "Properies" function which allows you to define var
 
 ## EXAMPLES
 
-### -------------------------- EXAMPLE 1 --------------------------
+### EXAMPLE 1
 ```
 A sample build script is shown below:
 ```
@@ -52,7 +52,7 @@ The script block containing all the variable assignment statements
 ```yaml
 Type: ScriptBlock
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: True
 Position: 1
@@ -60,6 +60,10 @@ Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
+
+### CommonParameters
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable.
+For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
