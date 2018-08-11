@@ -1,12 +1,9 @@
 Welcome to the psake project
 =============================
 
-[![Build status][appveyor-badge]][appveyor-build]
-[![Build Status][travis-badge]][travis-build]
-[![PowerShell Gallery][psgallery-badge]][psgallery]
-[![Chocolatey][chocolatey-badge]][chocolatey]
-[![Nuget downloads][nuget-downloads]][nuget]
-[![Join the chat at https://gitter.im/psake/psake][gitter-badge]][gitter]
+| AppVeyor | Travis | PS Gallery | Chocolatey | Nuget.org | Gitter |
+|----------|--------|--------------------|------------|-----------|--------|
+|[![Build status][appveyor-badge]][appveyor-build] | [![Build Status][travis-badge]][travis-build] | [![PowerShell Gallery][psgallery-badge]][psgallery] | [![Chocolatey][chocolatey-badge]][chocolatey] | [![Nuget downloads][nuget-downloads]][nuget] | [![Join the chat at https://gitter.im/psake/psake][gitter-badge]][gitter]
 
 psake is a build automation tool written in PowerShell. It avoids the angle-bracket tax associated with executable XML by leveraging the PowerShell syntax in your build scripts.
 psake has a syntax inspired by rake (aka make in Ruby) and bake (aka make in Boo), but is easier to script because it leverages your existing command-line knowledge.
