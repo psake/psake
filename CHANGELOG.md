@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.7.3] 2018-08-11
+
+### Fixed
+
+- Re-apply changes from PR #257 as they apparently were not committed correctly.
+
 ## [4.7.2] 2018-08-09
 
 ### Improvements
