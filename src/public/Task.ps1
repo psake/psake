@@ -201,24 +201,33 @@ function Task {
     # Dot source the shared task module to load in its tasks
     if ($PSCmdlet.ParameterSetName -eq 'SharedTask') {
 
-        # Find the module
-        $moduleSpec = @{
-            ModuleName = $FromModule
-        }
-        if ($Version) {
-            $moduleSpec.RequiredVersion = $Version
-        }
-        $getModuleParams = @{
-            ListAvailable = $true
-            ErrorAction   = 'Ignore'
-            Verbose       = $false
-        }
-        if ($moduleSpec.RequiredVersion) {
-            $getModuleParams.FullyQualifiedName = $moduleSpec
+        if ($taskModule = Get-Module -Name $FromModule) {
+            # Use the task module that is already loaded into the session
+            if ($Version) {
+                $taskModule = $taskModule | Where-Object {$_.Version -eq $Version}
+            } else {
+                $taskModule = $taskModule | Sort-Object -Property Version -Descending | Select-Object -First 1
+            }
         } else {
-            $getModuleParams.Name = $moduleSpec.ModuleName
+            # Find the module
+            $moduleSpec = @{
+                ModuleName = $FromModule
+            }
+            if ($Version) {
+                $moduleSpec.RequiredVersion = $Version
+            }
+            $getModuleParams = @{
+                ListAvailable = $true
+                ErrorAction   = 'Ignore'
+                Verbose       = $false
+            }
+            if ($moduleSpec.RequiredVersion) {
+                $getModuleParams.FullyQualifiedName = $moduleSpec
+            } else {
+                $getModuleParams.Name = $moduleSpec.ModuleName
+            }
+            $taskModule = Get-Module @getModuleParams | Sort-Object -Property Version -Descending | Select-Object -First 1
         }
-        $taskModule = Get-Module @getModuleParams | Sort-Object -Property Version | Select-Object -First 1
 
         # This task references a task from a module
         # This reference task "could" include extra data about the task such as
