@@ -241,7 +241,7 @@ function Invoke-psake {
 
     try {
         if (-not $nologo) {
-            "psake version {0}`nCopyright (c) 2010-2018 James Kovacs & Contributors`n" -f $psake.version
+            "psake version {0}$($script:nl)Copyright (c) 2010-2018 James Kovacs & Contributors$($script:nl)" -f $psake.version
         }
         if (!$buildFile) {
            $buildFile = Get-DefaultBuildFile
@@ -304,8 +304,7 @@ function Invoke-psake {
             }
 
             $successMsg = $msgs.psake_success -f $buildFile
-            WriteColoredOutput ("`n${successMsg}`n") -foregroundcolor Green
-            $psake.error_message = $null
+            WriteColoredOutput ("$($script:nl)${successMsg}$($script:nl)") -foregroundcolor Green
 
             $stopwatch.Stop()
             if (-not $notr) {
@@ -318,18 +317,18 @@ function Invoke-psake {
     } catch {
         $currentConfig = GetCurrentConfigurationOrDefault
         if ($currentConfig.verboseError) {
-            $error_message = "{0}: An Error Occurred. See Error Details Below: `n" -f (Get-Date)
-            $error_message += ("-" * 70) + "`n"
-            $error_message += "Error: {0}`n" -f (ResolveError $_ -Short)
-            $error_message += ("-" * 70) + "`n"
+            $error_message = "{0}: An Error Occurred. See Error Details Below: $($script:nl)" -f (Get-Date)
+            $error_message += ("-" * 70) + $script:nl
+            $error_message += "Error: {0}$($script:nl)" -f (ResolveError $_ -Short)
+            $error_message += ("-" * 70) + $script:nl
             $error_message += ResolveError $_
-            $error_message += ("-" * 70) + "`n"
-            $error_message += "Script Variables" + "`n"
-            $error_message += ("-" * 70) + "`n"
+            $error_message += ("-" * 70) + $script:nl
+            $error_message += "Script Variables" + $script:nl
+            $error_message += ("-" * 70) + $script:nl
             $error_message += get-variable -scope script | format-table | out-string
         } else {
             # ($_ | Out-String) gets error messages with source information included.
-            $error_message = "Error: {0}: `n{1}" -f (Get-Date), (ResolveError $_ -Short)
+            $error_message = "Error: {0}: $($script:nl){1}" -f (Get-Date), (ResolveError $_ -Short)
         }
 
         $psake.build_success = $false
