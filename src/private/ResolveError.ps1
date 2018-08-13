@@ -15,7 +15,7 @@ function ResolveError
         $ex = $_.Exception
 
         if (-not $Short) {
-            $error_message = "`nErrorRecord:{0}ErrorRecord.InvocationInfo:{1}Exception:`n{2}"
+            $error_message = "$($script:nl)ErrorRecord:{0}ErrorRecord.InvocationInfo:{1}Exception:$($script:nl){2}"
             $formatted_errorRecord = $_ | format-list * -force | out-string
             $formatted_invocationInfo = $_.InvocationInfo | format-list * -force | out-string
             $formatted_exception = ''
@@ -23,8 +23,8 @@ function ResolveError
             $i = 0
             while ($null -ne $ex) {
                 $i++
-                $formatted_exception += ("$i" * 70) + "`n" +
-                    ($ex | format-list * -force | out-string) + "`n"
+                $formatted_exception += ("$i" * 70) + $script:nl +
+                    ($ex | format-list * -force | out-string) + $script:nl
                 $ex = $ex | SelectObjectWithDefault -Name 'InnerException' -Value $null
             }
 
@@ -34,7 +34,7 @@ function ResolveError
         $lastException = @()
         while ($null -ne $ex) {
             $lastMessage = $ex | SelectObjectWithDefault -Name 'Message' -Value ''
-            $lastException += ($lastMessage -replace "`n", '')
+            $lastException += ($lastMessage -replace $script:nl, '')
             if ($ex -is [Data.SqlClient.SqlException]) {
                 $lastException += "(Line [$($ex.LineNumber)] " +
                     "Procedure [$($ex.Procedure)] Class [$($ex.Class)] " +
@@ -46,7 +46,7 @@ function ResolveError
 
         $header = $null
         $header = (($_.InvocationInfo |
-            SelectObjectWithDefault -Name 'PositionMessage' -Value '') -replace "`n", ' '),
+            SelectObjectWithDefault -Name 'PositionMessage' -Value '') -replace $script:nl, ' '),
             ($_ | SelectObjectWithDefault -Name 'Message' -Value ''),
             ($_ | SelectObjectWithDefault -Name 'Exception' -Value '') |
                 Where-Object { -not [String]::IsNullOrEmpty($_) } |

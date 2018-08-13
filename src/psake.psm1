@@ -26,6 +26,8 @@ if ($PSVersionTable.PSVersion.Major -ge 3) {
     $script:IgnoreError = 'SilentlyContinue'
 }
 
+$script:nl = [System.Environment]::NewLine
+
 # Dot source public/private functions
 $dotSourceParams = @{
     Filter      = '*.ps1'
