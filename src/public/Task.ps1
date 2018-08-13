@@ -235,7 +235,7 @@ function Task {
         # Store this task to the side so after we load the real task, we can combine
         # this extra data if nesessary
         $referenceTask = CreateTask
-        Assert (-not $psake.ReferenceTasks.ContainsKey($referenceTask.Name)) ($msgs.error_duplicate_task_name -f $referenceTask)
+        Assert (-not $psake.ReferenceTasks.ContainsKey($referenceTask.Name)) ($msgs.error_duplicate_task_name -f $referenceTask.Name)
         $referenceTaskKey = $referenceTask.Name.ToLower()
         $psake.ReferenceTasks.Add($referenceTaskKey, $referenceTask)
 
