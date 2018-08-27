@@ -77,12 +77,13 @@ function Invoke-Task {
 
             if ($task.Action) {
 
-                $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+                $stopwatch = new-object System.Diagnostics.Stopwatch
 
                 try {
                     foreach($childTask in $task.DependsOn) {
                         Invoke-Task $childTask
                     }
+                    $stopwatch.Start()
 
                     $currentContext.currentTaskName = $taskName
 
