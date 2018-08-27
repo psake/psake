@@ -39,17 +39,25 @@ describe 'PSake specs' {
         it "$($buildFile.BaseName)" {
 
             $psakeParams.BuildFile = $buildFile.FullName
+            $shouldHaveError = $false
 
             if ($buildFile.Name.EndsWith('_should_pass.ps1')) {
                 $expectedResult = $true
             } elseif ($buildFile.Name.EndsWith('_should_fail.ps1')) {
                 $expectedResult = $false
+                $shouldHaveError = $true
             } else {
                 throw "Invalid specification syntax. Specs file [$($buildFile.BaseName)] should end with _should_pass or _should_fail."
             }
 
             Invoke-psake @psakeParams | Out-Null
             $psake.build_success | should -be $expectedResult
+           
+            if ($shouldHaveError) {
+               $psake.error_message | should -not -be $null
+            } else {
+               $psake.error_message | should -be $null
+            }
         }
     }
 }

@@ -98,6 +98,7 @@ $psake.config_default = new-object psobject -property @{
 $psake.build_success = $false # indicates that the current build was successful
 $psake.build_script_file = $null # contains a System.IO.FileInfo for the current build script
 $psake.build_script_dir = "" # contains a string with fully-qualified path to current build script
+$psake.error_message = $null # contains the error message which caused the script to fail
 
 LoadConfiguration
 
