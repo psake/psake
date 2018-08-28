@@ -129,6 +129,7 @@ function Invoke-psake {
         $psake.build_success                # indicates that the current build was successful
         $psake.build_script_file            # contains a System.IO.FileInfo for the current build script
         $psake.build_script_dir             # contains the fully qualified path to the current build script
+        $psake.error_message                # contains the error message which caused the script to fail
 
         You should see the following when you display the contents of the $psake variable right after importing psake
 
@@ -144,6 +145,7 @@ function Invoke-psake {
         build_script_dir
         config_default                 @{framework=3.5; ...
         context                        {}
+        error_message
 
         After a build is executed the following $psake values are updated: build_script_file, build_script_dir, build_success
 
@@ -178,6 +180,7 @@ function Invoke-psake {
         version                        4.2
         build_success                  True
         config_default                 @{framework=3.5; ...
+        error_message
 
         .LINK
         Assert
@@ -296,6 +299,7 @@ function Invoke-psake {
 
             $successMsg = $msgs.psake_success -f $buildFile
             WriteColoredOutput ("`n${successMsg}`n") -foregroundcolor Green
+            $psake.error_message = $null
 
             $stopwatch.Stop()
             if (-not $notr) {
@@ -323,6 +327,7 @@ function Invoke-psake {
         }
 
         $psake.build_success = $false
+        $psake.error_message = $error_message
 
         # if we are running in a nested scope (i.e. running a psake script from a psake script) then we need to re-throw the exception
         # so that the parent script will fail otherwise the parent script will report a successful build
