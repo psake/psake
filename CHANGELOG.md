@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [vNext] Unreleased
+
+### Fixed
+
+- [**#260**](https://github.com/psake/psake/pull/260) Change the build time report to show individual task durations instead of cumulative (via [@sideproject](https://github.com/sideproject))
+
+### Improvements
+
+- [**#259**](https://github.com/psake/psake/pull/259) Add $psake.error_message property which contains the error message that cause the build to fail (via [@sideproject](https://github.com/sideproject))
+
 ## [4.7.3] 2018-08-11
 
 ### Fixed
