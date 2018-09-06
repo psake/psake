@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - [**#260**](https://github.com/psake/psake/pull/260) Change the build time report to show individual task durations instead of cumulative (via [@sideproject](https://github.com/sideproject))
 
+- [**#261**](https://github.com/psake/psake/pull/261) Use `$global:lastexitcode` instead of `$lastexitcode` in Exec (via [@gpetrou](https://github.com/gpetrou))
+
 ### Improvements
 
 - [**#259**](https://github.com/psake/psake/pull/259) Add $psake.error_message property which contains the error message that cause the build to fail (via [@sideproject](https://github.com/sideproject))
