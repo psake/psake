@@ -75,7 +75,7 @@ function Exec {
         try {
             $global:lastexitcode = 0
             & $cmd
-            if ($lastexitcode -ne 0) {
+            if ($global:lastexitcode -ne 0) {
                 throw "Exec: $errorMessage"
             }
             break
