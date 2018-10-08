@@ -65,3 +65,8 @@ if ($buildFile -and (-not (Test-Path -Path $buildFile))) {
 }
 
 Invoke-psake $buildFile $taskList $framework $docs $parameters $properties $initialization $nologo $detailedDocs $notr
+
+if (!$psake.build_success) {
+    Write-Host $psake.build_status
+    exit 1
+}
