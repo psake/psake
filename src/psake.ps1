@@ -1,3 +1,4 @@
+#!/usr/bin/env pwsh
 # Helper script for those who want to run psake without importing the module.
 # Example run from PowerShell:
 # .\psake.ps1 "psakefile.ps1" "BuildHelloWord" "4.0"
