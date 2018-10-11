@@ -1,0 +1,2 @@
+#!/usr/bin/env sh
+pwsh -NoProfile -Command "& $(dirname "$(readlink -f "$0")")/psake.ps1 $@"
