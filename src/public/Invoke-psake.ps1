@@ -253,6 +253,8 @@ function Invoke-psake {
             $buildFile = Get-DefaultBuildFile
         }
 
+        $psake.error_message = $null
+
         ExecuteInBuildFileScope $buildFile $MyInvocation.MyCommand.Module {
             param($currentContext, $module)
 
