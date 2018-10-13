@@ -10,6 +10,9 @@ $sut = Join-Path -Path $PSScriptRoot -ChildPath 'src'
 $manifestPath = Join-Path -Path $sut -ChildPath 'psake.psd1'
 $version = (Import-PowerShellDataFile -Path $manifestPath).ModuleVersion
 $outputDir = Join-Path -Path $PSScriptRoot -ChildPath $version
+$outputManifest = Join-Path -Path $outputDir -ChildPath 'psake.psd1'
+#$manifestPath = [IO.Path]::Combine($outputDir, 'psake.psd1')
+#$sut = $outputDir
 
 $PSDefaultParameterValues = @{
     'Get-Module:Verbose'    = $false
@@ -137,7 +140,7 @@ function Init {
 }
 
 function Test {
-    [DependsOn(('Analyze', 'Pester'))]
+    [DependsOn(('Build', 'Analyze', 'Pester'))]
     [cmdletbinding()]
     param()
     ''
@@ -176,7 +179,7 @@ function Pester {
         . "$PSScriptRoot/build/travis.ps1"
     }
 
-    Import-Module -Name $manifestPath
+    Import-Module -Name $outputManifest
 
     $testResultsPath = "$PSScriptRoot/testResults.xml"
     $pesterParams = @{

@@ -1,6 +1,6 @@
 
-Remove-Module -Name psake -ErrorAction SilentlyContinue
-Import-Module -Name "$PSScriptRoot/../../src/psake.psd1"
+#Remove-Module -Name psake -ErrorAction SilentlyContinue
+#Import-Module -Name "$PSScriptRoot/../../src/psake.psd1"
 
 $psake.run_by_psake_build_tester = $true
 
@@ -16,7 +16,7 @@ describe 'PSake specs' {
 
     BeforeAll {
         $oldPSPath = $env:PSModulePath
-        $env:PSModulePath += "$([IO.Path]::PathSeparator)PSScriptRoot/../../specs/SharedTaskModules"
+        $env:PSModulePath += "$([IO.Path]::PathSeparator)$PSScriptRoot/../../specs/SharedTaskModules"
     }
 
     AfterAll {
@@ -61,7 +61,7 @@ describe 'PSake specs' {
 
             Invoke-psake @psakeParams | Out-Null
             $psake.build_success | should -be $expectedResult
-           
+
             if ($shouldHaveError) {
                $psake.error_message | should -not -be $null
             } else {
