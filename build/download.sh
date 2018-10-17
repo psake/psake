@@ -9,7 +9,7 @@ trap '
 
 get_url() {
     fork=$2
-    release=v6.0.0-rc
+    release=v6.1.0
     echo "https://github.com/$fork/PowerShell/releases/download/$release/$1"
 }
 
@@ -25,7 +25,7 @@ case "$OSTYPE" in
                     echo "curl not found, installing..."
                     sudo yum install -y curl
                 fi
-                package=powershell-6.0.0_rc-1.rhel.7.x86_64.rpm
+                package=powershell-6.1.0-1.rhel.7.x86_64.rpm
                 ;;
             ubuntu)
                 if ! hash curl 2>/dev/null; then
@@ -35,13 +35,13 @@ case "$OSTYPE" in
 
                 case "$VERSION_ID" in
                     14.04)
-                        package=powershell_6.0.0-rc-1.ubuntu.14.04_amd64.deb
+                        package=powershell_6.1.0-1.ubuntu.14.04_amd64.deb
                         ;;
                     16.04)
-                        package=powershell_6.0.0-rc-1.ubuntu.16.04_amd64.deb
+                        package=powershell_6.1.0-1.ubuntu.16.04_amd64.deb
                         ;;
                     17.04)
-                        package=powershell_6.0.0-rc-1.ubuntu.17.04_amd64.deb
+                        package=powershell_6.1.0-1.ubuntu.18.04_amd64.deb
                         ;;
                     *)
                         echo "Ubuntu $VERSION_ID is not supported!" >&2
@@ -57,10 +57,10 @@ case "$OSTYPE" in
 
                 case "$VERSION_ID" in
                     42.1)
-                        package=powershell-6.0.0_rc-1.rhel.7.x86_64.rpm
+                        package=powershell-6.1.0-1.rhel.7.x86_64.rpm
                         ;;
                     42.2)
-                        package=powershell-6.0.0_rc-1.rhel.7.x86_64.rpm
+                        package=powershell-6.1.0-1.rhel.7.x86_64.rpm
                         ;;
                     *)
                         echo "OpenSUSE $VERSION_ID is not supported!" >&2
@@ -74,7 +74,7 @@ case "$OSTYPE" in
         ;;
     darwin*)
         # We don't check for curl as macOS should have a system version
-        package=powershell-6.0.0-rc-osx.10.12-x64.pkg
+        package=powershell-6.1.0-osx-x64.pkg
         ;;
     *)
         echo "$OSTYPE is not supported!" >&2
