@@ -114,12 +114,21 @@ function Init {
 
     # Build/test dependencies
     @(
-        @{ ModuleName = 'Pester';           ModuleVersion = '4.1.0' }
-        @{ ModuleName = 'PlatyPS';          ModuleVersion = '0.8.3' }
-        @{ ModuleName = 'PSScriptAnalyzer'; ModuleVersion = '1.16.1' }
+        @{ ModuleName = 'Pester';           ModuleVersion = '4.4.2' }
+        @{ ModuleName = 'PlatyPS';          ModuleVersion = '0.11.0' }
+        @{ ModuleName = 'PSScriptAnalyzer'; ModuleVersion = '1.17.1' }
     ) | Foreach-Object {
         if (-not (Get-Module -FullyQualifiedName $_ -ListAvailable)) {
-            Install-Module -Name $_.ModuleName -RequiredVersion $_.ModuleVersion -Force -AllowClobber -Scope CurrentUser -ErrorAction Stop
+            $inmoParams = @{
+                Name               = $_.ModuleName
+                RequiredVersion    = $_.ModuleVersion
+                Force              = $true
+                AllowClobber       = $true
+                Scope              = 'CurrentUser'
+                ErrorAction        = 'Stop'
+                SkipPublisherCheck = $true
+            }
+            Install-Module @inmoParams
         }
         Import-Module -FullyQualifiedName $_
     }
