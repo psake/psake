@@ -148,9 +148,11 @@ function Task {
         [Parameter(Position = 6)]
         [switch]$continueOnError,
 
+        [ValidateNotNull()]
         [Parameter(Position = 7)]
         [string[]]$depends = @(),
 
+        [ValidateNotNull()]
         [Parameter(Position = 8)]
         [string[]]$requiredVariables = @(),
 
@@ -256,9 +258,41 @@ function Task {
         # check to see if that reference task has extra data to add
         $refTask = $psake.ReferenceTasks.$taskKey
         if ($refTask) {
-            if ($refTask.DependsOn.Count -gt 0) { $newTask.DependsOn += $refTask.DependsOn }
-            if ($refTask.ContinueOnError) { $newTask.ContinueOnError = $refTask.ContinueOnError }
-            if ($refTask.RequiredVariables.Count -gt 0) { $newTask.RequiredVariables += $refTask.RequiredVariables }
+
+            # Override the preaction
+            if ($refTask.PreAction -ne $newTask.PreAction) {
+                $newTask.PreAction = $refTask.PreAction
+            }
+
+            # Override the postaction
+            if ($refTask.PostAction -ne $newTask.PostAction) {
+                $newTask.PostAction = $refTask.PostAction
+            }
+
+            # Override the precondition
+            if ($refTask.PreCondition -ne $newTask.PreCondition) {
+                $newTask.PreCondition = $refTask.PreCondition
+            }
+
+            # Override the postcondition
+            if ($refTask.PostCondition -ne $newTask.PostCondition) {
+                $newTask.PostCondition = $refTask.PostCondition
+            }
+
+            # Override the continueOnError
+            if ($refTask.ContinueOnError) {
+                $newTask.ContinueOnError = $refTask.ContinueOnError
+            }
+
+            # Override the depends
+            if ($refTask.DependsOn.Count -gt 0 -and (Compare-Object -ReferenceObject $refTask.DependsOn -DifferenceObject $newTask.DependsOn)) {
+                $newTask.DependsOn = $refTask.DependsOn
+            }
+
+            # Override the requiredVariables
+            if ($refTask.RequiredVariables.Count -gt 0 -and (Compare-Object -ReferenceObject.RequiredVariables -DifferenceObject $newTask.RequiredVariables)) {
+                $newTask.RequiredVariables += $refTask.RequiredVariables
+            }
         }
 
         # Add the task to the context
