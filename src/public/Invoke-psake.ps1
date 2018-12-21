@@ -263,12 +263,17 @@ function Invoke-psake {
                 return
             }
 
-            foreach ($key in $parameters.keys) {
-                if (test-path "variable:\$key") {
-                    set-item -path "variable:\$key" -value $parameters.$key -WhatIf:$false -Confirm:$false | out-null
-                } else {
-                    new-item -path "variable:\$key" -value $parameters.$key -WhatIf:$false -Confirm:$false | out-null
+            try {
+                foreach ($key in $parameters.keys) {
+                    if (test-path "variable:\$key") {
+                        set-item -path "variable:\$key" -value $parameters.$key -WhatIf:$false -Confirm:$false | out-null
+                    } else {
+                        new-item -path "variable:\$key" -value $parameters.$key -WhatIf:$false -Confirm:$false | out-null
+                    }
                 }
+            } catch {
+                WriteColoredOutput "Parameter '$key' is null" -foregroundcolor Red
+                throw
             }
 
             # The initial dot (.) indicates that variables initialized/modified in the propertyBlock are available in the parent scope.
