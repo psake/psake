@@ -5,11 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+## [4.8.0] Unreleased
 
 ### Improvements
 
 [**#267**](https://github.com/psake/psake/pull/267) Add wrapper script for Linux and macOS. (via [@dermeister0](https://github.com/dermeister0))
+
+### Fixed
+
+- [**#272**](https://github.com/psake/psake/pull/272) Improve parameter initialization error handling to include the parameter name which caused failure (via [@GreatTeacherBasshead](https://github.com/GreatTeacherBasshead))
 
 ## [4.7.4] 2018-09-07
 
