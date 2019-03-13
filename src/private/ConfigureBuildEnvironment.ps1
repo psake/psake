@@ -38,15 +38,15 @@ function ConfigureBuildEnvironment {
             }
             {($_ -eq '4.5') -or ($_ -eq '4.5.1') -or ($_ -eq '4.5.2')} {
                 $versions = @('v4.0.30319')
-                $buildToolsVersions = @('15.0', '14.0', '12.0')
+                $buildToolsVersions = @('16.0', '15.0', '14.0', '12.0')
             }
             {($_ -eq '4.6') -or ($_ -eq '4.6.1') -or ($_ -eq '4.6.2')} {
                 $versions = @('v4.0.30319')
-                $buildToolsVersions = @('15.0', '14.0')
+                $buildToolsVersions = @('16.0', '15.0', '14.0')
             }
             {($_ -eq '4.7') -or ($_ -eq '4.7.1') -or ($_ -eq '4.7.2')} {
                 $versions = @('v4.0.30319')
-                $buildToolsVersions = @('15.0')
+                $buildToolsVersions = @('16.0', '15.0')
             }
 
             default {
@@ -102,7 +102,7 @@ function ConfigureBuildEnvironment {
 
                     # borrowed from nightroman https://github.com/nightroman/Invoke-Build
                     if ($vsInstances = Get-VSSetupInstance) {
-                        $vs = @($vsInstances | Select-VSSetupInstance -Version '[15.0,16.0)' -Require Microsoft.Component.MSBuild)
+                        $vs = @($vsInstances | Select-VSSetupInstance -Version '[15.0,)' -Require Microsoft.Component.MSBuild)
                         if ($vs) {
                             if ($buildToolsKey -eq 'MSBuildToolsPath32') {
                                 $frameworkDirs += Join-Path ($vs[0].InstallationPath) MSBuild\15.0\Bin
@@ -112,7 +112,7 @@ function ConfigureBuildEnvironment {
                             }
                         }
 
-                        $vs = @($vsInstances | Select-VSSetupInstance -Version '[15.0,16.0)' -Product Microsoft.VisualStudio.Product.BuildTools)
+                        $vs = @($vsInstances | Select-VSSetupInstance -Version '[15.0,)' -Product Microsoft.VisualStudio.Product.BuildTools)
                         if ($vs) {
                             if ($buildToolsKey -eq 'MSBuildToolsPath32') {
                                 $frameworkDirs += Join-Path ($vs[0].InstallationPath) MSBuild\15.0\Bin
@@ -132,6 +132,38 @@ function ConfigureBuildEnvironment {
                                 $rp = @(Resolve-Path "$root\Microsoft Visual Studio\2017\*\MSBuild\15.0\Bin\amd64" -ErrorAction SilentlyContinue)
                             }
 
+                            if ($rp) {
+                                $frameworkDirs += $rp[-1].ProviderPath
+                            }
+                        }
+                    }
+                }
+                elseif ($ver -eq "16.0") {
+                    if ($null -eq (Get-Module -Name VSSetup)) {
+                        if ($null -eq (Get-Module -Name VSSetup -ListAvailable)) {
+                            WriteColoredOutput ($msgs.warning_missing_vsssetup_module -f $ver) -foregroundcolor Yellow
+                            continue
+                        }
+
+                        Import-Module VSSetup
+                    }
+
+                    # borrowed from nightroman https://github.com/nightroman/Invoke-Build
+                    if ($vsInstances = Get-VSSetupInstance) {
+                        $vs = @($vsInstances | Select-VSSetupInstance -Version '[16.0,)' -Require Microsoft.Component.MSBuild)
+                        if ($vs) {
+                            $frameworkDirs += Join-Path ($vs[0].InstallationPath) MSBuild\Current\Bin
+                        }
+
+                        $vs = @($vsInstances | Select-VSSetupInstance -Version '[16.0,)' -Product Microsoft.VisualStudio.Product.BuildTools)
+                        if ($vs) {
+                            $frameworkDirs += Join-Path ($vs[0].InstallationPath) MSBuild\Current\Bin
+                        }
+                    }
+                    else {
+                        if (!($root = ${env:ProgramFiles(x86)})) {$root = $env:ProgramFiles}
+                        if (Test-Path -LiteralPath "$root\Microsoft Visual Studio\2019") {
+                            $rp = @(Resolve-Path "$root\Microsoft Visual Studio\2019\*\MSBuild\Current\Bin" -ErrorAction SilentlyContinue)
                             if ($rp) {
                                 $frameworkDirs += $rp[-1].ProviderPath
                             }
