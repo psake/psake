@@ -7,6 +7,8 @@ function TaskTearDown {
         .DESCRIPTION
         This function will accept a scriptblock that will be executed after each task in the build script.
 
+        The scriptblock accepts an optional parameter which describes the Task being torn down.
+
         .PARAMETER teardown
         A scriptblock to execute
 
@@ -36,6 +38,41 @@ function TaskTearDown {
         Running 'TaskTearDown' for task Compile
         Executing task, Test...
         Running 'TaskTearDown' for task Test
+
+        Build Succeeded
+
+        .EXAMPLE
+        A sample build script demonstrating access to the task context is shown below:
+
+        Task default -depends Test
+
+        Task Test -depends Compile, Clean {
+        }
+
+        Task Compile -depends Clean {
+        }
+
+        Task Clean {
+        }
+
+        TaskTearDown {
+            param($task)
+
+            if ($task.Success) {
+                "Running 'TaskTearDown' for task $($task.Name) - success!"
+            } else {
+                "Running 'TaskTearDown' for task $($task.Name) - failed: $($task.ErrorMessage)"
+            }
+        }
+
+        The script above produces the following output:
+
+        Executing task, Clean...
+        Running 'TaskTearDown' for task Clean - success!
+        Executing task, Compile...
+        Running 'TaskTearDown' for task Compile - success!
+        Executing task, Test...
+        Running 'TaskTearDown' for task Test - success!
 
         Build Succeeded
 
