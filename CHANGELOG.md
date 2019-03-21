@@ -9,7 +9,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Improvements
 
-[**#267**](https://github.com/psake/psake/pull/267) Add wrapper script for Linux and macOS. (via [@dermeister0](https://github.com/dermeister0))
+- [**#267**](https://github.com/psake/psake/pull/267) Add wrapper script for Linux and macOS. (via [@dermeister0](https://github.com/dermeister0))
+- [**#274**](https://github.com/psake/psake/pull/274) Add support for Visual Studio 2019 and MSBuild 16.0. (via [@petedavis](https://github.com/petedavis))
 
 ### Fixed
 
