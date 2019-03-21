@@ -5,7 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+## [4.8.0] Unreleased
+
+### Features
+
+- Add support for loading in tasks contained in PowerShell modules
 
 ### Features
 
@@ -16,10 +20,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - [**#267**](https://github.com/psake/psake/pull/267) Add wrapper script for Linux and macOS. (via [@dermeister0](https://github.com/dermeister0))
 
 - [**#268**](https://github.com/psake/psake/pull/268) Allow more granularity when specifying versions of modules to load when referencing shared tasks (via [@RandomNoun7](https://github.com/RandomNoun7))
-
-### Fixed
-
-- [**#272**](https://github.com/psake/psake/pull/272) Improve parameter initialization error handling to include the parameter name which caused failure (via [@GreatTeacherBasshead](https://github.com/GreatTeacherBasshead))
 
 ## [4.7.4] 2018-09-07
 
