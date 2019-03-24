@@ -1,0 +1,78 @@
+jobs:
+  - job: build_powerShell_win2016
+    pool:
+      vmImage: vs2017-win2016
+    steps:
+    - powershell: ./build.ps1 -Task Test -Bootstrap -Verbose
+      displayName: 'Build and Test'
+    - task: PublishTestResults@2
+      inputs:
+        testRunner: 'NUnit'
+        testResultsFiles: '**/out/testResults.xml'
+        testRunTitle: 'PS_Win2016'
+      displayName: 'Publish Test Results'
+
+  - job: build_pwsh_win2016
+    pool:
+      vmImage: vs2017-win2016
+    steps:
+    - pwsh: ./build.ps1 -Task Test -Bootstrap -Verbose
+      displayName: 'Build and Test'
+    - task: PublishTestResults@2
+      inputs:
+        testRunner: 'NUnit'
+        testResultsFiles: '**/out/testResults.xml'
+        testRunTitle: 'PS_Win2016'
+      displayName: 'Publish Test Results'
+
+  - job: build_powershell_win2019
+    pool:
+      vmImage: vs2019-win2019
+    steps:
+    - powershell: ./build.ps1 -Task Test -Bootstrap -Verbose
+      displayName: 'Build and Test'
+    - task: PublishTestResults@2
+      inputs:
+        testRunner: 'NUnit'
+        testResultsFiles: '**/out/testResults.xml'
+        testRunTitle: 'PS_Win2016'
+      displayName: 'Publish Test Results'
+
+  - job: build_pwsh_win2019
+    pool:
+      vmImage: windows-2019
+    steps:
+    - pwsh: ./build.ps1 -Task Test -Bootstrap -Verbose
+      displayName: 'Build and Test'
+    - task: PublishTestResults@2
+      inputs:
+        testRunner: 'NUnit'
+        testResultsFiles: '**/out/testResults.xml'
+        testRunTitle: 'PS_Win2016'
+      displayName: 'Publish Test Results'
+
+  - job: build_pwsh_ubuntu1604
+    pool:
+      vmImage: ubuntu-16.04
+    steps:
+    - pwsh: ./build.ps1 -Task Test -Bootstrap -Verbose
+      displayName: 'Build and Test'
+    - task: PublishTestResults@2
+      inputs:
+        testRunner: 'NUnit'
+        testResultsFiles: '**/out/testResults.xml'
+        testRunTitle: 'PSCore_Ubuntu1604'
+      displayName: 'Publish Test Results'
+
+  - job: build_pwsh_macos1013
+    pool:
+      vmImage: macOS-10.13
+    steps:
+    - script: ./build.ps1 -Task Test -Bootstrap -Verbose
+      displayName: 'Build and Test'
+    - task: PublishTestResults@2
+      inputs:
+        testRunner: 'NUnit'
+        testResultsFiles: '**/out/testResults.xml'
+        testRunTitle: 'PSCore_MacOS1013'
+      displayName: 'Publish Test Results'

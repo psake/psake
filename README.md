@@ -1,9 +1,9 @@
 Welcome to the psake project
 =============================
 
-| AppVeyor | Travis | PS Gallery | Chocolatey | Nuget.org | Gitter |
-|----------|--------|--------------------|------------|-----------|--------|
-|[![Build status][appveyor-badge]][appveyor-build] | [![Build Status][travis-badge]][travis-build] | [![PowerShell Gallery][psgallery-badge]][psgallery] | [![Chocolatey][chocolatey-badge]][chocolatey] | [![Nuget downloads][nuget-downloads]][nuget] | [![Join the chat at https://gitter.im/psake/psake][gitter-badge]][gitter]
+| Azure Pipelines | PS Gallery | Chocolatey | Nuget.org | Gitter |
+|-----------------|------------|------------|-----------|--------|
+[![Azure Pipelines Build Status][azure-pipeline-badge]][azure-pipeline-build] | [![PowerShell Gallery][psgallery-badge]][psgallery] | [![Chocolatey][chocolatey-badge]][chocolatey] | [![Nuget downloads][nuget-downloads]][nuget] | [![Join the chat at https://gitter.im/psake/psake][gitter-badge]][gitter]
 
 psake is a build automation tool written in PowerShell. It avoids the angle-bracket tax associated with executable XML by leveraging the PowerShell syntax in your build scripts.
 psake has a syntax inspired by rake (aka make in Ruby) and bake (aka make in Boo), but is easier to script because it leverages your existing command-line knowledge.
@@ -63,10 +63,8 @@ Also check out the **[psake-contrib](http://github.com/psake/psake-contrib)** pr
 
 psake is released under the [MIT license](http://www.opensource.org/licenses/MIT).
 
-[appveyor-badge]: https://ci.appveyor.com/api/projects/status/e8b90u1q1ex5hx9m?svg=true
-[appveyor-build]: https://ci.appveyor.com/project/psake/psake
-[travis-badge]: https://travis-ci.org/psake/psake.svg?branch=master
-[travis-build]: https://travis-ci.org/psake/psake
+[azure-pipeline-badge]: https://dev.azure.com/devblackops/psake/_apis/build/status/psake-CI
+[azure-pipeline-build]: https://dev.azure.com/devblackops/psake/_build/latest?definitionId=1
 [gitter-badge]: https://badges.gitter.im/Join%20Chat.svg
 [gitter]: https://gitter.im/psake/psake?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
 [psgallery-badge]: https://img.shields.io/powershellgallery/dt/psake.svg
