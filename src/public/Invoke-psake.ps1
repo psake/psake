@@ -317,24 +317,8 @@ function Invoke-psake {
         $psake.build_success = $true
 
     } catch {
-        $currentConfig = GetCurrentConfigurationOrDefault
-        if ($currentConfig.verboseError) {
-            $error_message = "{0}: An Error Occurred. See Error Details Below: $($script:nl)" -f (Get-Date)
-            $error_message += ("-" * 70) + $script:nl
-            $error_message += "Error: {0}$($script:nl)" -f (ResolveError $_ -Short)
-            $error_message += ("-" * 70) + $script:nl
-            $error_message += ResolveError $_
-            $error_message += ("-" * 70) + $script:nl
-            $error_message += "Script Variables" + $script:nl
-            $error_message += ("-" * 70) + $script:nl
-            $error_message += get-variable -scope script | format-table | out-string
-        } else {
-            # ($_ | Out-String) gets error messages with source information included.
-            $error_message = "Error: {0}: $($script:nl){1}" -f (Get-Date), (ResolveError $_ -Short)
-        }
-
         $psake.build_success = $false
-        $psake.error_message = $error_message
+        $psake.error_message = FormatErrorMessage $_
 
         # if we are running in a nested scope (i.e. running a psake script from a psake script) then we need to re-throw the exception
         # so that the parent script will fail otherwise the parent script will report a successful build

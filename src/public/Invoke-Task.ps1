@@ -115,29 +115,12 @@ function Invoke-Task {
                         # want to catch errors here _before_ we invoke TaskTearDown
                         # so that TaskTearDown reliably gets the Task-scoped
                         # success/fail/error context.
-
-                        $currentConfig = GetCurrentConfigurationOrDefault
-                        if ($currentConfig.verboseError) {
-                            $error_message = "{0}: An Error Occurred. See Error Details Below: $($script:nl)" -f (Get-Date)
-                            $error_message += ("-" * 70) + $script:nl
-                            $error_message += "Error: {0}$($script:nl)" -f (ResolveError $_ -Short)
-                            $error_message += ("-" * 70) + $script:nl
-                            $error_message += ResolveError $_
-                            $error_message += ("-" * 70) + $script:nl
-                            $error_message += "Script Variables" + $script:nl
-                            $error_message += ("-" * 70) + $script:nl
-                            $error_message += get-variable -scope script | format-table | out-string
-                        } else {
-                            # ($_ | Out-String) gets error messages with source information included.
-                            $error_message = "Error: {0}: $($script:nl){1}" -f (Get-Date), (ResolveError $_ -Short)
-                        }
-
                         $task.Success        = $false
                         $task.ErrorMessage   = $_
                         $task.ErrorDetail    = $_ | Out-String
-                        $task.ErrorFormatted = $error_message
+                        $task.ErrorFormatted = FormatErrorMessage $_
 
-                        throw $_ # pass this up the chain; don't have to cleanup here
+                        throw $_ # pass this up the chain; cleanup is handled higher int he stack
                     } finally {
                         & $currentContext.taskTearDownScriptBlock $task
                     }
