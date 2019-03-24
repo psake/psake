@@ -68,7 +68,7 @@ jobs:
     pool:
       vmImage: macOS-10.13
     steps:
-    - script: ./build.ps1 -Task Test -Bootstrap -Verbose
+    - pwsh: ./build.ps1 -Task Test -Bootstrap -Verbose
       displayName: 'Build and Test'
     - task: PublishTestResults@2
       inputs:
