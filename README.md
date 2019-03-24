@@ -63,8 +63,8 @@ Also check out the **[psake-contrib](http://github.com/psake/psake-contrib)** pr
 
 psake is released under the [MIT license](http://www.opensource.org/licenses/MIT).
 
-[azure-pipeline-badge]: https://dev.azure.com/devblackops/psake/_apis/build/status/psake-CI
-[azure-pipeline-build]: https://dev.azure.com/devblackops/psake/_build/latest?definitionId=1
+[azure-pipeline-badge]: https://dev.azure.com/devblackops/psake/_apis/build/status/psake.psake?branchName=master
+[azure-pipeline-build]: https://dev.azure.com/devblackops/psake/_build/latest?definitionId=5&branchName=master
 [gitter-badge]: https://badges.gitter.im/Join%20Chat.svg
 [gitter]: https://gitter.im/psake/psake?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
 [psgallery-badge]: https://img.shields.io/powershellgallery/dt/psake.svg
