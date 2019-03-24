@@ -11,15 +11,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - Add support for loading in tasks contained in PowerShell modules
 
-### Features
-
-- Add support for loading in tasks contained in PowerShell modules
-
 ### Improvements
 
 - [**#267**](https://github.com/psake/psake/pull/267) Add wrapper script for Linux and macOS. (via [@dermeister0](https://github.com/dermeister0))
 
 - [**#268**](https://github.com/psake/psake/pull/268) Allow more granularity when specifying versions of modules to load when referencing shared tasks (via [@RandomNoun7](https://github.com/RandomNoun7))
+
+- [**#274**](https://github.com/psake/psake/pull/274) Add support for Visual Studio 2019 and MSBuild 16.0. (via [@petedavis](https://github.com/petedavis))
+
+### Fixed
+
+- [**#272**](https://github.com/psake/psake/pull/272) Improve parameter initialization error handling to include the parameter name which caused failure (via [@GreatTeacherBasshead](https://github.com/GreatTeacherBasshead))
 
 ## [4.7.4] 2018-09-07
 
