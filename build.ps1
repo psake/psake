@@ -10,13 +10,14 @@ param(
     [switch]$Bootstrap
 )
 
-$sut             = Join-Path -Path $PSScriptRoot -ChildPath 'src'
-$manifestPath    = Join-Path -Path $sut -ChildPath 'psake.psd1'
-$version         = (Import-PowerShellDataFile -Path $manifestPath).ModuleVersion
-$outputDir       = Join-Path -Path $PSScriptRoot -ChildPath 'output'
-$outputModDir    = Join-Path -Path $outputDir -ChildPath 'psake'
-$outputModVerDir = Join-Path -Path $outputModDir -ChildPath $version
+$sut             = Join-Path -Path $PSScriptRoot    -ChildPath 'src'
+$manifestPath    = Join-Path -Path $sut             -ChildPath 'psake.psd1'
+$version         = (Import-PowerShellDataFile       -Path $manifestPath).ModuleVersion
+$outputDir       = Join-Path -Path $PSScriptRoot    -ChildPath 'output'
+$outputModDir    = Join-Path -Path $outputDir       -ChildPath 'psake'
+$outputModVerDir = Join-Path -Path $outputModDir    -ChildPath $version
 $outputManifest  = Join-Path -Path $outputModVerDir -ChildPath 'psake.psd1'
+$testResultsPath = Join-Path -Path $outputDir       -ChildPath testResults.xml
 
 $PSDefaultParameterValues = @{
     'Get-Module:Verbose'    = $false
@@ -139,7 +140,7 @@ function Analyze {
     param()
 
     $analysis = Invoke-ScriptAnalyzer -Path $sut -Recurse -Verbose:$false
-    $errors = $analysis | Where-Object {$_.Severity -eq 'Error'}
+    $errors   = $analysis | Where-Object {$_.Severity -eq 'Error'}
     $warnings = $analysis | Where-Object {$_.Severity -eq 'Warning'}
 
     if (($errors.Count -eq 0) -and ($warnings.Count -eq 0)) {
@@ -168,7 +169,6 @@ function Pester {
 
     Import-Module -Name $outputManifest
 
-    $testResultsPath = "$PSScriptRoot/testResults.xml"
     $pesterParams = @{
         Path         = './tests'
         OutputFile   = $testResultsPath
@@ -179,12 +179,6 @@ function Pester {
         }
     }
     $testResults = Invoke-Pester @pesterParams
-
-    # Upload test artifacts to AppVeyor
-    if ($env:APPVEYOR_JOB_ID) {
-        $wc = New-Object 'System.Net.WebClient'
-        $wc.UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", $testResultsPath)
-    }
 
     if ($testResults.FailedCount -gt 0) {
         throw "$($testResults.FailedCount) tests failed!"
