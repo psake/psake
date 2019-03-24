@@ -27,7 +27,7 @@ jobs:
 
   - job: build_powershell_win2019
     pool:
-      vmImage: vs2019-win2019
+      vmImage: windows-2019
     steps:
     - powershell: ./build.ps1 -Task Test -Bootstrap -Verbose
       displayName: 'Build and Test'
