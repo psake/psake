@@ -2,22 +2,30 @@
 
 [cmdletbinding()]
 param(
+    # Build task(s) to execute
     [validateSet('Test', 'Analyze', 'Pester', 'Clean', 'Build', 'CreateMarkdownHelp', 'BuildNuget', 'PublishChocolatey', 'PublishPSGallery')]
-    [string]$Task = 'Test'
+    [string]$Task = 'Test',
+
+    # Bootstrap dependencies
+    [switch]$Bootstrap
 )
 
-$sut = Join-Path -Path $PSScriptRoot -ChildPath 'src'
-$manifestPath = Join-Path -Path $sut -ChildPath 'psake.psd1'
-$version = (Import-PowerShellDataFile -Path $manifestPath).ModuleVersion
-$outputDir = Join-Path -Path $PSScriptRoot -ChildPath $version
-$outputManifest = Join-Path -Path $outputDir -ChildPath 'psake.psd1'
-#$manifestPath = [IO.Path]::Combine($outputDir, 'psake.psd1')
-#$sut = $outputDir
+$sut             = Join-Path -Path $PSScriptRoot -ChildPath 'src'
+$manifestPath    = Join-Path -Path $sut -ChildPath 'psake.psd1'
+$version         = (Import-PowerShellDataFile -Path $manifestPath).ModuleVersion
+$outputDir       = Join-Path -Path $PSScriptRoot -ChildPath 'output'
+$outputModDir    = Join-Path -Path $outputDir -ChildPath 'psake'
+$outputModVerDir = Join-Path -Path $outputModDir -ChildPath $version
+$outputManifest  = Join-Path -Path $outputModVerDir -ChildPath 'psake.psd1'
 
 $PSDefaultParameterValues = @{
     'Get-Module:Verbose'    = $false
     'Remove-Module:Verbose' = $false
     'Import-Module:Verbose' = $false
+}
+
+if ($Bootstrap) {
+    Invoke-PSDepend -Path './requirements.psd1' -Install -Import -Force -WarningAction SilentlyContinue
 }
 
 # Taken with love from Jaykul @ https://gist.github.com/Jaykul/e0c08be051bed56d62474ae12b9b1b8a
@@ -109,33 +117,6 @@ function Init {
     [cmdletbinding()]
     param()
 
-    $psGallery = Get-PSRepository -Name PSGallery
-    if ($psGallery.InstallationPolicy -ne 'Trusted') {
-        Get-PackageProvider -Name Nuget -ForceBootstrap -Verbose:$false | Out-Null
-        Set-PSRepository -Name PSGallery -InstallationPolicy Trusted -Verbose:$false
-    }
-
-    # Build/test dependencies
-    @(
-        @{ ModuleName = 'Pester';           ModuleVersion = '4.4.2' }
-        @{ ModuleName = 'PlatyPS';          ModuleVersion = '0.11.0' }
-        @{ ModuleName = 'PSScriptAnalyzer'; ModuleVersion = '1.17.1' }
-    ) | Foreach-Object {
-        if (-not (Get-Module -FullyQualifiedName $_ -ListAvailable)) {
-            $inmoParams = @{
-                Name               = $_.ModuleName
-                RequiredVersion    = $_.ModuleVersion
-                Force              = $true
-                AllowClobber       = $true
-                Scope              = 'CurrentUser'
-                ErrorAction        = 'Stop'
-                SkipPublisherCheck = $true
-            }
-            Install-Module @inmoParams
-        }
-        Import-Module -FullyQualifiedName $_
-    }
-
     Remove-Module -Name psake -Force -ErrorAction SilentlyContinue
 }
 
@@ -209,8 +190,8 @@ function Clean {
     [cmdletbinding()]
     param()
 
-    if (Test-Path -Path $outputDir) {
-        Remove-Item -Path $outputDir -Recurse -Force
+    if (Test-Path -Path $outputModVerDir) {
+        Remove-Item -Path $outputModVerDir -Recurse -Force > $null
     }
 }
 
@@ -219,9 +200,12 @@ function Build {
     [cmdletbinding()]
     param()
 
-    New-Item -Path $outputDir -ItemType Directory > $null
-    Copy-Item -Path (Join-Path -Path $sut -ChildPath *) -Destination $outputDir -Recurse
-    Copy-Item -Path (Join-Path -Path $PSScriptRoot -ChildPath 'examples') -Destination $outputDir -Recurse
+    if (-not (Test-Path -Path $outputDir)) {
+        New-Item -Path $outputDir -ItemType Directory > $null
+    }
+    New-Item -Path $outputModVerDir -ItemType Directory > $null
+    Copy-Item -Path (Join-Path -Path $sut -ChildPath *) -Destination $outputModVerDir -Recurse
+    Copy-Item -Path (Join-Path -Path $PSScriptRoot -ChildPath 'examples') -Destination $outputModVerDir -Recurse
 }
 
 function CreateMarkdownHelp {
@@ -257,7 +241,7 @@ function BuildNuget {
     $destTools = Join-Path -Path $dest -ChildPath tools
 
     Copy-Item -Recurse -Path "$here/build/nuget" -Destination $dest -Exclude 'nuget.exe'
-    Copy-Item -Recurse -Path "$outputDir" -Destination "$destTools/psake"
+    Copy-Item -Recurse -Path "$outputModVerDir" -Destination "$destTools/psake"
     @('README.md', 'license') | Foreach-Object {
         Copy-Item -Path "$here/$_" -Destination $destTools
     }
