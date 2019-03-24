@@ -25,6 +25,12 @@ $PSDefaultParameterValues = @{
 }
 
 if ($Bootstrap) {
+    Get-PackageProvider -Name Nuget -ForceBootstrap > $null
+    Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+    if (-not (Get-Module -Name PSDepend -ListAvailable)) {
+        Install-Module -Name PSDepend -Repository PSGallery -Scope CurrentUser -Force
+    }
+    Import-Module -Name PSDepend -Verbose:$false
     Invoke-PSDepend -Path './requirements.psd1' -Install -Import -Force -WarningAction SilentlyContinue
 }
 
