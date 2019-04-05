@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - [**#274**](https://github.com/psake/psake/pull/274) Add support for Visual Studio 2019 and MSBuild 16.0. (via [@petedavis](https://github.com/petedavis))
 
+- [**#276**](https://github.com/psake/psake/pull/276) Pass task detail including error information into TaskSetup and TaskTearDown. (via [@davidalpert](https://github.com/davidalpert))
+
 ### Fixed
 
 - [**#272**](https://github.com/psake/psake/pull/272) Improve parameter initialization error handling to include the parameter name which caused failure (via [@GreatTeacherBasshead](https://github.com/GreatTeacherBasshead))
