@@ -88,7 +88,7 @@ function Invoke-Task {
                     $currentContext.currentTaskName = $taskName
 
                     try {
-                        & $currentContext.taskSetupScriptBlock
+                        & $currentContext.taskSetupScriptBlock @($task)
                         try {
                             if ($task.PreAction) {
                                 & $task.PreAction
@@ -111,8 +111,18 @@ function Invoke-Task {
                                 & $task.PostAction
                             }
                         }
+                    } catch {
+                        # want to catch errors here _before_ we invoke TaskTearDown
+                        # so that TaskTearDown reliably gets the Task-scoped
+                        # success/fail/error context.
+                        $task.Success        = $false
+                        $task.ErrorMessage   = $_
+                        $task.ErrorDetail    = $_ | Out-String
+                        $task.ErrorFormatted = FormatErrorMessage $_
+
+                        throw $_ # pass this up the chain; cleanup is handled higher int he stack
                     } finally {
-                        & $currentContext.taskTearDownScriptBlock
+                        & $currentContext.taskTearDownScriptBlock $task
                     }
                 } catch {
                     if ($task.ContinueOnError) {
