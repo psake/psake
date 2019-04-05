@@ -203,10 +203,10 @@ function Task {
             Duration          = [System.TimeSpan]::Zero
             RequiredVariables = $requiredVariables
             Alias             = $alias
-            Success = $true # let's be optimistic
-            ErrorMessage = $nill
-            ErrorDetail = $nill
-            ErrorFormatted = $nill
+            Success           = $true # let's be optimistic
+            ErrorMessage      = $null
+            ErrorDetail       = $null
+            ErrorFormatted    = $null
         }
     }
 
