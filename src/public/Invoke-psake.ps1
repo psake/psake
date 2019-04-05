@@ -327,7 +327,7 @@ function Invoke-psake {
             throw $_
         } else {
             if (!$psake.run_by_psake_build_tester) {
-                WriteColoredOutput $error_message -foregroundcolor Red
+                WriteColoredOutput $psake.error_message -foregroundcolor Red
             }
         }
     } finally {
