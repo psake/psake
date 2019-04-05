@@ -23,7 +23,7 @@
     VariablesToExport = 'psake'
     PrivateData       = @{
         PSData = @{
-            PreRelease   = 'alpha'
+            PreRelease   = 'beta'
             ReleaseNotes = 'https://raw.githubusercontent.com/psake/psake/master/CHANGELOG.md'
             LicenseUri   = 'https://raw.githubusercontent.com/psake/psake/master/license.txt'
             ProjectUri   = 'https://github.com/psake/psake'
