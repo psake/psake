@@ -266,8 +266,7 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable.
-For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
@@ -293,6 +292,7 @@ $psake.config_default               # contains default configuration
 $psake.build_success                # indicates that the current build was successful
 $psake.build_script_file            # contains a System.IO.FileInfo for the current build script
 $psake.build_script_dir             # contains the fully qualified path to the current build script
+$psake.error_message                # contains the error message which caused the script to fail
 
 You should see the following when you display the contents of the $psake variable right after importing psake
 
@@ -308,6 +308,7 @@ build_script_file
 build_script_dir
 config_default                 @{framework=3.5; ...
 context                        {}
+error_message
 
 After a build is executed the following $psake values are updated: build_script_file, build_script_dir, build_success
 
@@ -342,6 +343,7 @@ context                        {}
 version                        4.2
 build_success                  True
 config_default                 @{framework=3.5; ...
+error_message
 
 ## RELATED LINKS
 
