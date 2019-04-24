@@ -264,7 +264,7 @@ function Task {
         $psake.ReferenceTasks.Add($referenceTaskKey, $referenceTask)
 
         # Load in tasks from shared module into staging area
-        Assert ($null -ne $taskModule) ($msgs.error_unknown_module -f $moduleSpec.ModuleName)
+        Assert ($null -ne $taskModule) ($msgs.error_unknown_module -f $FromModule)
         $psakeFilePath = Join-Path -Path $taskModule.ModuleBase -ChildPath 'psakeFile.ps1'
         if (-not $psake.LoadedTaskModules.ContainsKey($psakeFilePath)) {
             Write-Debug -Message "Loading tasks from task module [$psakeFilePath]"
