@@ -278,7 +278,7 @@ function Task {
 
         # If this task was referenced from a parent build script
         # check to see if that reference task has extra data to add
-        $refTask = $psake.ReferenceTasks.$taskKey
+        $refTask = $psake.ReferenceTasks[$taskKey]
         if ($refTask) {
 
             # Override the preaction
@@ -320,12 +320,12 @@ function Task {
         # Add the task to the context
         Assert (-not $currentContext.tasks.ContainsKey($taskKey)) ($msgs.error_duplicate_task_name -f $taskKey)
         Write-Debug "Adding task [$taskKey)]"
-        $currentContext.tasks.$taskKey = $newTask
+        $currentContext.tasks[$taskKey] = $newTask
 
         if ($alias) {
             $aliasKey = $alias.ToLower()
             Assert (-not $currentContext.aliases.ContainsKey($aliasKey)) ($msgs.error_duplicate_alias_name -f $alias)
-            $currentContext.aliases.$aliasKey = $newTask
+            $currentContext.aliases[$aliasKey] = $newTask
         }
     }
 }

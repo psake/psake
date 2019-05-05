@@ -167,7 +167,7 @@ function Pester {
         . "$PSScriptRoot/build/travis.ps1"
     }
 
-    Import-Module -Name $outputManifest
+    Import-Module -Name $outputManifest -Force
 
     $pesterParams = @{
         Path         = './tests'
