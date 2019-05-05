@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [4.8.1] Unreleased
 
+### Fixed
+
+- Fix hashtable references so strict mode works when set in the psakeFile.
+
 ## [4.8.0] 2019-04-23
 
 ### Features
