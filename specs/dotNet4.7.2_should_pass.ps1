@@ -1,6 +1,8 @@
 Framework '4.7.2'
-    task default -depends MsBuild
-    task MsBuild {
+
+task default -depends MsBuild
+
+task MsBuild {
     if ( $IsMacOS -OR $IsLinux ) {}
     else {
         $output = &msbuild /version /nologo 2>&1
