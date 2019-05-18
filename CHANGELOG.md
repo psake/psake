@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - Fix hashtable references so strict mode works when set in the psakeFile.
 
+### Added
+
+- [**#281**](https://github.com/psake/psake/pull/281) Support for .Net 4.8 in `Framework` function (via [@granit1986](https://github.com/granit1986))
+
 ## [4.8.0] 2019-04-23
 
 ### Features
