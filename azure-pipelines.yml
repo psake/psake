@@ -63,16 +63,3 @@ jobs:
         testResultsFiles: '**/output/testResults.xml'
         testRunTitle: 'PSCore_Ubuntu1604'
       displayName: 'Publish Test Results'
-
-  - job: build_pwsh_macos1013
-    pool:
-      vmImage: macOS-10.13
-    steps:
-    - pwsh: ./build.ps1 -Task Test -Bootstrap -Verbose
-      displayName: 'Build and Test'
-    - task: PublishTestResults@2
-      inputs:
-        testRunner: 'NUnit'
-        testResultsFiles: '**/output/testResults.xml'
-        testRunTitle: 'PSCore_MacOS1013'
-      displayName: 'Publish Test Results'
