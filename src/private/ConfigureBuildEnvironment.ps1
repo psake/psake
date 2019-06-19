@@ -50,7 +50,7 @@ function ConfigureBuildEnvironment {
             }
             '4.8' {
                 $versions = @('v4.0.30319')
-                $buildToolsVersions = @('15.0')
+                $buildToolsVersions = @('16.0', '15.0')
             }
 
             default {
@@ -106,7 +106,7 @@ function ConfigureBuildEnvironment {
 
                     # borrowed from nightroman https://github.com/nightroman/Invoke-Build
                     if ($vsInstances = Get-VSSetupInstance) {
-                        $vs = @($vsInstances | Select-VSSetupInstance -Version '[15.0,)' -Require Microsoft.Component.MSBuild)
+                        $vs = @($vsInstances | Select-VSSetupInstance -Version '[15.0, 16.0)' -Require Microsoft.Component.MSBuild)
                         if ($vs) {
                             if ($buildToolsKey -eq 'MSBuildToolsPath32') {
                                 $frameworkDirs += Join-Path ($vs[0].InstallationPath) MSBuild\15.0\Bin
@@ -116,7 +116,7 @@ function ConfigureBuildEnvironment {
                             }
                         }
 
-                        $vs = @($vsInstances | Select-VSSetupInstance -Version '[15.0,)' -Product Microsoft.VisualStudio.Product.BuildTools)
+                        $vs = @($vsInstances | Select-VSSetupInstance -Version '[15.0, 16.0)' -Product Microsoft.VisualStudio.Product.BuildTools)
                         if ($vs) {
                             if ($buildToolsKey -eq 'MSBuildToolsPath32') {
                                 $frameworkDirs += Join-Path ($vs[0].InstallationPath) MSBuild\15.0\Bin
