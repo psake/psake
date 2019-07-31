@@ -294,6 +294,8 @@ function Invoke-psake {
             # module's scope in order to initialize variables properly.
             . $module $initialization
 
+            & $currentContext.buildSetupScriptBlock
+
             # Execute the list of tasks or the default task
             if ($taskList) {
                 foreach ($task in $taskList) {
