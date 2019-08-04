@@ -297,14 +297,19 @@ function Invoke-psake {
             & $currentContext.buildSetupScriptBlock
 
             # Execute the list of tasks or the default task
-            if ($taskList) {
-                foreach ($task in $taskList) {
-                    invoke-task $task
+            try {
+                if ($taskList) {
+                    foreach ($task in $taskList) {
+                        invoke-task $task
+                    }
+                } elseif ($currentContext.tasks.default) {
+                    invoke-task default
+                } else {
+                    throw $msgs.error_no_default_task
                 }
-            } elseif ($currentContext.tasks.default) {
-                invoke-task default
-            } else {
-                throw $msgs.error_no_default_task
+            }
+            finally {
+                & $currentContext.buildTearDownScriptBlock
             }
 
             $successMsg = $msgs.psake_success -f $buildFile
