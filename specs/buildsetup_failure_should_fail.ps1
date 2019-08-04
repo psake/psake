@@ -5,11 +5,11 @@ BuildSetup {
 Task default -depends Compile, Test, Deploy
 
 Task Compile {
-    "Compiling;"
+    "Compiling"
 }
 
 Task Test -depends Compile {
-    "Testing;"
+    "Testing"
 }
 
 Task Deploy -depends Test {

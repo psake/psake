@@ -5,18 +5,18 @@ Properties {
 BuildSetup {
     [string]$expected = "Test123"
     if ($testProperty -ne $expected) {
-        throw "Expected sequence '$expected', but was actually '$script:sequence'"
+        throw "Expected sequence '$expected', but was actually '$testProperty'"
     }
 }
 
 Task default -depends Compile, Test, Deploy
 
 Task Compile {
-    "Compiling;"
+    "Compiling"
 }
 
 Task Test -depends Compile {
-    "Testing;"
+    "Testing"
 }
 
 Task Deploy -depends Test {
