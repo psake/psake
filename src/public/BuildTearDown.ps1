@@ -4,7 +4,6 @@ function BuildTearDown {
         Adds a scriptblock that will be executed once at the end of the build
         .DESCRIPTION
         This function will accept a scriptblock that will be executed once at the end of the build, regardless of success or failure
-        The scriptblock accepts an optional parameter which describes the Task being setup.
         .PARAMETER setup
         A scriptblock to execute
         .EXAMPLE
@@ -42,10 +41,9 @@ function BuildTearDown {
         Executing task, Clean...
         Executing task, Compile...
         Executing task, Test...
-        Task failed : forced error
         Running 'BuildTearDown'
         forced error
-        At line:x char:x
+        At line:x char:x ...
         .LINK
         Assert
         .LINK

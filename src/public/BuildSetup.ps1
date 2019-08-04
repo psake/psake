@@ -4,7 +4,6 @@ function BuildSetup {
         Adds a scriptblock that will be executed once at the beginning of the build
         .DESCRIPTION
         This function will accept a scriptblock that will be executed once at the beginning of the build.
-        The scriptblock accepts an optional parameter which describes the Task being setup.
         .PARAMETER setup
         A scriptblock to execute
         .EXAMPLE
@@ -39,10 +38,12 @@ function BuildSetup {
         Properties
         .LINK
         Task
-       .LINK
-        TaskSetup
         .LINK
-        TaskTearDown
+        BuildTearDown
+        .LINK
+         TaskSetup
+         .LINK
+         TaskTearDown
     #>
     [CmdletBinding()]
     param(
