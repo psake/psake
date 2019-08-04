@@ -12,6 +12,7 @@ function ExecuteInBuildFileScope {
     $psake.context.push(
         @{
             "buildSetupScriptBlock"         = {}
+            "buildTearDownScriptBlock"      = {}
             "taskSetupScriptBlock"          = {}
             "taskTearDownScriptBlock"       = {}
             "executedTasks"                 = new-object System.Collections.Stack
