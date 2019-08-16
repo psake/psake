@@ -19,6 +19,8 @@ TaskSetup [-setup] <ScriptBlock> [<CommonParameters>]
 ## DESCRIPTION
 This function will accept a scriptblock that will be executed before each task in the build script.
 
+The scriptblock accepts an optional parameter which describes the Task being setup.
+
 ## EXAMPLES
 
 ### EXAMPLE 1
@@ -39,6 +41,39 @@ Task Clean {
 
 TaskSetup {
     "Running 'TaskSetup' for task $context.Peek().currentTaskName"
+}
+
+The script above produces the following output:
+
+Running 'TaskSetup' for task Clean
+Executing task, Clean...
+Running 'TaskSetup' for task Compile
+Executing task, Compile...
+Running 'TaskSetup' for task Test
+Executing task, Test...
+
+Build Succeeded
+
+### EXAMPLE 2
+```
+A sample build script showing access to the Task context is shown below:
+```
+
+Task default -depends Test
+
+Task Test -depends Compile, Clean {
+}
+
+Task Compile -depends Clean {
+}
+
+Task Clean {
+}
+
+TaskSetup {
+    param($task)
+
+    "Running 'TaskSetup' for task $($task.Name)"
 }
 
 The script above produces the following output:

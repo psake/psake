@@ -24,7 +24,8 @@ Task [-name] <String> [[-action] <ScriptBlock>] [[-preaction] <ScriptBlock>] [[-
 Task [-name] <String> [[-action] <ScriptBlock>] [[-preaction] <ScriptBlock>] [[-postaction] <ScriptBlock>]
  [[-precondition] <ScriptBlock>] [[-postcondition] <ScriptBlock>] [-continueOnError] [[-depends] <String[]>]
  [[-requiredVariables] <String[]>] [[-description] <String>] [[-alias] <String>] [-FromModule] <String>
- [[-Version] <Version>] [<CommonParameters>]
+ [[-requiredVersion] <String>] [[-minimumVersion] <String>] [[-maximumVersion] <String>]
+ [[-lessThanVersion] <String>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -275,16 +276,62 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Version
-The version of the PowerShell module to load in the task from.
+### -requiredVersion
+The specific version of a module to load the task from
 
 ```yaml
-Type: Version
+Type: String
+Parameter Sets: SharedTask
+Aliases: Version
+
+Required: False
+Position: 13
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -minimumVersion
+The minimum (inclusive) version of the PowerShell module to load in the task from.
+
+```yaml
+Type: String
 Parameter Sets: SharedTask
 Aliases:
 
 Required: False
-Position: 13
+Position: 14
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -maximumVersion
+The maximum (inclusive) version of the PowerShell module to load in the task from.
+
+```yaml
+Type: String
+Parameter Sets: SharedTask
+Aliases:
+
+Required: False
+Position: 15
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -lessThanVersion
+The version of the PowerShell module to load in the task from that should not be met or exceeded.
+eg -lessThanVersion 2.0.0 will reject anything 2.0.0 or higher, allowing any module in the 1.x.x series.
+
+```yaml
+Type: String
+Parameter Sets: SharedTask
+Aliases:
+
+Required: False
+Position: 16
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
