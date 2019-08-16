@@ -5,11 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [4.8.2] Unreleased
+## [4.8.1] Unreleased
 
 ### Fixed
 
 - Fix hashtable references so strict mode works when set in the psakeFile.
+- [**#283**](https://github.com/psake/psake/pull/283) Fix path issue for msbuild is VS 2019. (via [@jaymclain](https://github.com/jaymclain))
 
 ### Added
 
