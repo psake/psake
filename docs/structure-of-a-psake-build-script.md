@@ -12,6 +12,8 @@ The functions are the following:
 |_FormatTaskName()_|Allows you to reformat how psake displays the currently running task|no|
 |_TaskSetup()_|A function that will run before each task is executed|no|
 |_TaskTearDown()_|A function that will run after each task|no|
+|_BuildSetup()_|A script block that will run before the first task starts|no|
+|_BuildTearDown()_|A script block that will run when either all tasks have completed, or the build has failed|no|
 
 An example psake script:
 <hr/>
@@ -38,12 +40,15 @@ Task Clean {
 <BuildScript> ::= <Includes> 
                 | <Properties>
                 | <FormatTaskName> 
+                | <BuildSetup> 
                 | <TaskSetup> 
                 | <TaskTearDown> 
                 | <Tasks> 
 <Includes> ::= Include <StringLiteral> | <Includes>
 <Properties> ::= Properties <ScriptBlock> | <Properties>
 <FormatTaskName> ::= FormatTaskName <Stringliteral>
+<BuildSetup> ::= BuildSetup <ScriptBlock>
+<BuildTearDown> ::= BuildTearDown <ScriptBlock>
 <TaskSetup> ::= TaskSetup <ScriptBlock>
 <TaskTearDown> ::= TaskTearDown <ScriptBlock>
 <Tasks> ::= Task <TaskParameters> | <Tasks>
