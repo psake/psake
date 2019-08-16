@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [4.8.1] Unreleased
+## [4.9.0] Unreleased
 
 ### Fixed
 
@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 - [**#281**](https://github.com/psake/psake/pull/281) Support for .Net 4.8 in `Framework` function (via [@granit1986](https://github.com/granit1986))
+- [**#285**](https://github.com/psake/psake/pull/285) Add BuildSetup and BuildTearDown functions that are executed at the beginning of the build (before the first task), and at the end of the build (after either all tasks have completed, or a task has failed). (via [@UberDoodles](https://github.com/UberDoodles))
 
 ## [4.8.0] 2019-04-23
 
