@@ -1,9 +1,9 @@
 Welcome to the psake project
 =============================
 
-| Azure Pipelines | PS Gallery | Chocolatey | Nuget.org | Gitter |
-|-----------------|------------|------------|-----------|--------|
-[![Azure Pipelines Build Status][azure-pipeline-badge]][azure-pipeline-build] | [![PowerShell Gallery][psgallery-badge]][psgallery] | [![Chocolatey][chocolatey-badge]][chocolatey] | [![Nuget downloads][nuget-downloads]][nuget] | [![Join the chat at https://gitter.im/psake/psake][gitter-badge]][gitter]
+| Azure Pipelines | GitHub Actions | PS Gallery | Chocolatey | Nuget.org | Gitter |
+|-----------------|----------------|------------|------------|-----------|--------|
+[![Azure Pipelines Build Status][azure-pipeline-badge]][azure-pipeline-build] | [![GitHub Actions Status][github-actions-badge]][github-actions-build] | [![PowerShell Gallery][psgallery-badge]][psgallery] | [![Chocolatey][chocolatey-badge]][chocolatey] | [![Nuget downloads][nuget-downloads]][nuget] | [![Join the chat at https://gitter.im/psake/psake][gitter-badge]][gitter]
 
 psake is a build automation tool written in PowerShell. It avoids the angle-bracket tax associated with executable XML by leveraging the PowerShell syntax in your build scripts.
 psake has a syntax inspired by rake (aka make in Ruby) and bake (aka make in Boo), but is easier to script because it leverages your existing command-line knowledge.
@@ -65,6 +65,8 @@ psake is released under the [MIT license](http://www.opensource.org/licenses/MIT
 
 [azure-pipeline-badge]: https://dev.azure.com/devblackops/psake/_apis/build/status/psake.psake?branchName=master
 [azure-pipeline-build]: https://dev.azure.com/devblackops/psake/_build/latest?definitionId=5&branchName=master
+[github-actions-badge]: https://github.com/psake/psake/workflows/CI/badge.svg
+[github-actions-build]: https://github.com/psake/psake/actions
 [gitter-badge]: https://badges.gitter.im/Join%20Chat.svg
 [gitter]: https://gitter.im/psake/psake?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
 [psgallery-badge]: https://img.shields.io/powershellgallery/dt/psake.svg
