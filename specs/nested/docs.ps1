@@ -1,5 +1,5 @@
 
-Task default -depends Compile,Test
+Task Default -depends Compile,Test
 
 Task Compile -depends CompileSolutionA,CompileSolutionB
 
