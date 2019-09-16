@@ -1,17 +1,18 @@
 Task default -depends Test
 
 Task Test {
+    [string]$currentPath = Get-Location
+    [string]$parentPath = Split-Path $currentPath -Parent
     [string[]]$global:locations = @()
-    [string[]]$expected = "env:\,variable:\,variable:\,variable:\,env:\"
+    [string[]]$expected = "$currentPath,$parentPath,$parentPath,$parentPath,$currentPath"
     [scriptblock]$cmd = {
         $global:locations += Get-Location
         throw "forced error"
     }
-    Set-Location "env:"
 
     $global:locations += Get-Location
     try {
-        Exec -cmd $cmd -maxRetries 2 -workingDirectory "variable:"
+        Exec -cmd $cmd -maxRetries 2 -workingDirectory $parentPath
     }
     catch {}
     $global:locations += Get-Location
