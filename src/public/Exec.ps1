@@ -65,14 +65,15 @@ function Exec {
         [string]$workingDirectory = $null
     )
 
-    if ($workingDirectory) {
-        Push-Location -Path $workingDirectory
-    }
-
     $tryCount = 1
 
     do {
         try {
+
+            if ($workingDirectory) {
+                Push-Location -Path $workingDirectory
+            }
+
             $global:lastexitcode = 0
             & $cmd
             if ($global:lastexitcode -ne 0) {
