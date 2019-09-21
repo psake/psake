@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - Fix hashtable references so strict mode works when set in the psakeFile.
 - [**#283**](https://github.com/psake/psake/pull/283) Fix path issue for msbuild is VS 2019. (via [@jaymclain](https://github.com/jaymclain))
+- [**#287**](https://github.com/psake/psake/pull/287) In `Exec` function, always rerun command in specified location (via [@tiksn](https://github.com/tiksn) and [@UberDoodles](https://github.com/UberDoodles))
 
 ### Added
 
