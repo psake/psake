@@ -7,8 +7,11 @@ function Include {
         A build script may declare an "includes" function which allows you to define a file containing powershell code to be included
         and added to the scope of the currently running build script. Code from such file will be executed after code from build script.
 
-        .PARAMETER fileNamePathToInclude
-        A string containing the path and name of the powershell file to include
+        .PARAMETER Path
+        A string containing the path and name of the powershell file to include (wildcards can be used)
+
+        .PARAMETER LiteralPath
+        A string containing the path and name of the powershell file to include (no wildcards)
 
         .EXAMPLE
         A sample build script is shown below:
@@ -31,6 +34,13 @@ function Include {
 
         Note: You can have more than 1 "Include" function defined in the build script.
 
+        .EXAMPLE
+        Strings or FileInfo objects can be piped to the Include function
+
+        @("File1.ps1","File2.ps1") | Include
+        Get-ChildItem | Include
+
+
         .LINK
         Assert
         .LINK
@@ -52,13 +62,29 @@ function Include {
         .LINK
         TaskTearDown
     #>
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Path')]
     param(
-        [Parameter(Mandatory = $true)]
-        [string]$fileNamePathToInclude
+        [Parameter(ParameterSetName='Path', Mandatory=$true, Position=0, ValueFromPipelineByPropertyName=$true, ValueFromPipeline=$true)]
+        [Alias("fileNamePathToInclude")]
+        [ValidateNotNullOrEmpty()]
+        [SupportsWildcards()]
+        [string]$Path,
+        [Parameter(ParameterSetName='LiteralPath', Mandatory=$true, Position=0, ValueFromPipelineByPropertyName=$true)]
+        [ValidateNotNullOrEmpty()]
+        [string]$LiteralPath
     )
 
-    Assert (test-path $fileNamePathToInclude -pathType Leaf) ($msgs.error_invalid_include_path -f $fileNamePathToInclude)
+    Process {
+        if ($PSCmdlet.ParameterSetName -eq 'Path') {
+            [string[]]$resolvedPaths = Resolve-Path -Path $Path | Select-Object -ExpandProperty Path
+        } elseif ($PSCmdlet.ParameterSetName -eq 'LiteralPath') {
+            [string[]]$resolvedPaths = Resolve-Path -LiteralPath $LiteralPath | Select-Object -ExpandProperty Path
+        }
 
-    $psake.context.Peek().includes.Enqueue((Resolve-Path $fileNamePathToInclude));
+        foreach ($resolvedPath in $resolvedPaths) {
+            Assert (test-path $resolvedPath -pathType Leaf) ($msgs.error_invalid_include_path -f $resolvedPath)
+
+            $psake.context.Peek().includes.Enqueue($resolvedPath);
+        }
+    }
 }
