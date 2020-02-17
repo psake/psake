@@ -4,7 +4,7 @@
 
 # Must match parameter definitions for psake.psm1/invoke-psake
 # otherwise named parameter binding fails
-[cmdletbinding()]
+[cmdletbinding(PositionalBinding = $false)]
 param(
     [Parameter(Position = 0, Mandatory = $false)]
     [string]$buildFile,
@@ -12,36 +12,39 @@ param(
     [Parameter(Position = 1, Mandatory = $false)]
     [string[]]$taskList = @(),
 
-    [Parameter(Position = 2, Mandatory = $false)]
+    [Parameter(Mandatory = $false)]
     [string]$framework,
 
-    [Parameter(Position = 3, Mandatory = $false)]
+    [Parameter(Mandatory = $false)]
     [switch]$docs = $false,
 
-    [Parameter(Position = 4, Mandatory = $false)]
-    [System.Collections.Hashtable]$parameters = @{},
+    [Parameter(Mandatory = $false)]
+    [hashtable]$parameters = @{ },
 
-    [Parameter(Position = 5, Mandatory = $false)]
-    [System.Collections.Hashtable]$properties = @{},
+    [Parameter(Mandatory = $false)]
+    [hashtable]$properties = @{ },
 
-    [Parameter(Position = 6, Mandatory = $false)]
+    [Parameter(Mandatory = $false)]
     [alias("init")]
-    [scriptblock]$initialization = {},
+    [scriptblock]$initialization = { },
 
-    [Parameter(Position = 7, Mandatory = $false)]
+    [Parameter(Mandatory = $false)]
     [switch]$nologo = $false,
 
-    [Parameter(Position = 8, Mandatory = $false)]
-    [switch]$help = $false,
-
-    [Parameter(Position = 9, Mandatory = $false)]
-    [string]$scriptPath,
-
-    [Parameter(Position = 10, Mandatory = $false)]
+    [Parameter(Mandatory = $false)]
     [switch]$detailedDocs = $false,
 
-    [Parameter(Position = 11, Mandatory = $false)]
-    [switch]$notr = $false
+    [Parameter(Mandatory = $false)]
+    [switch]$notr = $false,
+
+    [Parameter(Mandatory = $false, ValueFromRemainingArguments = $true)]
+    $buildScriptArguments = $null,
+
+    [Parameter(Mandatory = $false)]
+    [switch]$help = $false,
+
+    [Parameter(Mandatory = $false)]
+    [string]$scriptPath
 )
 
 # setting $scriptPath here, not as default argument, to support calling as "powershell -File psake.ps1"
@@ -64,7 +67,7 @@ if ($buildFile -and (-not (Test-Path -Path $buildFile))) {
     }
 }
 
-Invoke-psake $buildFile $taskList $framework $docs $parameters $properties $initialization $nologo $detailedDocs $notr
+Invoke-psake $buildFile $taskList -framework $framework -docs:$docs -parameters $parameters -properties $properties -init $initialization -nologo:$nologo -detailedDocs:$detailedDocs -notr:$notr $buildScriptArguments
 
 if (!$psake.build_success) {
     exit 1

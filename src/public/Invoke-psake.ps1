@@ -205,7 +205,7 @@ function Invoke-psake {
         .LINK
         Properties
     #>
-    [CmdletBinding()]
+    [CmdletBinding(PositionalBinding = $false)]
     param(
         [Parameter(Position = 0, Mandatory = $false)]
         [string]$buildFile,
@@ -213,30 +213,33 @@ function Invoke-psake {
         [Parameter(Position = 1, Mandatory = $false)]
         [string[]]$taskList = @(),
 
-        [Parameter(Position = 2, Mandatory = $false)]
+        [Parameter(Mandatory = $false)]
         [string]$framework,
 
-        [Parameter(Position = 3, Mandatory = $false)]
+        [Parameter(Mandatory = $false)]
         [switch]$docs = $false,
 
-        [Parameter(Position = 4, Mandatory = $false)]
-        [hashtable]$parameters = @{},
+        [Parameter(Mandatory = $false)]
+        [hashtable]$parameters = @{ },
 
-        [Parameter(Position = 5, Mandatory = $false)]
-        [hashtable]$properties = @{},
+        [Parameter(Mandatory = $false)]
+        [hashtable]$properties = @{ },
 
-        [Parameter(Position = 6, Mandatory = $false)]
+        [Parameter(Mandatory = $false)]
         [alias("init")]
-        [scriptblock]$initialization = {},
+        [scriptblock]$initialization = { },
 
-        [Parameter(Position = 7, Mandatory = $false)]
+        [Parameter(Mandatory = $false)]
         [switch]$nologo,
 
-        [Parameter(Position = 8, Mandatory = $false)]
+        [Parameter(Mandatory = $false)]
         [switch]$detailedDocs,
 
-        [Parameter(Position = 9, Mandatory = $false)]
-        [switch]$notr # disable time report
+        [Parameter(Mandatory = $false)]
+        [switch]$notr, # disable time report
+
+        [Parameter(Mandatory = $false, ValueFromRemainingArguments = $true)]
+        $buildScriptArguments
     )
 
     try {
@@ -244,7 +247,7 @@ function Invoke-psake {
             "psake version {0}$($script:nl)Copyright (c) 2010-2018 James Kovacs & Contributors$($script:nl)" -f $psake.version
         }
         if (!$buildFile) {
-           $buildFile = Get-DefaultBuildFile
+            $buildFile = Get-DefaultBuildFile
         }
         elseif (!(Test-Path $buildFile -PathType Leaf) -and ($null -ne (Get-DefaultBuildFile -UseDefaultIfNoneExist $false))) {
             # If the default file exists and the given "buildfile" isn't found assume that the given
@@ -255,8 +258,25 @@ function Invoke-psake {
 
         $psake.error_message = $null
 
-        ExecuteInBuildFileScope $buildFile $MyInvocation.MyCommand.Module {
-            param($currentContext, $module)
+        # Based on https://stackoverflow.com/a/27765140/1334364
+        $buildscriptArumentsHash = @{ }
+        $buildScriptArguments | ForEach-Object {
+            if ($PSItem -match '^-') {
+                $parameterName = $PSItem -replace '^-'
+                $buildscriptArumentsHash[$parameterName] = $null
+            }
+            else {
+                if ($parameterName -eq $null) {
+                    throw "Passing parameters to build script is possible only via named parameters."
+                }
+                Write-Warning $PSItem.GetType()
+                $buildscriptArumentsHash[$parameterName] = $PSItem
+                $parameterName = $null
+            }
+        }
+
+        ExecuteInBuildFileScope $buildFile $MyInvocation.MyCommand.Module $buildscriptArumentsHash {
+            param($currentContext, $module, $buildScriptArguments)
 
             $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 
@@ -269,11 +289,13 @@ function Invoke-psake {
                 foreach ($key in $parameters.keys) {
                     if (test-path "variable:\$key") {
                         set-item -path "variable:\$key" -value $parameters.$key -WhatIf:$false -Confirm:$false | out-null
-                    } else {
+                    }
+                    else {
                         new-item -path "variable:\$key" -value $parameters.$key -WhatIf:$false -Confirm:$false | out-null
                     }
                 }
-            } catch {
+            }
+            catch {
                 WriteColoredOutput "Parameter '$key' is null" -foregroundcolor Red
                 throw
             }
@@ -302,9 +324,11 @@ function Invoke-psake {
                     foreach ($task in $taskList) {
                         invoke-task $task
                     }
-                } elseif ($currentContext.tasks.default) {
+                }
+                elseif ($currentContext.tasks.default) {
                     invoke-task default
-                } else {
+                }
+                else {
                     throw $msgs.error_no_default_task
                 }
             }
@@ -323,7 +347,8 @@ function Invoke-psake {
 
         $psake.build_success = $true
 
-    } catch {
+    }
+    catch {
         $psake.build_success = $false
         $psake.error_message = FormatErrorMessage $_
 
@@ -332,12 +357,14 @@ function Invoke-psake {
         $inNestedScope = ($psake.context.count -gt 1)
         if ( $inNestedScope ) {
             throw $_
-        } else {
+        }
+        else {
             if (!$psake.run_by_psake_build_tester) {
                 WriteColoredOutput $psake.error_message -foregroundcolor Red
             }
         }
-    } finally {
+    }
+    finally {
         CleanupEnvironment
     }
 }

@@ -1,5 +1,5 @@
 function ExecuteInBuildFileScope {
-    param([string]$buildFile, $module, [scriptblock]$sb)
+    param([string]$buildFile, $module, $buildScriptArguments, [scriptblock]$sb)
 
     # Execute the build file to set up the tasks and defaults
     Assert (test-path $buildFile -pathType Leaf) ($msgs.error_build_file_not_found -f $buildFile)
@@ -11,17 +11,17 @@ function ExecuteInBuildFileScope {
     # Create a new psake context
     $psake.context.push(
         @{
-            "buildSetupScriptBlock"         = {}
-            "buildTearDownScriptBlock"      = {}
-            "taskSetupScriptBlock"          = {}
-            "taskTearDownScriptBlock"       = {}
+            "buildSetupScriptBlock"         = { }
+            "buildTearDownScriptBlock"      = { }
+            "taskSetupScriptBlock"          = { }
+            "taskTearDownScriptBlock"       = { }
             "executedTasks"                 = new-object System.Collections.Stack
             "callStack"                     = new-object System.Collections.Stack
             "originalEnvPath"               = $env:PATH
             "originalDirectory"             = get-location
             "originalErrorActionPreference" = $global:ErrorActionPreference
-            "tasks"                         = @{}
-            "aliases"                       = @{}
+            "tasks"                         = @{ }
+            "aliases"                       = @{ }
             "properties"                    = new-object System.Collections.Stack
             "includes"                      = new-object System.Collections.Queue
             "config"                        = CreateConfigurationForNewContext $buildFile $framework
@@ -37,8 +37,7 @@ function ExecuteInBuildFileScope {
     LoadModules
 
     $frameworkOldValue = $framework
-
-    . $psake.build_script_file.FullName
+    . $psake.build_script_file.FullName @buildScriptArguments
 
     $currentContext = $psake.context.Peek()
 
