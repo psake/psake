@@ -62,96 +62,105 @@ function Invoke-Task {
 
     $currentContext.callStack.Push($taskKey)
 
-    $task = $currentContext.tasks.$taskKey
+    try {
 
-    $precondition_is_valid = & $task.Precondition
+        $task = $currentContext.tasks.$taskKey
 
-    if (!$precondition_is_valid) {
-        WriteColoredOutput ($msgs.precondition_was_false -f $taskName) -foregroundcolor Cyan
-    } else {
-        if ($taskKey -ne 'default') {
+        $precondition_is_valid = & $task.Precondition
 
-            if ($task.PreAction -or $task.PostAction) {
-                Assert ($null -ne $task.Action) ($msgs.error_missing_action_parameter -f $taskName)
-            }
+        if (!$precondition_is_valid) {
+            WriteColoredOutput ($msgs.precondition_was_false -f $taskName) -foregroundcolor Cyan
+        } else {
+            if ($taskKey -ne 'default') {
 
-            if ($task.Action) {
+                if ($task.PreAction -or $task.PostAction) {
+                    Assert ($null -ne $task.Action) ($msgs.error_missing_action_parameter -f $taskName)
+                }
 
-                $stopwatch = new-object System.Diagnostics.Stopwatch
+                if ($task.Action) {
 
-                try {
+                    $stopwatch = new-object System.Diagnostics.Stopwatch
+
+                    try {
+                        foreach($childTask in $task.DependsOn) {
+                            Invoke-Task $childTask
+                        }
+                        $stopwatch.Start()
+
+                        $currentContext.currentTaskName = $taskName
+
+                        try {
+                            & $currentContext.taskSetupScriptBlock @($task)
+                            try {
+                                if ($task.PreAction) {
+                                    & $task.PreAction
+                                }
+
+                                if ($currentContext.config.taskNameFormat -is [ScriptBlock]) {
+                                    $taskHeader = & $currentContext.config.taskNameFormat $taskName
+                                } else {
+                                    $taskHeader = $currentContext.config.taskNameFormat -f $taskName
+                                }
+                                WriteColoredOutput $taskHeader -foregroundcolor Cyan
+
+                                foreach ($variable in $task.requiredVariables) {
+                                    Assert ((Test-Path "variable:$variable") -and ($null -ne (Get-Variable $variable).Value)) ($msgs.required_variable_not_set -f $variable, $taskName)
+                                }
+
+                                & $task.Action
+                            } finally {
+                                if ($task.PostAction) {
+                                    & $task.PostAction
+                                }
+                            }
+                        } catch {
+                            # want to catch errors here _before_ we invoke TaskTearDown
+                            # so that TaskTearDown reliably gets the Task-scoped
+                            # success/fail/error context.
+                            $task.Success        = $false
+                            $task.ErrorMessage   = $_
+                            $task.ErrorDetail    = $_ | Out-String
+                            $task.ErrorFormatted = FormatErrorMessage $_
+
+
+
+                            throw $_ # pass this up the chain; cleanup is handled higher int he stack
+                        } finally {
+                            & $currentContext.taskTearDownScriptBlock $task
+                        }
+                    } catch {
+                        if ($task.ContinueOnError) {
+                            "-"*70
+                            WriteColoredOutput ($msgs.continue_on_error -f $taskName,$_) -foregroundcolor Yellow
+                            "-"*70
+                        }  else {
+                            throw $_
+                        }
+                    } finally {
+                        $task.Duration = $stopwatch.Elapsed
+                    }
+                } else {
+                    # no action was specified but we still execute all the dependencies
                     foreach($childTask in $task.DependsOn) {
                         Invoke-Task $childTask
                     }
-                    $stopwatch.Start()
-
-                    $currentContext.currentTaskName = $taskName
-
-                    try {
-                        & $currentContext.taskSetupScriptBlock @($task)
-                        try {
-                            if ($task.PreAction) {
-                                & $task.PreAction
-                            }
-
-                            if ($currentContext.config.taskNameFormat -is [ScriptBlock]) {
-                                $taskHeader = & $currentContext.config.taskNameFormat $taskName
-                            } else {
-                                $taskHeader = $currentContext.config.taskNameFormat -f $taskName
-                            }
-                            WriteColoredOutput $taskHeader -foregroundcolor Cyan
-
-                            foreach ($variable in $task.requiredVariables) {
-                                Assert ((Test-Path "variable:$variable") -and ($null -ne (Get-Variable $variable).Value)) ($msgs.required_variable_not_set -f $variable, $taskName)
-                            }
-
-                            & $task.Action
-                        } finally {
-                            if ($task.PostAction) {
-                                & $task.PostAction
-                            }
-                        }
-                    } catch {
-                        # want to catch errors here _before_ we invoke TaskTearDown
-                        # so that TaskTearDown reliably gets the Task-scoped
-                        # success/fail/error context.
-                        $task.Success        = $false
-                        $task.ErrorMessage   = $_
-                        $task.ErrorDetail    = $_ | Out-String
-                        $task.ErrorFormatted = FormatErrorMessage $_
-
-                        throw $_ # pass this up the chain; cleanup is handled higher int he stack
-                    } finally {
-                        & $currentContext.taskTearDownScriptBlock $task
-                    }
-                } catch {
-                    if ($task.ContinueOnError) {
-                        "-"*70
-                        WriteColoredOutput ($msgs.continue_on_error -f $taskName,$_) -foregroundcolor Yellow
-                        "-"*70
-                    }  else {
-                        throw $_
-                    }
-                } finally {
-                    $task.Duration = $stopwatch.Elapsed
                 }
             } else {
-                # no action was specified but we still execute all the dependencies
                 foreach($childTask in $task.DependsOn) {
                     Invoke-Task $childTask
                 }
             }
-        } else {
-            foreach($childTask in $task.DependsOn) {
-                Invoke-Task $childTask
-            }
+
+            Assert (& $task.Postcondition) ($msgs.postcondition_failed -f $taskName)
         }
-
-        Assert (& $task.Postcondition) ($msgs.postcondition_failed -f $taskName)
     }
-
-    $poppedTaskKey = $currentContext.callStack.Pop()
-    Assert ($poppedTaskKey -eq $taskKey) ($msgs.error_corrupt_callstack -f $taskKey,$poppedTaskKey)
+    catch {
+        throw $_
+    }
+    finally {
+        $poppedTaskKey = $currentContext.callStack.Pop()
+        Assert ($poppedTaskKey -eq $taskKey) ($msgs.error_corrupt_callstack -f $taskKey,$poppedTaskKey)
+    }
 
     $currentContext.executedTasks.Push($taskKey)
 }
