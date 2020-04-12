@@ -55,7 +55,7 @@ You can find all the information about each release of psake in the [releases se
 
 If you'd like to get involved with psake, we have discussion groups over at Google: **[psake-dev](http://groups.google.com/group/psake-dev)** **[psake-users](http://groups.google.com/group/psake-users)**
 
-Anyone can fork the main repository and submit patches, as well. And lastly, the [wiki](http://wiki.github.com/psake/psake/) and [issues list](http://github.com/psake/psake/issues) are also open for additions, edits, and discussion.
+Anyone can fork the main repository and submit patches, as well. And lastly, the [wiki](https://psake.readthedocs.io/en/latest/) and [issues list](http://github.com/psake/psake/issues) are also open for additions, edits, and discussion.
 
 Also check out the **[psake-contrib](http://github.com/psake/psake-contrib)** project for scripts, modules and functions to help you with a build.
 
