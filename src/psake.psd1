@@ -1,6 +1,6 @@
 @{
     RootModule        = 'psake.psm1'
-    ModuleVersion     = '4.9.0'
+    ModuleVersion     = '4.9.1'
     GUID              = 'cfb53216-072f-4a46-8975-ff7e6bda05a5'
     Author            = 'James Kovacs'
     Copyright         = 'Copyright (c) 2010-18 James Kovacs, Damian Hickey, Brandon Olin, and Contributors'
