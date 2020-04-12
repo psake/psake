@@ -1,5 +1,5 @@
 jobs:
-  - job: build_powerShell_win2016
+  - job: powerShell_win2016
     pool:
       vmImage: vs2017-win2016
     steps:
@@ -12,7 +12,7 @@ jobs:
         testRunTitle: 'PS_Win2016'
       displayName: 'Publish Test Results'
 
-  - job: build_pwsh_win2016
+  - job: pwsh_win2016
     pool:
       vmImage: vs2017-win2016
     steps:
@@ -25,7 +25,7 @@ jobs:
         testRunTitle: 'PS_Win2016'
       displayName: 'Publish Test Results'
 
-  - job: build_powershell_win2019
+  - job: powershell_win2019
     pool:
       vmImage: windows-2019
     steps:
@@ -38,7 +38,7 @@ jobs:
         testRunTitle: 'PS_Win2016'
       displayName: 'Publish Test Results'
 
-  - job: build_pwsh_win2019
+  - job: pwsh_win2019
     pool:
       vmImage: windows-2019
     steps:
@@ -51,7 +51,7 @@ jobs:
         testRunTitle: 'PS_Win2016'
       displayName: 'Publish Test Results'
 
-  - job: build_pwsh_ubuntu1604
+  - job: pwsh_ubuntu1604
     pool:
       vmImage: ubuntu-16.04
     steps:
@@ -64,9 +64,9 @@ jobs:
         testRunTitle: 'PSCore_Ubuntu1604'
       displayName: 'Publish Test Results'
 
-  - job: build_pwsh_macos1013
+  - job: pwsh_ubuntu1804
     pool:
-      vmImage: macOS-10.13
+      vmImage: ubuntu-18.04
     steps:
     - pwsh: ./build.ps1 -Task Test -Bootstrap -Verbose
       displayName: 'Build and Test'
@@ -74,5 +74,18 @@ jobs:
       inputs:
         testRunner: 'NUnit'
         testResultsFiles: '**/output/testResults.xml'
-        testRunTitle: 'PSCore_MacOS1013'
+        testRunTitle: 'PSCore_Ubuntu1804'
+      displayName: 'Publish Test Results'
+
+  - job: pwsh_macos1015
+    pool:
+      vmImage: macOS-10.15
+    steps:
+    - pwsh: ./build.ps1 -Task Test -Bootstrap -Verbose
+      displayName: 'Build and Test'
+    - task: PublishTestResults@2
+      inputs:
+        testRunner: 'NUnit'
+        testResultsFiles: '**/output/testResults.xml'
+        testRunTitle: 'PSCore_MacOS1015'
       displayName: 'Publish Test Results'
