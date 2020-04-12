@@ -9,7 +9,7 @@ $manifest = Import-PowerShellDataFile -Path $manifestPath
 # Remove all versions of the module from the session. Pester can't handle multiple versions.
 Remove-Module -Name psake -Force
 Import-Module -Name $manifestPath -Force -Verbose:$false -ErrorAction Stop
-$commands = Get-Command -Module psake -CommandType Cmdlet, Function, Workflow  # Not alias
+$commands = Get-Command -Module psake -CommandType Cmdlet, Function  # Not alias
 
 ## When testing help, remember that help is cached at the beginning of each session.
 ## To test, restart session.
