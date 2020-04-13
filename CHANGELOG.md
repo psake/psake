@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - [**#296**](https://github.com/psake/psake/pull/296) Fix `-ContinueOnError` functionality (via [@UberDoodles](https://github.com/UberDoodles))
 
+### Improvements
+
+- [**#297**](https://github.com/psake/psake/pull/297) Enable type conversion when passing properties (via [@whut](https://github.com/whut))
+
 ## [4.9.0] 2019-09-21
 
 ### Fixed
