@@ -12,7 +12,7 @@ BuildTearDown {
 }
 
 Task Test {
-    Assert ($(Test-Path "Function:\Test-Function1") -ne $null) "Test-Function1 is not accessible";
-    Assert ($(Test-Path "Function:\Test-Function2") -ne $null) "Test-Function2 is not accessible";
+    Assert ($(Test-Path "Function:\Test-Function1")) "Test-Function1 is not accessible";
+    Assert ($(Test-Path "Function:\Test-Function2")) "Test-Function2 is not accessible";
 }
 
