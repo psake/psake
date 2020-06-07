@@ -100,6 +100,37 @@ $psake.config_default = new-object psobject -property @{
     coloredOutput       = $true
     modules             = $null
     moduleScope         = ""
+    outputHandler       = {
+        [CmdLetBinding()]
+        Param (
+            [Parameter(Position=0)]
+            [object]$Output,
+            [Parameter(Position=1)]
+            [string]$OutputType = "default"
+        )
+
+        Process {
+            if ($psake.context.peek().config.outputHandlers.$OutputType -is [scriptblock]) {
+                & $psake.context.peek().config.outputHandlers.$OutputType $Output $OutputType
+            }
+            elseif ($OutputType -ne "default") {
+                Write-Warning "No outputHandler has been defined for $OutputType output. The default outputHandler will be used."
+                WriteOutput -Output $Output -OutputType "default"
+            }
+            else {
+                Write-Warning "The default outputHandler is invalid. Write-Output will be used."
+                Write-Output $Output
+            }
+        }
+    };
+    outputHandlers      = @{
+        heading         = { Param($output) WriteColoredOutput $output -foregroundcolor Cyan };
+        default         = { Param($output) Write-Output $output };
+        debug           = { Param($output) Write-Debug $output };
+        warning         = { Param($output) WriteColoredOutput $output -foregroundcolor Yellow };
+        error           = { Param($output) WriteColoredOutput $output -foregroundcolor Red };
+        success         = { Param($output) WriteColoredOutput $output -foregroundcolor Green };
+    }
 } # contains default configuration, can be overridden in psake-config.ps1 in directory with psake.psm1 or in directory with current build script
 
 $psake.build_success = $false # indicates that the current build was successful
