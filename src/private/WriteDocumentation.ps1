@@ -19,8 +19,8 @@ function WriteDocumentation($showDetailed) {
                     }
 
         if ($showDetailed) {
-            $docs | Sort-Object 'Name' | format-list -property Name,Alias,Description,@{Label="Depends On";Expression={$_.DependsOn -join ', '}},Default
+            $docs | Sort-Object 'Name' | format-list -property Name,Alias,Description,@{Label="Depends On";Expression={$_.DependsOn -join ', '}},Default | WriteOutput
         } else {
-            $docs | Sort-Object 'Name' | format-table -autoSize -wrap -property Name,Alias,@{Label="Depends On";Expression={$_.DependsOn -join ', '}},Default,Description
+            $docs | Sort-Object 'Name' | format-table -autoSize -wrap -property Name,Alias,@{Label="Depends On";Expression={$_.DependsOn -join ', '}},Default,Description | WriteOutput
         }
     }
