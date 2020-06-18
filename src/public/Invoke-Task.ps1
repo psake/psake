@@ -69,7 +69,7 @@ function Invoke-Task {
         $precondition_is_valid = & $task.Precondition
 
         if (!$precondition_is_valid) {
-            WriteColoredOutput ($msgs.precondition_was_false -f $taskName) -foregroundcolor Cyan
+            WriteOutput ($msgs.precondition_was_false -f $taskName) "heading"
         } else {
             if ($taskKey -ne 'default') {
 
@@ -101,7 +101,7 @@ function Invoke-Task {
                                 } else {
                                     $taskHeader = $currentContext.config.taskNameFormat -f $taskName
                                 }
-                                WriteColoredOutput $taskHeader -foregroundcolor Cyan
+                                WriteOutput $taskHeader "heading"
 
                                 foreach ($variable in $task.requiredVariables) {
                                     Assert ((Test-Path "variable:$variable") -and ($null -ne (Get-Variable $variable).Value)) ($msgs.required_variable_not_set -f $variable, $taskName)
@@ -131,7 +131,7 @@ function Invoke-Task {
                     } catch {
                         if ($task.ContinueOnError) {
                             "-"*70
-                            WriteColoredOutput ($msgs.continue_on_error -f $taskName,$_) -foregroundcolor Yellow
+                            WriteOutput ($msgs.continue_on_error -f $taskName,$_) "warning"
                             "-"*70
                         }  else {
                             throw $_
