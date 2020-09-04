@@ -30,7 +30,7 @@ $config.outputHandler = {
 
     Process {
         if ($psake.context.peek().config.outputHandlers.$OutputType -is [scriptblock]) {
-            & $psake.context.peek().config.outputHandlers.$OutputType $Output $OutputType
+            & $psake.context.peek().config.outputHandlers.$OutputType $Output
         }
         elseif ($OutputType -ne "default") {
             Write-Warning "No outputHandler has been defined for $OutputType output. The default outputHandler will be used."
