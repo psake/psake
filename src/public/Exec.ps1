@@ -62,6 +62,7 @@ function Exec {
 
         [string]$retryTriggerErrorPattern = $null,
 
+        [Alias("wd")]
         [string]$workingDirectory = $null
     )
 
