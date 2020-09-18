@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Improvements
 
 - [**#297**](https://github.com/psake/psake/pull/297) Enable type conversion when passing properties (via [@whut](https://github.com/whut))
+- [**#303**](https://github.com/psake/psake/pull/303) Add alias `wd` for `workingDirectory` on the `exec` command (via [@SeidChr](https://github.com/SeidChr))
 
 ## [4.9.0] 2019-09-21
 
