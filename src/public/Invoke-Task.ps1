@@ -77,6 +77,10 @@ function Invoke-Task {
                     Assert ($null -ne $task.Action) ($msgs.error_missing_action_parameter -f $taskName)
                 }
 
+                foreach ($variable in $task.requiredVariables) {
+                    Assert ((Test-Path "variable:$variable") -and ($null -ne (Get-Variable $variable).Value)) ($msgs.required_variable_not_set -f $variable, $taskName)
+                }
+
                 if ($task.Action) {
 
                     $stopwatch = new-object System.Diagnostics.Stopwatch
@@ -102,10 +106,6 @@ function Invoke-Task {
                                     $taskHeader = $currentContext.config.taskNameFormat -f $taskName
                                 }
                                 WriteColoredOutput $taskHeader -foregroundcolor Cyan
-
-                                foreach ($variable in $task.requiredVariables) {
-                                    Assert ((Test-Path "variable:$variable") -and ($null -ne (Get-Variable $variable).Value)) ($msgs.required_variable_not_set -f $variable, $taskName)
-                                }
 
                                 & $task.Action
                             } finally {

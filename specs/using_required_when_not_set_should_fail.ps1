@@ -1,10 +1,9 @@
 ﻿properties {
-    $x = $null
-    $y = $null
     $z = $null
 }
 
-task default -depends TestProperties
+task default -depends TestWithAction, TestWithoutAction
 
-task TestProperties -requiredVariables z{
-}
+task TestWithAction -requiredVariables z {}
+
+task TestWithoutAction -requiredVariables z

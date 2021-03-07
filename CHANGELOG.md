@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 
 - [**#296**](https://github.com/psake/psake/pull/296) Fix `-ContinueOnError` functionality (via [@UberDoodles](https://github.com/UberDoodles))
+- Required variables set on a task are now validated even if the task has no action defined.
 
 ### Improvements
 
