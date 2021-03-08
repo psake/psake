@@ -125,6 +125,7 @@ function Init {
     param()
 
     Remove-Module -Name psake -Force -ErrorAction SilentlyContinue
+    Set-BuildEnvironment -Force
 }
 
 function Test {
@@ -171,12 +172,8 @@ function Pester {
 
     $pesterParams = @{
         Path         = './tests'
-        OutputFile   = $testResultsPath
-        OutputFormat = 'NUnitXml'
+        Output       = 'Detailed'
         PassThru     = $true
-        PesterOption = @{
-            IncludeVSCodeMarker = $true
-        }
     }
     $testResults = Invoke-Pester @pesterParams
 
@@ -270,6 +267,7 @@ try {
     Invoke-Step $Task
 } catch {
     throw $_
+    exit 1
 } finally {
     Pop-Location
 }
