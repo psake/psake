@@ -11,13 +11,13 @@ function ConvertTo-UTF8() {
     [CmdletBinding()]
     [OutputType([void])]
     param(
-        [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
-        [System.IO.FileInfo]$fileInfo
+        [Parameter(Mandatory, ValueFromPipeline)]
+        [System.IO.FileInfo]$FileInfo
     )
 
     process {
-        $content = Get-Content -Raw -Encoding Unicode -Path $fileInfo.FullName
-        [System.IO.File]::WriteAllText($fileInfo.FullName, $content, [System.Text.Encoding]::UTF8)
+        $content = Get-Content -Raw -Encoding Unicode -Path $FileInfo.FullName
+        [System.IO.File]::WriteAllText($FileInfo.FullName, $content, [System.Text.Encoding]::UTF8)
     }
 }
 
@@ -25,38 +25,44 @@ function ConvertTo-SpaceIndentation() {
     [CmdletBinding()]
     [OutputType([void])]
     param(
-        [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
-        [System.IO.FileInfo]$fileInfo
+        [Parameter(Mandatory, ValueFromPipeline)]
+        [IO.FileInfo]$FileInfo
     )
 
     process {
-        $content = (Get-Content -Raw -Path $fileInfo.FullName) -replace "`t", '    '
-        [System.IO.File]::WriteAllText($fileInfo.FullName, $content)
+        $content = (Get-Content -Raw -Path $FileInfo.FullName) -replace "`t", '    '
+        [IO.File]::WriteAllText($FileInfo.FullName, $content)
     }
 }
 
 function Get-TextFilesList {
     [CmdletBinding()]
-    [OutputType([System.IO.FileInfo])]
+    [OutputType([IO.FileInfo])]
     param(
-        [Parameter(Mandatory = $true)]
-        [string]$root
+        [Parameter(Mandatory, ValueFromPipeline)]
+        [string]$Root
     )
-    Get-ChildItem -File -Recurse $root | Where-Object { @('.gitignore', '.gitattributes', '.ps1', '.psm1', '.psd1', '.json', '.xml', '.cmd', '.mof') -contains $_.Extension }
+
+    begin {
+        $txtFileExtentions = @('.gitignore', '.gitattributes', '.ps1', '.psm1', '.psd1', '.json', '.xml', '.cmd', '.mof')
+    }
+
+    process {
+        Get-ChildItem -Path $Root -File -Recurse |
+            Where-Object { $_.Extension -in $txtFileExtentions }
+    }
 }
 
 function Test-FileUnicode {
-
     [CmdletBinding()]
     [OutputType([bool])]
     param(
-        [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
-        [System.IO.FileInfo]$fileInfo
+        [Parameter(Mandatory, ValueFromPipeline)]
+        [IO.FileInfo]$FileInfo
     )
 
     process {
-        $path = $fileInfo.FullName
-        $bytes = [System.IO.File]::ReadAllBytes($path)
+        $bytes     = [IO.File]::ReadAllBytes($FileInfo.FullName)
         $zeroBytes = @($bytes -eq 0)
         return [bool]$zeroBytes.Length
     }
@@ -64,11 +70,11 @@ function Test-FileUnicode {
 
 function Get-UnicodeFilesList() {
     [CmdletBinding()]
-    [OutputType([System.IO.FileInfo])]
+    [OutputType([IO.FileInfo])]
     param(
-        [Parameter(Mandatory = $true)]
-        [string]$root
+        [Parameter(Mandatory)]
+        [string]$Root
     )
 
-    Get-TextFilesList $root | Where-Object { Test-FileUnicode $_ }
+    $root | Get-TextFilesList | Where-Object { Test-FileUnicode $_ }
 }
