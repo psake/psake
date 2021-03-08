@@ -12,7 +12,7 @@ BeforeDiscovery {
     }
 
     $manifest             = Import-PowerShellDataFile -Path $env:BHPSModuleManifest
-    $outputDir            = Join-Path -Path $env:BHProjectPath -ChildPath 'Output'
+    $outputDir            = Join-Path -Path $env:BHProjectPath -ChildPath 'output'
     $outputModDir         = Join-Path -Path $outputDir -ChildPath $env:BHProjectName
     $outputModVerDir      = Join-Path -Path $outputModDir -ChildPath $manifest.ModuleVersion
     $outputModVerManifest = Join-Path -Path $outputModVerDir -ChildPath "$($env:BHProjectName).psd1"
