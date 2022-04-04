@@ -39,7 +39,7 @@ function Task {
         .PARAMETER RequiredVariables
         An array of names of variables that must be set to run this task.
 
-        .PARAMETER description
+        .PARAMETER Description
         A description of the task.
 
         .PARAMETER alias
@@ -166,7 +166,7 @@ function Task {
         [string[]]$RequiredVariables = @(),
 
         [Parameter(Position = 9)]
-        [string]$description = $null,
+        [string]$Description = $null,
 
         [Parameter(Position = 10)]
         [string]$alias = $null,
@@ -199,7 +199,7 @@ function Task {
             Precondition      = $PreCondition
             Postcondition     = $PostCondition
             ContinueOnError   = $ContinueOnError
-            Description       = $description
+            Description       = $Description
             Duration          = [System.TimeSpan]::Zero
             RequiredVariables = $RequiredVariables
             Alias             = $alias
