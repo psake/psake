@@ -10,7 +10,7 @@ function Task {
         .PARAMETER Name
         The name of the task
 
-        .PARAMETER action
+        .PARAMETER Action
         A scriptblock containing the statements to execute for the task.
 
         .PARAMETER preaction
@@ -140,7 +140,7 @@ function Task {
         [string]$Name,
 
         [Parameter(Position = 1)]
-        [scriptblock]$action = $null,
+        [scriptblock]$Action = $null,
 
         [Parameter(Position = 2)]
         [scriptblock]$preaction = $null,
@@ -194,7 +194,7 @@ function Task {
             Name              = $Name
             DependsOn         = $depends
             PreAction         = $preaction
-            Action            = $action
+            Action            = $Action
             PostAction        = $postaction
             Precondition      = $precondition
             Postcondition     = $postcondition
@@ -212,12 +212,12 @@ function Task {
 
     # Default tasks have no action
     if ($Name -eq 'default') {
-        Assert (!$action) ($msgs.error_shared_task_cannot_have_action)
+        Assert (!$Action) ($msgs.error_shared_task_cannot_have_action)
     }
 
     # Shared tasks have no action
     if ($PSCmdlet.ParameterSetName -eq 'SharedTask') {
-        Assert (!$action) ($msgs.error_shared_task_cannot_have_action -f $Name, $FromModule)
+        Assert (!$Action) ($msgs.error_shared_task_cannot_have_action -f $Name, $FromModule)
     }
 
     $currentContext = $psake.context.Peek()
