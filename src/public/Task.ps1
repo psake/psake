@@ -29,7 +29,7 @@ function Task {
         A scriptblock that is executed to determine if the task completed its job correctly.
         An exception is thrown if the scriptblock returns $false.
 
-        .PARAMETER continueOnError
+        .PARAMETER ContinueOnError
         If this switch parameter is set then the task will not cause the build to fail when an exception is thrown by the task
 
         .PARAMETER depends
@@ -155,7 +155,7 @@ function Task {
         [scriptblock]$PostCondition = {$true},
 
         [Parameter(Position = 6)]
-        [switch]$continueOnError,
+        [switch]$ContinueOnError,
 
         [ValidateNotNull()]
         [Parameter(Position = 7)]
@@ -198,7 +198,7 @@ function Task {
             PostAction        = $PostAction
             Precondition      = $PreCondition
             Postcondition     = $PostCondition
-            ContinueOnError   = $continueOnError
+            ContinueOnError   = $ContinueOnError
             Description       = $description
             Duration          = [System.TimeSpan]::Zero
             RequiredVariables = $requiredVariables
@@ -301,7 +301,7 @@ function Task {
                 $newTask.PostCondition = $refTask.PostCondition
             }
 
-            # Override the continueOnError
+            # Override the ContinueOnError
             if ($refTask.ContinueOnError) {
                 $newTask.ContinueOnError = $refTask.ContinueOnError
             }
