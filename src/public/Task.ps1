@@ -42,7 +42,7 @@ function Task {
         .PARAMETER Description
         A description of the task.
 
-        .PARAMETER alias
+        .PARAMETER Alias
         An alternate name for the task.
 
         .PARAMETER FromModule
@@ -169,7 +169,7 @@ function Task {
         [string]$Description = $null,
 
         [Parameter(Position = 10)]
-        [string]$alias = $null,
+        [string]$Alias = $null,
 
         [parameter(Mandatory = $true, ParameterSetName = 'SharedTask', Position = 11)]
         [ValidateNotNullOrEmpty()]
@@ -202,7 +202,7 @@ function Task {
             Description       = $Description
             Duration          = [System.TimeSpan]::Zero
             RequiredVariables = $RequiredVariables
-            Alias             = $alias
+            Alias             = $Alias
             Success           = $true # let's be optimistic
             ErrorMessage      = $null
             ErrorDetail       = $null
@@ -322,9 +322,9 @@ function Task {
         Write-Debug "Adding task [$taskKey)]"
         $currentContext.tasks[$taskKey] = $newTask
 
-        if ($alias) {
-            $aliasKey = $alias.ToLower()
-            Assert (-not $currentContext.aliases.ContainsKey($aliasKey)) ($msgs.error_duplicate_alias_name -f $alias)
+        if ($Alias) {
+            $aliasKey = $Alias.ToLower()
+            Assert (-not $currentContext.aliases.ContainsKey($aliasKey)) ($msgs.error_duplicate_alias_name -f $Alias)
             $currentContext.aliases[$aliasKey] = $newTask
         }
     }
