@@ -51,7 +51,7 @@ function Task {
         .PARAMETER RequiredVersion
         The specific version of a module to load the task from
 
-        .PARAMETER minimumVersion
+        .PARAMETER MinimumVersion
         The minimum (inclusive) version of the PowerShell module to load in the task from.
 
         .PARAMETER maximumVersion
@@ -180,7 +180,7 @@ function Task {
         [string]$RequiredVersion,
 
         [parameter(ParameterSetName = 'SharedTask', Position = 13)]
-        [string]$minimumVersion,
+        [string]$MinimumVersion,
 
         [parameter(ParameterSetName = 'SharedTask', Position = 14)]
         [string]$maximumVersion,
@@ -225,13 +225,13 @@ function Task {
     # Dot source the shared task module to load in its tasks
     if ($PSCmdlet.ParameterSetName -eq 'SharedTask') {
         $testModuleParams = @{
-            minimumVersion  = $minimumVersion
+            MinimumVersion  = $MinimumVersion
             maximumVersion  = $maximumVersion
             lessThanVersion = $lessThanVersion
         }
 
         if(![string]::IsNullOrEmpty($RequiredVersion)){
-            $testModuleParams.minimumVersion = $RequiredVersion
+            $testModuleParams.MinimumVersion = $RequiredVersion
             $testModuleParams.maximumVersion = $RequiredVersion
         }
 
