@@ -21,7 +21,7 @@ function Task {
         A scriptblock to be executed after the 'Action' scriptblock.
         Note: This parameter is ignored if the 'Action' scriptblock is not defined.
 
-        .PARAMETER precondition
+        .PARAMETER PreCondition
         A scriptblock that is executed to determine if the task is executed or skipped.
         This scriptblock should return $true or $false
 
@@ -149,7 +149,7 @@ function Task {
         [scriptblock]$PostAction = $null,
 
         [Parameter(Position = 4)]
-        [scriptblock]$precondition = {$true},
+        [scriptblock]$PreCondition = {$true},
 
         [Parameter(Position = 5)]
         [scriptblock]$postcondition = {$true},
@@ -196,7 +196,7 @@ function Task {
             PreAction         = $PreAction
             Action            = $Action
             PostAction        = $PostAction
-            Precondition      = $precondition
+            Precondition      = $PreCondition
             Postcondition     = $postcondition
             ContinueOnError   = $continueOnError
             Description       = $description
@@ -291,7 +291,7 @@ function Task {
                 $newTask.PostAction = $refTask.PostAction
             }
 
-            # Override the precondition
+            # Override the PreCondition
             if ($refTask.PreCondition -ne $newTask.PreCondition) {
                 $newTask.PreCondition = $refTask.PreCondition
             }
