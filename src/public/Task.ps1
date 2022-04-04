@@ -57,8 +57,8 @@ function Task {
         .PARAMETER MaximumVersion
         The maximum (inclusive) version of the PowerShell module to load in the task from.
 
-        .PARAMETER lessThanVersion
-        The version of the PowerShell module to load in the task from that should not be met or exceeded. eg -lessThanVersion 2.0.0 will reject anything 2.0.0 or higher, allowing any module in the 1.x.x series.
+        .PARAMETER LessThanVersion
+        The version of the PowerShell module to load in the task from that should not be met or exceeded. eg -LessThanVersion 2.0.0 will reject anything 2.0.0 or higher, allowing any module in the 1.x.x series.
 
         .EXAMPLE
         A sample build script is shown below:
@@ -186,7 +186,7 @@ function Task {
         [string]$MaximumVersion,
 
         [parameter(ParameterSetName = 'SharedTask', Position = 15)]
-        [string]$lessThanVersion
+        [string]$LessThanVersion
     )
 
     function CreateTask {
@@ -227,7 +227,7 @@ function Task {
         $testModuleParams = @{
             MinimumVersion  = $MinimumVersion
             MaximumVersion  = $MaximumVersion
-            lessThanVersion = $lessThanVersion
+            LessThanVersion = $LessThanVersion
         }
 
         if(![string]::IsNullOrEmpty($RequiredVersion)){
