@@ -17,7 +17,7 @@ function Task {
         A scriptblock to be executed before the 'Action' scriptblock.
         Note: This parameter is ignored if the 'Action' scriptblock is not defined.
 
-        .PARAMETER postaction
+        .PARAMETER PostAction
         A scriptblock to be executed after the 'Action' scriptblock.
         Note: This parameter is ignored if the 'Action' scriptblock is not defined.
 
@@ -146,7 +146,7 @@ function Task {
         [scriptblock]$PreAction = $null,
 
         [Parameter(Position = 3)]
-        [scriptblock]$postaction = $null,
+        [scriptblock]$PostAction = $null,
 
         [Parameter(Position = 4)]
         [scriptblock]$precondition = {$true},
@@ -195,7 +195,7 @@ function Task {
             DependsOn         = $depends
             PreAction         = $PreAction
             Action            = $Action
-            PostAction        = $postaction
+            PostAction        = $PostAction
             Precondition      = $precondition
             Postcondition     = $postcondition
             ContinueOnError   = $continueOnError
@@ -286,7 +286,7 @@ function Task {
                 $newTask.PreAction = $refTask.PreAction
             }
 
-            # Override the postaction
+            # Override the PostAction
             if ($refTask.PostAction -ne $newTask.PostAction) {
                 $newTask.PostAction = $refTask.PostAction
             }
