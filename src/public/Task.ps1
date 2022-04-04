@@ -7,7 +7,7 @@ function Task {
         This function creates a 'task' object that will be used by the psake engine to execute a build task.
         Note: There must be at least one task called 'default' in the build script
 
-        .PARAMETER name
+        .PARAMETER Name
         The name of the task
 
         .PARAMETER action
@@ -137,7 +137,7 @@ function Task {
     [CmdletBinding(DefaultParameterSetName = 'Normal')]
     param(
         [Parameter(Mandatory = $true, Position = 0)]
-        [string]$name,
+        [string]$Name,
 
         [Parameter(Position = 1)]
         [scriptblock]$action = $null,
@@ -211,7 +211,7 @@ function Task {
     }
 
     # Default tasks have no action
-    if ($name -eq 'default') {
+    if ($Name -eq 'default') {
         Assert (!$action) ($msgs.error_shared_task_cannot_have_action)
     }
 
