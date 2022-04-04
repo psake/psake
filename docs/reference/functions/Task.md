@@ -14,18 +14,18 @@ Defines a build task to be executed by psake
 
 ### Normal (Default)
 ```
-Task [-name] <String> [[-action] <ScriptBlock>] [[-preaction] <ScriptBlock>] [[-postaction] <ScriptBlock>]
- [[-precondition] <ScriptBlock>] [[-postcondition] <ScriptBlock>] [-continueOnError] [[-depends] <String[]>]
- [[-requiredVariables] <String[]>] [[-description] <String>] [[-alias] <String>] [<CommonParameters>]
+Task [-Name] <String> [[-Action] <ScriptBlock>] [[-PreAction] <ScriptBlock>] [[-PostAction] <ScriptBlock>]
+ [[-PreCondition] <ScriptBlock>] [[-PostCondition] <ScriptBlock>] [-ContinueOnError] [[-Depends] <String[]>]
+ [[-RequiredVariables] <String[]>] [[-Description] <String>] [[-Alias] <String>] [<CommonParameters>]
 ```
 
 ### SharedTask
 ```
-Task [-name] <String> [[-action] <ScriptBlock>] [[-preaction] <ScriptBlock>] [[-postaction] <ScriptBlock>]
- [[-precondition] <ScriptBlock>] [[-postcondition] <ScriptBlock>] [-continueOnError] [[-depends] <String[]>]
- [[-requiredVariables] <String[]>] [[-description] <String>] [[-alias] <String>] [-FromModule] <String>
- [[-requiredVersion] <String>] [[-minimumVersion] <String>] [[-maximumVersion] <String>]
- [[-lessThanVersion] <String>] [<CommonParameters>]
+Task [-Name] <String> [[-Action] <ScriptBlock>] [[-PreAction] <ScriptBlock>] [[-PostAction] <ScriptBlock>]
+ [[-PreCondition] <ScriptBlock>] [[-PostCondition] <ScriptBlock>] [-ContinueOnError] [[-Depends] <String[]>]
+ [[-RequiredVariables] <String[]>] [[-Description] <String>] [[-Alias] <String>] [-FromModule] <String>
+ [[-RequiredVersion] <String>] [[-MinimumVersion] <String>] [[-MaximumVersion] <String>]
+ [[-LessThanVersion] <String>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -91,7 +91,7 @@ Total:  00:00:00.0782496
 
 ## PARAMETERS
 
-### -name
+### -Name
 The name of the task
 
 ```yaml
@@ -106,7 +106,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -action
+### -Action
 A scriptblock containing the statements to execute for the task.
 
 ```yaml
@@ -121,7 +121,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -preaction
+### -PreAction
 A scriptblock to be executed before the 'Action' scriptblock.
 Note: This parameter is ignored if the 'Action' scriptblock is not defined.
 
@@ -137,7 +137,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -postaction
+### -PostAction
 A scriptblock to be executed after the 'Action' scriptblock.
 Note: This parameter is ignored if the 'Action' scriptblock is not defined.
 
@@ -153,7 +153,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -precondition
+### -PreCondition
 A scriptblock that is executed to determine if the task is executed or skipped.
 This scriptblock should return $true or $false
 
@@ -169,7 +169,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -postcondition
+### -PostCondition
 A scriptblock that is executed to determine if the task completed its job correctly.
 An exception is thrown if the scriptblock returns $false.
 
@@ -185,7 +185,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -continueOnError
+### -ContinueOnError
 If this switch parameter is set then the task will not cause the build to fail when an exception is thrown by the task
 
 ```yaml
@@ -200,7 +200,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -depends
+### -Depends
 An array of task names that this task depends on.
 These tasks will be executed before the current task is executed.
 
@@ -216,7 +216,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -requiredVariables
+### -RequiredVariables
 An array of names of variables that must be set to run this task.
 
 ```yaml
@@ -231,7 +231,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -description
+### -Description
 A description of the task.
 
 ```yaml
@@ -246,7 +246,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -alias
+### -Alias
 An alternate name for the task.
 
 ```yaml
@@ -276,7 +276,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -requiredVersion
+### -RequiredVersion
 The specific version of a module to load the task from
 
 ```yaml
@@ -291,7 +291,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -minimumVersion
+### -MinimumVersion
 The minimum (inclusive) version of the PowerShell module to load in the task from.
 
 ```yaml
@@ -306,7 +306,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -maximumVersion
+### -MaximumVersion
 The maximum (inclusive) version of the PowerShell module to load in the task from.
 
 ```yaml
@@ -321,9 +321,9 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -lessThanVersion
+### -LessThanVersion
 The version of the PowerShell module to load in the task from that should not be met or exceeded.
-eg -lessThanVersion 2.0.0 will reject anything 2.0.0 or higher, allowing any module in the 1.x.x series.
+eg -LessThanVersion 2.0.0 will reject anything 2.0.0 or higher, allowing any module in the 1.x.x series.
 
 ```yaml
 Type: String
