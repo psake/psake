@@ -25,7 +25,7 @@ function Task {
         A scriptblock that is executed to determine if the task is executed or skipped.
         This scriptblock should return $true or $false
 
-        .PARAMETER postcondition
+        .PARAMETER PostCondition
         A scriptblock that is executed to determine if the task completed its job correctly.
         An exception is thrown if the scriptblock returns $false.
 
@@ -152,7 +152,7 @@ function Task {
         [scriptblock]$PreCondition = {$true},
 
         [Parameter(Position = 5)]
-        [scriptblock]$postcondition = {$true},
+        [scriptblock]$PostCondition = {$true},
 
         [Parameter(Position = 6)]
         [switch]$continueOnError,
@@ -197,7 +197,7 @@ function Task {
             Action            = $Action
             PostAction        = $PostAction
             Precondition      = $PreCondition
-            Postcondition     = $postcondition
+            Postcondition     = $PostCondition
             ContinueOnError   = $continueOnError
             Description       = $description
             Duration          = [System.TimeSpan]::Zero
@@ -296,7 +296,7 @@ function Task {
                 $newTask.PreCondition = $refTask.PreCondition
             }
 
-            # Override the postcondition
+            # Override the PostCondition
             if ($refTask.PostCondition -ne $newTask.PostCondition) {
                 $newTask.PostCondition = $refTask.PostCondition
             }
