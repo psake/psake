@@ -36,7 +36,7 @@ function Task {
         An array of task names that this task depends on.
         These tasks will be executed before the current task is executed.
 
-        .PARAMETER requiredVariables
+        .PARAMETER RequiredVariables
         An array of names of variables that must be set to run this task.
 
         .PARAMETER description
@@ -163,7 +163,7 @@ function Task {
 
         [ValidateNotNull()]
         [Parameter(Position = 8)]
-        [string[]]$requiredVariables = @(),
+        [string[]]$RequiredVariables = @(),
 
         [Parameter(Position = 9)]
         [string]$description = $null,
@@ -201,7 +201,7 @@ function Task {
             ContinueOnError   = $ContinueOnError
             Description       = $description
             Duration          = [System.TimeSpan]::Zero
-            RequiredVariables = $requiredVariables
+            RequiredVariables = $RequiredVariables
             Alias             = $alias
             Success           = $true # let's be optimistic
             ErrorMessage      = $null
@@ -311,7 +311,7 @@ function Task {
                 $newTask.DependsOn = $refTask.DependsOn
             }
 
-            # Override the requiredVariables
+            # Override the RequiredVariables
             if ($refTask.RequiredVariables.Count -gt 0 -and (Compare-Object -ReferenceObject.RequiredVariables -DifferenceObject $newTask.RequiredVariables)) {
                 $newTask.RequiredVariables += $refTask.RequiredVariables
             }
