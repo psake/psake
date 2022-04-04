@@ -13,7 +13,7 @@ function Task {
         .PARAMETER Action
         A scriptblock containing the statements to execute for the task.
 
-        .PARAMETER preaction
+        .PARAMETER PreAction
         A scriptblock to be executed before the 'Action' scriptblock.
         Note: This parameter is ignored if the 'Action' scriptblock is not defined.
 
@@ -143,7 +143,7 @@ function Task {
         [scriptblock]$Action = $null,
 
         [Parameter(Position = 2)]
-        [scriptblock]$preaction = $null,
+        [scriptblock]$PreAction = $null,
 
         [Parameter(Position = 3)]
         [scriptblock]$postaction = $null,
@@ -193,7 +193,7 @@ function Task {
         @{
             Name              = $Name
             DependsOn         = $depends
-            PreAction         = $preaction
+            PreAction         = $PreAction
             Action            = $Action
             PostAction        = $postaction
             Precondition      = $precondition
@@ -281,7 +281,7 @@ function Task {
         $refTask = $psake.ReferenceTasks[$taskKey]
         if ($refTask) {
 
-            # Override the preaction
+            # Override the PreAction
             if ($refTask.PreAction -ne $newTask.PreAction) {
                 $newTask.PreAction = $refTask.PreAction
             }
