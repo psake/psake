@@ -32,7 +32,7 @@ function Task {
         .PARAMETER ContinueOnError
         If this switch parameter is set then the task will not cause the build to fail when an exception is thrown by the task
 
-        .PARAMETER depends
+        .PARAMETER Depends
         An array of task names that this task depends on.
         These tasks will be executed before the current task is executed.
 
@@ -159,7 +159,7 @@ function Task {
 
         [ValidateNotNull()]
         [Parameter(Position = 7)]
-        [string[]]$depends = @(),
+        [string[]]$Depends = @(),
 
         [ValidateNotNull()]
         [Parameter(Position = 8)]
@@ -192,7 +192,7 @@ function Task {
     function CreateTask {
         @{
             Name              = $Name
-            DependsOn         = $depends
+            DependsOn         = $Depends
             PreAction         = $PreAction
             Action            = $Action
             PostAction        = $PostAction
@@ -306,7 +306,7 @@ function Task {
                 $newTask.ContinueOnError = $refTask.ContinueOnError
             }
 
-            # Override the depends
+            # Override the Depends
             if ($refTask.DependsOn.Count -gt 0 -and (Compare-Object -ReferenceObject $refTask.DependsOn -DifferenceObject $newTask.DependsOn)) {
                 $newTask.DependsOn = $refTask.DependsOn
             }
