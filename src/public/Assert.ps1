@@ -9,7 +9,7 @@ function Assert {
         .PARAMETER ConditionToCheck
         The boolean condition to evaluate
 
-        .PARAMETER failureMessage
+        .PARAMETER FailureMessage
         The error message used for the exception if the ConditionToCheck parameter is false
 
         .EXAMPLE
@@ -62,10 +62,10 @@ function Assert {
         $ConditionToCheck,
 
         [Parameter(Mandatory = $true)]
-        [string]$failureMessage
+        [string]$FailureMessage
     )
 
     if (-not $ConditionToCheck) {
-        throw ('Assert: {0}' -f $failureMessage)
+        throw ('Assert: {0}' -f $FailureMessage)
     }
 }
