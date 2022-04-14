@@ -17,7 +17,7 @@ function Exec {
         .PARAMETER MaxRetries
         The maximum number of times to retry the command before failing.
 
-        .PARAMETER retryTriggerErrorPattern
+        .PARAMETER RetryTriggerErrorPattern
         If the external command raises an exception, match the exception against this regex to determine if the command can be retried.
         If a match is found, the command will be retried provided [MaxRetries] has not been reached.
 
@@ -60,7 +60,7 @@ function Exec {
 
         [int]$MaxRetries = 0,
 
-        [string]$retryTriggerErrorPattern = $null,
+        [string]$RetryTriggerErrorPattern = $null,
 
         [Alias("wd")]
         [string]$workingDirectory = $null
@@ -87,8 +87,8 @@ function Exec {
                 throw $_
             }
 
-            if ($retryTriggerErrorPattern -ne $null) {
-                $isMatch = [regex]::IsMatch($_.Exception.Message, $retryTriggerErrorPattern)
+            if ($RetryTriggerErrorPattern -ne $null) {
+                $isMatch = [regex]::IsMatch($_.Exception.Message, $RetryTriggerErrorPattern)
 
                 if ($isMatch -eq $false) {
                     throw $_
