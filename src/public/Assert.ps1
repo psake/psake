@@ -6,11 +6,11 @@ function Assert {
         .DESCRIPTION
         This is a helper function that makes the code less noisy by eliminating many of the "if" statements that are normally required to verify assumptions in the code.
 
-        .PARAMETER conditionToCheck
+        .PARAMETER ConditionToCheck
         The boolean condition to evaluate
 
         .PARAMETER failureMessage
-        The error message used for the exception if the conditionToCheck parameter is false
+        The error message used for the exception if the ConditionToCheck parameter is false
 
         .EXAMPLE
         C:\PS>Assert $false "This always throws an exception"
@@ -24,7 +24,7 @@ function Assert {
 
         Note:
         It might be necessary to wrap the condition with paranthesis to force PS to evaluate the condition
-        so that a boolean value is calculated and passed into the 'conditionToCheck' parameter.
+        so that a boolean value is calculated and passed into the 'ConditionToCheck' parameter.
 
         Example:
             Assert 1 -eq 2 "1 doesn't equal 2"
@@ -59,13 +59,13 @@ function Assert {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
-        $conditionToCheck,
+        $ConditionToCheck,
 
         [Parameter(Mandatory = $true)]
         [string]$failureMessage
     )
 
-    if (-not $conditionToCheck) {
+    if (-not $ConditionToCheck) {
         throw ('Assert: {0}' -f $failureMessage)
     }
 }
