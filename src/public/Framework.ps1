@@ -8,7 +8,7 @@ function Framework {
     Possible values: '1.0', '1.1', '2.0', '2.0x86', '2.0x64', '3.0', '3.0x86', '3.0x64', '3.5', '3.5x86', '3.5x64', '4.0', '4.0x86', '4.0x64', '4.5', '4.5x86', '4.5x64', '4.5.1', '4.5.1x86', '4.5.1x64'.
     Default is '3.5*', where x86 or x64 will be detected based on the bitness of the PowerShell process.
 
-    .PARAMETER framework
+    .PARAMETER Framework
     Version of the .NET framework to use during build.
 
     .EXAMPLE
@@ -46,10 +46,10 @@ function Framework {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
-        [string]$framework
+        [string]$Framework
     )
 
-    $psake.context.Peek().config.framework = $framework
+    $psake.context.Peek().config.framework = $Framework
 
     ConfigureBuildEnvironment
 }
