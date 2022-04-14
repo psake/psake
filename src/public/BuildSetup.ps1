@@ -4,14 +4,14 @@ function BuildSetup {
         Adds a scriptblock that will be executed once at the beginning of the build
         .DESCRIPTION
         This function will accept a scriptblock that will be executed once at the beginning of the build.
-        .PARAMETER setup
+        .PARAMETER Setup
         A scriptblock to execute
         .EXAMPLE
         A sample build script is shown below:
-        Task default -depends Test
-        Task Test -depends Compile, Clean {
+        Task default -Depends Test
+        Task Test -Depends Compile, Clean {
         }
-        Task Compile -depends Clean {
+        Task Compile -Depends Clean {
         }
         Task Clean {
         }
@@ -48,8 +48,8 @@ function BuildSetup {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
-        [scriptblock]$setup
+        [scriptblock]$Setup
     )
 
-    $psake.context.Peek().buildSetupScriptBlock = $setup
+    $psake.context.Peek().buildSetupScriptBlock = $Setup
 }
