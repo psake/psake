@@ -8,18 +8,18 @@ function TaskSetup {
 
         The scriptblock accepts an optional parameter which describes the Task being setup.
 
-        .PARAMETER setup
+        .PARAMETER Setup
         A scriptblock to execute
 
         .EXAMPLE
         A sample build script is shown below:
 
-        Task default -depends Test
+        Task default -Depends Test
 
-        Task Test -depends Compile, Clean {
+        Task Test -Depends Compile, Clean {
         }
 
-        Task Compile -depends Clean {
+        Task Compile -Depends Clean {
         }
 
         Task Clean {
@@ -43,12 +43,12 @@ function TaskSetup {
         .EXAMPLE
         A sample build script showing access to the Task context is shown below:
 
-        Task default -depends Test
+        Task default -Depends Test
 
-        Task Test -depends Compile, Clean {
+        Task Test -Depends Compile, Clean {
         }
 
-        Task Compile -depends Clean {
+        Task Compile -Depends Clean {
         }
 
         Task Clean {
@@ -95,8 +95,8 @@ function TaskSetup {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
-        [scriptblock]$setup
+        [scriptblock]$Setup
     )
 
-    $psake.context.Peek().taskSetupScriptBlock = $setup
+    $psake.context.Peek().taskSetupScriptBlock = $Setup
 }
