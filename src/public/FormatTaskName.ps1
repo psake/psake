@@ -6,7 +6,7 @@ function FormatTaskName {
         .DESCRIPTION
         This function takes either a string which represents a format string (formats using the -f format operator see "help about_operators") or it can accept a script block that has a single parameter that is the name of the task that will be executed.
 
-        .PARAMETER format
+        .PARAMETER Format
         A format string or a scriptblock to execute
 
         .EXAMPLE
@@ -88,8 +88,8 @@ function FormatTaskName {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
-        $format
+        $Format
     )
 
-    $psake.context.Peek().config.taskNameFormat = $format
+    $psake.context.Peek().config.taskNameFormat = $Format
 }
