@@ -14,12 +14,12 @@ function Exec {
         .PARAMETER ErrorMessage
         The error message to display if the external command returned a non-zero exit code.
 
-        .PARAMETER maxRetries
+        .PARAMETER MaxRetries
         The maximum number of times to retry the command before failing.
 
         .PARAMETER retryTriggerErrorPattern
         If the external command raises an exception, match the exception against this regex to determine if the command can be retried.
-        If a match is found, the command will be retried provided [maxRetries] has not been reached.
+        If a match is found, the command will be retried provided [MaxRetries] has not been reached.
 
         .PARAMETER workingDirectory
         The working directory to set before running the external command.
@@ -58,7 +58,7 @@ function Exec {
 
         [string]$ErrorMessage = ($msgs.error_bad_command -f $Cmd),
 
-        [int]$maxRetries = 0,
+        [int]$MaxRetries = 0,
 
         [string]$retryTriggerErrorPattern = $null,
 
@@ -83,7 +83,7 @@ function Exec {
             break
         }
         catch [Exception] {
-            if ($tryCount -gt $maxRetries) {
+            if ($tryCount -gt $MaxRetries) {
                 throw $_
             }
 
