@@ -4,14 +4,14 @@ function BuildTearDown {
         Adds a scriptblock that will be executed once at the end of the build
         .DESCRIPTION
         This function will accept a scriptblock that will be executed once at the end of the build, regardless of success or failure
-        .PARAMETER setup
+        .PARAMETER Setup
         A scriptblock to execute
         .EXAMPLE
         A sample build script is shown below:
-        Task default -depends Test
-        Task Test -depends Compile, Clean {
+        Task default -Depends Test
+        Task Test -Depends Compile, Clean {
         }
-        Task Compile -depends Clean {
+        Task Compile -Depends Clean {
         }
         Task Clean {
         }
@@ -26,11 +26,11 @@ function BuildTearDown {
         Build Succeeded
         .EXAMPLE
         A failing build script is shown below:
-        Task default -depends Test
-        Task Test -depends Compile, Clean {
+        Task default -Depends Test
+        Task Test -Depends Compile, Clean {
             throw "forced error"
         }
-        Task Compile -depends Clean {
+        Task Compile -Depends Clean {
         }
         Task Clean {
         }
@@ -68,8 +68,8 @@ function BuildTearDown {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
-        [scriptblock]$setup
+        [scriptblock]$Setup
     )
 
-    $psake.context.Peek().buildTearDownScriptBlock = $setup
+    $psake.context.Peek().buildTearDownScriptBlock = $Setup
 }
