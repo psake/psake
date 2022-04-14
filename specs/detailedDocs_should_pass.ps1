@@ -3,6 +3,12 @@ Task default -depends CheckDetailedDocs
 
 Task CheckDetailedDocs {
     $NL = [System.Environment]::NewLine
+
+    if ($PSStyle) {
+        $origOutputRendering = $PSStyle.OutputRendering
+        $PSStyle.OutputRendering = 'PlainText'
+    }
+
     $docArray = @(Invoke-psake .\nested\docs.ps1 -detailedDocs -nologo | Out-String -Stream -Width 120)
     $docString = (($docArray | Foreach-Object Trim) -join $NL).Trim()
 
@@ -45,6 +51,10 @@ Default     :
 "@ -split $NL
 
     $expectedDocString = (($expectedDoc | Foreach-Object Trim) -join $NL).Trim()
+
+    if ($origOutputRendering) {
+        $PSStyle.OutputRendering = $origOutputRendering
+    }
 
     Assert ($docString -eq $expectedDocString) "Unexpected simple doc: $docString"
 }
