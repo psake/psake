@@ -21,7 +21,7 @@ function Exec {
         If the external command raises an exception, match the exception against this regex to determine if the command can be retried.
         If a match is found, the command will be retried provided [MaxRetries] has not been reached.
 
-        .PARAMETER workingDirectory
+        .PARAMETER WorkingDirectory
         The working directory to set before running the external command.
 
         .EXAMPLE
@@ -63,7 +63,7 @@ function Exec {
         [string]$RetryTriggerErrorPattern = $null,
 
         [Alias("wd")]
-        [string]$workingDirectory = $null
+        [string]$WorkingDirectory = $null
     )
 
     $tryCount = 1
@@ -71,8 +71,8 @@ function Exec {
     do {
         try {
 
-            if ($workingDirectory) {
-                Push-Location -Path $workingDirectory
+            if ($WorkingDirectory) {
+                Push-Location -Path $WorkingDirectory
             }
 
             $global:lastexitcode = 0
@@ -102,7 +102,7 @@ function Exec {
             [System.Threading.Thread]::Sleep([System.TimeSpan]::FromSeconds(1))
         }
         finally {
-            if ($workingDirectory) {
+            if ($WorkingDirectory) {
                 Pop-Location
             }
         }
