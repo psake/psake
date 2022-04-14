@@ -8,7 +8,7 @@ function Exec {
         If an error is detected then an exception is thrown.
         This function allows you to run command-line programs without having to explicitly check fthe $lastexitcode variable.
 
-        .PARAMETER cmd
+        .PARAMETER Cmd
         The scriptblock to execute. This scriptblock will typically contain the command-line invocation.
 
         .PARAMETER errorMessage
@@ -54,9 +54,9 @@ function Exec {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
-        [scriptblock]$cmd,
+        [scriptblock]$Cmd,
 
-        [string]$errorMessage = ($msgs.error_bad_command -f $cmd),
+        [string]$errorMessage = ($msgs.error_bad_command -f $Cmd),
 
         [int]$maxRetries = 0,
 
@@ -76,7 +76,7 @@ function Exec {
             }
 
             $global:lastexitcode = 0
-            & $cmd
+            & $Cmd
             if ($global:lastexitcode -ne 0) {
                 throw "Exec: $errorMessage"
             }
