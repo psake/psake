@@ -9,18 +9,18 @@ function TaskTearDown {
 
         The scriptblock accepts an optional parameter which describes the Task being torn down.
 
-        .PARAMETER teardown
+        .PARAMETER TearDown
         A scriptblock to execute
 
         .EXAMPLE
         A sample build script is shown below:
 
-        Task default -depends Test
+        Task default -Depends Test
 
-        Task Test -depends Compile, Clean {
+        Task Test -Depends Compile, Clean {
         }
 
-        Task Compile -depends Clean {
+        Task Compile -Depends Clean {
         }
 
         Task Clean {
@@ -44,12 +44,12 @@ function TaskTearDown {
         .EXAMPLE
         A sample build script demonstrating access to the task context is shown below:
 
-        Task default -depends Test
+        Task default -Depends Test
 
-        Task Test -depends Compile, Clean {
+        Task Test -Depends Compile, Clean {
         }
 
-        Task Compile -depends Clean {
+        Task Compile -Depends Clean {
         }
 
         Task Clean {
@@ -100,8 +100,8 @@ function TaskTearDown {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
-        [scriptblock]$teardown
+        [scriptblock]$TearDown
     )
 
-    $psake.context.Peek().taskTearDownScriptBlock = $teardown
+    $psake.context.Peek().taskTearDownScriptBlock = $TearDown
 }
