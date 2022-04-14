@@ -8,20 +8,20 @@ function Exec {
         If an error is detected then an exception is thrown.
         This function allows you to run command-line programs without having to explicitly check fthe $lastexitcode variable.
 
-        .PARAMETER cmd
+        .PARAMETER Cmd
         The scriptblock to execute. This scriptblock will typically contain the command-line invocation.
 
-        .PARAMETER errorMessage
+        .PARAMETER ErrorMessage
         The error message to display if the external command returned a non-zero exit code.
 
-        .PARAMETER maxRetries
+        .PARAMETER MaxRetries
         The maximum number of times to retry the command before failing.
 
-        .PARAMETER retryTriggerErrorPattern
+        .PARAMETER RetryTriggerErrorPattern
         If the external command raises an exception, match the exception against this regex to determine if the command can be retried.
-        If a match is found, the command will be retried provided [maxRetries] has not been reached.
+        If a match is found, the command will be retried provided [MaxRetries] has not been reached.
 
-        .PARAMETER workingDirectory
+        .PARAMETER WorkingDirectory
         The working directory to set before running the external command.
 
         .EXAMPLE
@@ -54,16 +54,16 @@ function Exec {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
-        [scriptblock]$cmd,
+        [scriptblock]$Cmd,
 
-        [string]$errorMessage = ($msgs.error_bad_command -f $cmd),
+        [string]$ErrorMessage = ($msgs.error_bad_command -f $Cmd),
 
-        [int]$maxRetries = 0,
+        [int]$MaxRetries = 0,
 
-        [string]$retryTriggerErrorPattern = $null,
+        [string]$RetryTriggerErrorPattern = $null,
 
         [Alias("wd")]
-        [string]$workingDirectory = $null
+        [string]$WorkingDirectory = $null
     )
 
     $tryCount = 1
@@ -71,24 +71,24 @@ function Exec {
     do {
         try {
 
-            if ($workingDirectory) {
-                Push-Location -Path $workingDirectory
+            if ($WorkingDirectory) {
+                Push-Location -Path $WorkingDirectory
             }
 
             $global:lastexitcode = 0
-            & $cmd
+            & $Cmd
             if ($global:lastexitcode -ne 0) {
-                throw "Exec: $errorMessage"
+                throw "Exec: $ErrorMessage"
             }
             break
         }
         catch [Exception] {
-            if ($tryCount -gt $maxRetries) {
+            if ($tryCount -gt $MaxRetries) {
                 throw $_
             }
 
-            if ($retryTriggerErrorPattern -ne $null) {
-                $isMatch = [regex]::IsMatch($_.Exception.Message, $retryTriggerErrorPattern)
+            if ($RetryTriggerErrorPattern -ne $null) {
+                $isMatch = [regex]::IsMatch($_.Exception.Message, $RetryTriggerErrorPattern)
 
                 if ($isMatch -eq $false) {
                     throw $_
@@ -102,7 +102,7 @@ function Exec {
             [System.Threading.Thread]::Sleep([System.TimeSpan]::FromSeconds(1))
         }
         finally {
-            if ($workingDirectory) {
+            if ($WorkingDirectory) {
                 Pop-Location
             }
         }
