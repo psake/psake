@@ -11,7 +11,7 @@ function Exec {
         .PARAMETER Cmd
         The scriptblock to execute. This scriptblock will typically contain the command-line invocation.
 
-        .PARAMETER errorMessage
+        .PARAMETER ErrorMessage
         The error message to display if the external command returned a non-zero exit code.
 
         .PARAMETER maxRetries
@@ -56,7 +56,7 @@ function Exec {
         [Parameter(Mandatory = $true)]
         [scriptblock]$Cmd,
 
-        [string]$errorMessage = ($msgs.error_bad_command -f $Cmd),
+        [string]$ErrorMessage = ($msgs.error_bad_command -f $Cmd),
 
         [int]$maxRetries = 0,
 
@@ -78,7 +78,7 @@ function Exec {
             $global:lastexitcode = 0
             & $Cmd
             if ($global:lastexitcode -ne 0) {
-                throw "Exec: $errorMessage"
+                throw "Exec: $ErrorMessage"
             }
             break
         }
