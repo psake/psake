@@ -1,7 +1,7 @@
 # Taken with love from @juneb_get_help (https://raw.githubusercontent.com/juneb/PesterTDD/master/Module.Help.Tests.ps1)
 
 BeforeDiscovery {
-    function script:FilterOutCommonParams {
+    function global:FilterOutCommonParams {
         param ($Params)
         $commonParams = [System.Management.Automation.PSCmdlet]::OptionalCommonParameters +
             [System.Management.Automation.PSCmdlet]::CommonParameters
@@ -37,7 +37,7 @@ Describe "Test help for <_.Name>" -ForEach $commands {
         # Get command help, parameters, and links
         $command               = $_
         $commandHelp           = Get-Help $command.Name -ErrorAction SilentlyContinue
-        $commandParameters     = script:FilterOutCommonParams -Params $command.ParameterSets.Parameters
+        $commandParameters     = global:FilterOutCommonParams -Params $command.ParameterSets.Parameters
         $commandParameterNames = $commandParameters.Name
         # $helpLinks             = $commandHelp.relatedLinks.navigationLink.uri
     }
@@ -47,9 +47,9 @@ Describe "Test help for <_.Name>" -ForEach $commands {
         $command                = $_
         $commandName            = $_.Name
         $commandHelp            = Get-Help $command.Name -ErrorAction SilentlyContinue
-        $commandParameters      = script:FilterOutCommonParams -Params $command.ParameterSets.Parameters
+        $commandParameters      = global:FilterOutCommonParams -Params $command.ParameterSets.Parameters
         $commandParameterNames  = $commandParameters.Name
-        $helpParameters         = script:FilterOutCommonParams -Params $commandHelp.Parameters.Parameter
+        $helpParameters         = global:FilterOutCommonParams -Params $commandHelp.Parameters.Parameter
         $helpParameterNames     = $helpParameters.Name
     }
 
