@@ -16,6 +16,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - [**#297**](https://github.com/psake/psake/pull/297) Enable type conversion when passing properties (via [@whut](https://github.com/whut))
 - [**#303**](https://github.com/psake/psake/pull/303) Add alias `wd` for `workingDirectory` on the `exec` command (via [@SeidChr](https://github.com/SeidChr))
+- [**#326**](https://github.com/psake/psake/pull/326) Add support for MS Build 17 support (included with Visual Studio 2022). (via [Thorarin](https://github.com/Thorarin))
+- Parameters are now PascalCase instead of camelCase (via [Splaxi](https://github.com/Splaxi))
+   - Task [**#314**](https://github.com/psake/psake/pull/314)
+   - TaskSetup [**#316**](https://github.com/psake/psake/pull/316)
+   - TaskTearDown [**#317**](https://github.com/psake/psake/pull/317)
+   - Assert [**#318**](https://github.com/psake/psake/pull/318)
+   - BuildSetup [**#319**](https://github.com/psake/psake/pull/319)
+   - BuildTearDown [**#320**](https://github.com/psake/psake/pull/320)
+   - Exec [**#321**](https://github.com/psake/psake/pull/321)
+   - FormatTaskName [**#322**](https://github.com/psake/psake/pull/322)
+   - Framework [**#323**](https://github.com/psake/psake/pull/323)
+   - Get-PsakeScriptTasks [**#324**](https://github.com/psake/psake/pull/324)
 
 ## [4.9.0] 2019-09-21
 
