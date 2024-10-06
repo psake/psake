@@ -51,19 +51,6 @@ jobs:
         testRunTitle: 'PS_Win2019'
       displayName: 'Publish Test Results'
 
-  - job: pwsh_ubuntu1604
-    pool:
-      vmImage: ubuntu-16.04
-    steps:
-    - pwsh: ./build.ps1 -Task Test -Bootstrap -Verbose
-      displayName: 'Build and Test'
-    - task: PublishTestResults@2
-      inputs:
-        testRunner: 'NUnit'
-        testResultsFiles: '**/output/testResults.xml'
-        testRunTitle: 'PSCore_Ubuntu1604'
-      displayName: 'Publish Test Results'
-
   - job: pwsh_ubuntu
     pool:
       vmImage: ubuntu-latest
