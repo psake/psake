@@ -5,14 +5,27 @@ on:
     types: [published]
 
 jobs:
-  publish:
-    name: Publish
+  publish_module:
+    name: Publish PowerShell Module
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Publish
+      - uses: actions/checkout@v4
+      - name: Publish PowerShell Module
         shell: pwsh
+        env:
+          PSGALLERY_API_KEY: ${{ secrets.PSGALLERY_API_KEY }}
         run: |
-          $apiKey = '${{ secrets.PS_GALLERY_API_KEY }}' | ConvertTo-SecureString -AsPlainText -Force
-          $cred = [pscredential]::new('apikey', $apiKey)
-          ./build.ps1 -Task Publish -PSGalleryApiKey $cred -Bootstrap
+          ./build.ps1 -Task PublishPSGallery -Bootstrap
+  publish_chocolatey:
+    name: Publish Chocolatey Package
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Load Choco API Key
+        shell: powershell
+        run: "choco apikey add -k '${{ secrets.CHOCOAPIKEY }}' -s https://push.chocolatey.org/"
+      - name: Publish Chocolatey Package
+        shell: powershell
+        run: |
+          ./build.ps1 -Task PublishChocolatey -Bootstrap
+
