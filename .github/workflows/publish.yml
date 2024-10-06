@@ -28,4 +28,16 @@ jobs:
         shell: powershell
         run: |
           ./build.ps1 -Task PublishChocolatey -Bootstrap
+  publish_nuget:
+    name: Publish nuget Package
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Publish Chocolatey Package
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        shell: powershell
+        run: |
+          ./build.ps1 -Task PublishNuget -Bootstrap
+
 
