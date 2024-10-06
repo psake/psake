@@ -1,5 +1,5 @@
 jobs:
-- job: powershell_win2022
+  - job: powershell_win2022
     pool:
       vmImage: windows-2022
     steps:
