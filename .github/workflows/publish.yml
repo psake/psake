@@ -1,0 +1,18 @@
+name: Publish
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+jobs:
+  publish:
+    name: Publish
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Publish
+        shell: pwsh
+        run: |
+          $apiKey = '${{ secrets.PS_GALLERY_API_KEY }}' | ConvertTo-SecureString -AsPlainText -Force
+          $cred = [pscredential]::new('apikey', $apiKey)
+          ./build.ps1 -Task Publish -PSGalleryApiKey $cred -Bootstrap
