@@ -27,6 +27,7 @@ If you encounter the following error "Import-Module : ...psake.psm1 cannot be lo
 2. Set-ExecutionPolicy RemoteSigned
 
 > Get-Help Invoke-psake -Full
+>
 > - this will show you help and examples of how to use psake
 
 **Step 3:** Run some examples
@@ -34,9 +35,11 @@ If you encounter the following error "Import-Module : ...psake.psm1 cannot be lo
 > CD .\examples
 >
 > Invoke-psake
+>
 > - This will execute the "default" task in the "psakefile.ps1"
 >
 > Invoke-psake .\psakefile.ps1 Clean
+>
 > - will execute the single task in the psakefile.ps1 script
 
 **Step 4:** Set your PATH variable
@@ -63,8 +66,8 @@ Also check out the **[psake-contrib](http://github.com/psake/psake-contrib)** pr
 
 psake is released under the [MIT license](http://www.opensource.org/licenses/MIT).
 
-[azure-pipeline-badge]: https://dev.azure.com/devblackops/psake/_apis/build/status/psake.psake?branchName=master
-[azure-pipeline-build]: https://dev.azure.com/devblackops/psake/_build/latest?definitionId=5&branchName=master
+[azure-pipeline-badge]: https://dev.azure.com/devblackops/psake/_apis/build/status/psake.psake?branchName=main
+[azure-pipeline-build]: https://dev.azure.com/devblackops/psake/_build/latest?definitionId=5&branchName=main
 [github-actions-badge]: https://github.com/psake/psake/workflows/CI/badge.svg
 [github-actions-build]: https://github.com/psake/psake/actions
 [gitter-badge]: https://badges.gitter.im/Join%20Chat.svg
