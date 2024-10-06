@@ -3,24 +3,25 @@
 [cmdletbinding()]
 param(
     # Build task(s) to execute
-    [validateSet('Test', 'Analyze', 'Pester', 'Clean', 'Build', 'CreateMarkdownHelp', 'BuildNuget', 'PublishChocolatey', 'PublishPSGallery')]
+    [validateSet('Test', 'Analyze', 'Pester', 'Clean', 'Build', 'CreateMarkdownHelp', 'BuildNuget', 'PublishChocolatey', 'PublishNuget', 'PublishPSGallery')]
     [string]$Task = 'Test',
 
     # Bootstrap dependencies
     [switch]$Bootstrap
 )
 
-$sut             = Join-Path -Path $PSScriptRoot    -ChildPath 'src'
-$manifestPath    = Join-Path -Path $sut             -ChildPath 'psake.psd1'
-$version         = (Import-PowerShellDataFile       -Path $manifestPath).ModuleVersion
-$outputDir       = Join-Path -Path $PSScriptRoot    -ChildPath 'output'
-$outputModDir    = Join-Path -Path $outputDir       -ChildPath 'psake'
+$sut = Join-Path -Path $PSScriptRoot    -ChildPath 'src'
+$manifestPath = Join-Path -Path $sut             -ChildPath 'psake.psd1'
+$version = (Import-PowerShellDataFile       -Path $manifestPath).ModuleVersion
+$outputDir = Join-Path -Path $PSScriptRoot    -ChildPath 'output'
+$outputNugetDir = Join-Path -Path $outputDir    -ChildPath 'nuget'
+$outputModDir = Join-Path -Path $outputDir       -ChildPath 'psake'
 $outputModVerDir = Join-Path -Path $outputModDir    -ChildPath $version
-$outputManifest  = Join-Path -Path $outputModVerDir -ChildPath 'psake.psd1'
+$outputManifest = Join-Path -Path $outputModVerDir -ChildPath 'psake.psd1'
 $testResultsPath = Join-Path -Path $outputDir       -ChildPath testResults.xml
 
 $PSDefaultParameterValues = @{
-    'Get-Module:Verbose'    = $false
+    'Get-Module:Verbose' = $false
     'Remove-Module:Verbose' = $false
     'Import-Module:Verbose' = $false
 }
@@ -51,7 +52,7 @@ function Invoke-Step {
             Invoke-Step supports the [DependsOn("...")] attribute to allow you to write tasks or build steps that take dependencies on other tasks completing first.
 
             When you invoke a step, dependencies are run first, recursively. The algorithm for this is depth-first and *very* naive. Don't build cycles!
-       .Example
+        .Example
             function init {
                 param()
                 Write-Information "INITIALIZING build variables"
@@ -98,7 +99,7 @@ function Invoke-Step {
     end {
         if ($stepCommand = Get-Command -Name $Step -CommandType Function) {
 
-            $dependencies = $stepCommand.ScriptBlock.Attributes.Where{$_.TypeId.Name -eq 'DependsOn'}.Name
+            $dependencies = $stepCommand.ScriptBlock.Attributes.Where{ $_.TypeId.Name -eq 'DependsOn' }.Name
             foreach ($dependency in $dependencies) {
                 if ($dependency -notin $script:InvokedSteps) {
                     Invoke-Step -Step $dependency
@@ -141,8 +142,8 @@ function Analyze {
     param()
 
     $analysis = Invoke-ScriptAnalyzer -Path $sut -Recurse -Verbose:$false
-    $errors   = $analysis | Where-Object {$_.Severity -eq 'Error'}
-    $warnings = $analysis | Where-Object {$_.Severity -eq 'Warning'}
+    $errors = $analysis | Where-Object { $_.Severity -eq 'Error' }
+    $warnings = $analysis | Where-Object { $_.Severity -eq 'Warning' }
 
     if (($errors.Count -eq 0) -and ($warnings.Count -eq 0)) {
         'PSScriptAnalyzer passed without errors or warnings'
@@ -164,16 +165,12 @@ function Pester {
     [cmdletbinding()]
     param()
 
-    if ($env:TRAVIS) {
-        . "$PSScriptRoot/build/travis.ps1"
-    }
-
     Import-Module -Name $outputManifest -Force
 
     $pesterParams = @{
-        Path         = './tests'
-        Output       = 'Detailed'
-        PassThru     = $true
+        Path = './tests'
+        Output = 'Detailed'
+        PassThru = $true
     }
     $testResults = Invoke-Pester @pesterParams
 
@@ -222,16 +219,16 @@ function UpdateMarkdownHelp {
     'TODO'
 }
 
-function BuildNuget {
+function StageNuget {
     [DependsOn('Build')]
     [cmdletbinding()]
     param()
 
     $here = $PSScriptRoot
 
-    "Building nuget package version [$version]"
+    "Staging Nuget Files"
 
-    $dest = Join-Path -Path $PSScriptRoot -ChildPath bin
+    $dest = $outputNugetDir
     if (Test-Path -Path $dest -PathType Container) {
         Remove-Item -Path $dest -Recurse -Force
     }
@@ -239,19 +236,59 @@ function BuildNuget {
 
     Copy-Item -Recurse -Path "$here/build/nuget" -Destination $dest -Exclude 'nuget.exe'
     Copy-Item -Recurse -Path "$outputModVerDir" -Destination "$destTools/psake"
-    @('README.md', 'license') | Foreach-Object {
+    @('README.md', 'license') | ForEach-Object {
         Copy-Item -Path "$here/$_" -Destination $destTools
     }
 
-    & "$here/build/nuget/nuget.exe" pack "$dest/psake.nuspec" -Verbosity quiet -Version $version
+    "Updating nuspec version"
+    $specPath = "$dest\psake.nuspec"
+    $spec = [xml](Get-Content -Raw $specPath)
+    $spec.package.metadata.version = $version
+    $spec.Save($specPath)
 }
 
 function PublishChocolatey {
-    [DependsOn('Init')]
+    [DependsOn('StageNuget')]
     [cmdletbinding()]
     param()
 
-    'TODO'
+    try {
+        Push-Location $outputNugetDir
+        choco pack
+        if ($null -eq $(choco apikey list -r)) {
+            throw "No Choco API key is set! Not publishing choco package."
+        }
+        choco push --source "'https://push.chocolatey.org/'"
+    } finally {
+        Pop-Location
+    }
+}
+
+function PublishNuget {
+    [DependsOn('StageNuget')]
+    [cmdletbinding()]
+    param()
+
+    "Building nuget package version [$version]"
+    $nugetInPath = Get-Command 'nuget' -ErrorAction 'SilentlyContinue'
+    if (-Not $nugetInPath) {
+        Write-Warning "Nuget not detected in path. Using local copy..."
+        $nugetBin = Resolve-Path "$PSScriptRoot\build\nuget\NuGet.exe"
+    } else {
+        $nugetBin = $nugetInPath.Source
+    }
+    Write-Verbose "Using nuget at $nugetBin"
+    try {
+        Push-Location $outputNugetDir
+        & $nugetBin pack "./psake.nuspec" -Verbosity quiet -Version $version -Properties NoWarn='NU5111,NU5125'
+        $nupkg = (Get-ChildItem "psake*.nupkg").Name
+        if ($null -eq $ENV:NUGET_API_KEY) {
+            throw 'Nuget API is not set! Not publishing.'
+        }
+        & $nugetBin push $nupkg --api-key $ENV:NUGET_API_KEY --source https://api.nuget.org/v3/index.json
+    } finally {
+        Pop-Location
+    }
 }
 
 function PublishPSGallery {
@@ -259,7 +296,18 @@ function PublishPSGallery {
     [cmdletbinding()]
     param()
 
-    'TODO'
+    "Publishing version [$Version] to PSGallery.."
+    if ($null -eq $env:PSGALLERY_API_KEY) {
+        throw 'PSGallery API is not set! Not publishing.'
+    }
+    $publishParams = @{
+        Path = $outputModDir
+        Repository = 'PSGallery'
+        Verbose = $VerbosePreference
+        NuGetApiKey = $env:PSGALLERY_API_KEY
+    }
+
+    Publish-Module @publishParams
 }
 
 try {
