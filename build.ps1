@@ -292,7 +292,7 @@ function PublishNuget {
 }
 
 function PublishPSGallery {
-    [DependsOn('Init')]
+    [DependsOn('Build')]
     [cmdletbinding()]
     param()
 
