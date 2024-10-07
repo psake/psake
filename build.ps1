@@ -301,7 +301,7 @@ function PublishPSGallery {
         throw 'PSGallery API is not set! Not publishing.'
     }
     $publishParams = @{
-        Path = $outputModDir
+        Path = $outputModVerDir
         Repository = 'PSGallery'
         Verbose = $VerbosePreference
         NuGetApiKey = $env:PSGALLERY_API_KEY
