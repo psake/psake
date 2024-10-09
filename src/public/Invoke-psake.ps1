@@ -274,7 +274,7 @@ function Invoke-psake {
                     }
                 }
             } catch {
-                WriteColoredOutput "Parameter '$key' is null" -foregroundcolor Red
+                WriteOutput "Parameter '$key' is null" "error"
                 throw
             }
 
@@ -313,7 +313,7 @@ function Invoke-psake {
             }
 
             $successMsg = $msgs.psake_success -f $buildFile
-            WriteColoredOutput ("$($script:nl)${successMsg}$($script:nl)") -foregroundcolor Green
+            WriteOutput ("$($script:nl)${successMsg}$($script:nl)") "success"
 
             $stopwatch.Stop()
             if (-not $notr) {
@@ -334,7 +334,7 @@ function Invoke-psake {
             throw $_
         } else {
             if (!$psake.run_by_psake_build_tester) {
-                WriteColoredOutput $psake.error_message -foregroundcolor Red
+                WriteOutput $psake.error_message "error"
             }
         }
     } finally {
