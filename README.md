@@ -1,9 +1,9 @@
 Welcome to the psake project
 =============================
 
-| Azure Pipelines | GitHub Actions | PS Gallery | Chocolatey | Nuget.org | Gitter |
-|-----------------|----------------|------------|------------|-----------|--------|
-[![Azure Pipelines Build Status][azure-pipeline-badge]][azure-pipeline-build] | [![GitHub Actions Status][github-actions-badge]][github-actions-build] | [![PowerShell Gallery][psgallery-badge]][psgallery] | [![Chocolatey][chocolatey-badge]][chocolatey] | [![Nuget downloads][nuget-downloads]][nuget] | [![Join the chat at https://gitter.im/psake/psake][gitter-badge]][gitter]
+| Azure Pipelines | GitHub Actions | PS Gallery | Chocolatey | Nuget.org |
+|-----------------|----------------|------------|------------|-----------|
+[![Azure Pipelines Build Status][azure-pipeline-badge]][azure-pipeline-build] | [![GitHub Actions Status][github-actions-badge]][github-actions-build] | [![PowerShell Gallery][psgallery-badge]][psgallery] | [![Chocolatey][chocolatey-badge]][chocolatey] | [![Nuget downloads][nuget-downloads]][nuget] |
 
 psake is a build automation tool written in PowerShell. It avoids the angle-bracket tax associated with executable XML by leveraging the PowerShell syntax in your build scripts.
 psake has a syntax inspired by rake (aka make in Ruby) and bake (aka make in Boo), but is easier to script because it leverages your existing command-line knowledge.
@@ -52,13 +52,13 @@ psake uses [VSSetup](https://blogs.msdn.microsoft.com/heaths/2017/01/25/visual-s
 
 ## Release Notes
 
-You can find all the information about each release of psake in the [releases section](https://github.com/psake/psake/releases).
+You can find all the information about each release of psake in the [releases section](https://github.com/psake/psake/releases) and the [Changelog](CHANGELOG.md).
 
 ## How To Contribute, Collaborate, Communicate
 
-If you'd like to get involved with psake, we have discussion groups over at Google: **[psake-dev](http://groups.google.com/group/psake-dev)** **[psake-users](http://groups.google.com/group/psake-users)**
+If you'd like to get involved with psake, we have [GitHub Discussions](https://github.com/orgs/psake/discussions), the #psake channel on the [PowerShell Discord](https://aka.ms/psdiscord), and the #psake channel on [PowerShell Slack](https://aka.ms/psslack).
 
-Anyone can fork the main repository and submit patches, as well. And lastly, the [wiki](https://psake.readthedocs.io/en/latest/) and [issues list](http://github.com/psake/psake/issues) are also open for additions, edits, and discussion.
+Anyone can fork the main repository and submit patches, as well. And lastly, the [psake docs](http://github.com/psake/docs) and [issues list](http://github.com/psake/psake/issues) are also open for additions, edits, and discussion.
 
 Also check out the **[psake-contrib](http://github.com/psake/psake-contrib)** project for scripts, modules and functions to help you with a build.
 
