@@ -1,27 +1,36 @@
 #requires -Version 5.1
-
-[cmdletbinding()]
+[CmdletBinding()]
 param(
     # Build task(s) to execute
-    [validateSet('Test', 'Analyze', 'Pester', 'Clean', 'Build', 'CreateMarkdownHelp', 'BuildNuget', 'PublishChocolatey', 'PublishNuget', 'PublishPSGallery')]
+    [ValidateSet(
+        'Test',
+        'Analyze',
+        'Pester',
+        'Clean',
+        'Build',
+        'CreateMarkdownHelp',
+        'BuildNuget',
+        'PublishChocolatey',
+        'PublishNuget',
+        'PublishPSGallery'
+    )]
     [string]$Task = 'Test',
 
     # Bootstrap dependencies
     [switch]$Bootstrap
 )
 
-$sut = Join-Path -Path $PSScriptRoot    -ChildPath 'src'
-$manifestPath = Join-Path -Path $sut             -ChildPath 'psake.psd1'
-$version = (Import-PowerShellDataFile       -Path $manifestPath).ModuleVersion
-$outputDir = Join-Path -Path $PSScriptRoot    -ChildPath 'output'
-$outputNugetDir = Join-Path -Path $outputDir    -ChildPath 'nuget'
-$outputModDir = Join-Path -Path $outputDir       -ChildPath 'psake'
-$outputModVerDir = Join-Path -Path $outputModDir    -ChildPath $version
+$sut = Join-Path -Path $PSScriptRoot -ChildPath 'src'
+$manifestPath = Join-Path -Path $sut -ChildPath 'psake.psd1'
+$version = (Import-PowerShellDataFile -Path $manifestPath).ModuleVersion
+$outputDir = Join-Path -Path $PSScriptRoot -ChildPath 'output'
+$outputNugetDir = Join-Path -Path $outputDir -ChildPath 'nuget'
+$outputModDir = Join-Path -Path $outputDir -ChildPath 'psake'
+$outputModVerDir = Join-Path -Path $outputModDir -ChildPath $version
 $outputManifest = Join-Path -Path $outputModVerDir -ChildPath 'psake.psd1'
-$testResultsPath = Join-Path -Path $outputDir       -ChildPath testResults.xml
 
 $PSDefaultParameterValues = @{
-    'Get-Module:Verbose' = $false
+    'Get-Module:Verbose'    = $false
     'Remove-Module:Verbose' = $false
     'Import-Module:Verbose' = $false
 }
@@ -46,37 +55,36 @@ class DependsOn : System.Attribute {
 }
 function Invoke-Step {
     <#
-        .Synopsis
-            Runs a command, taking care to run it's dependencies first
-        .Description
-            Invoke-Step supports the [DependsOn("...")] attribute to allow you to write tasks or build steps that take dependencies on other tasks completing first.
+    .Synopsis
+        Runs a command, taking care to run it's dependencies first
+    .Description
+        Invoke-Step supports the [DependsOn("...")] attribute to allow you to write tasks or build steps that take dependencies on other tasks completing first.
 
-            When you invoke a step, dependencies are run first, recursively. The algorithm for this is depth-first and *very* naive. Don't build cycles!
-        .Example
-            function init {
-                param()
-                Write-Information "INITIALIZING build variables"
-            }
+        When you invoke a step, dependencies are run first, recursively. The algorithm for this is depth-first and *very* naive. Don't build cycles!
+    .Example
+        function init {
+            param()
+            Write-Information "INITIALIZING build variables"
+        }
 
-            function update {
-                [DependsOn("init")]param()
-                Write-Information "UPDATING dependencies"
-            }
+        function update {
+            [DependsOn("init")]param()
+            Write-Information "UPDATING dependencies"
+        }
 
-            function build {
-                [DependsOn(("update","init"))]param()
-                Write-Information "BUILDING: $ModuleName from $Path"
-            }
+        function build {
+            [DependsOn(("update","init"))]param()
+            Write-Information "BUILDING: $ModuleName from $Path"
+        }
 
-            Invoke-Step build -InformationAction continue
+        Invoke-Step build -InformationAction continue
 
-            Defines three steps with dependencies, and invokes the "build" step.
-            Results in this output:
+        Defines three steps with dependencies, and invokes the "build" step.
+        Results in this output:
 
-            Invoking Step: init
-            Invoking Step: update
-            Invoking Step: build
-
+        Invoking Step: init
+        Invoking Step: update
+        Invoking Step: build
     #>
     [CmdletBinding()]
     param(
@@ -122,7 +130,7 @@ function Invoke-Step {
 }
 
 function Init {
-    [cmdletbinding()]
+    [CmdletBinding()]
     param()
 
     Remove-Module -Name psake -Force -ErrorAction SilentlyContinue
@@ -131,14 +139,14 @@ function Init {
 
 function Test {
     [DependsOn(('Build', 'Analyze', 'Pester'))]
-    [cmdletbinding()]
+    [CmdletBinding()]
     param()
     ''
 }
 
 function Analyze {
     [DependsOn('Init')]
-    [cmdletbinding()]
+    [CmdletBinding()]
     param()
 
     $analysis = Invoke-ScriptAnalyzer -Path $sut -Recurse -Verbose:$false
@@ -162,14 +170,14 @@ function Analyze {
 
 function Pester {
     [DependsOn('Init')]
-    [cmdletbinding()]
+    [CmdletBinding()]
     param()
 
     Import-Module -Name $outputManifest -Force
 
     $pesterParams = @{
-        Path = './tests'
-        Output = 'Detailed'
+        Path     = './tests'
+        Output   = 'Detailed'
         PassThru = $true
     }
     $testResults = Invoke-Pester @pesterParams
@@ -181,7 +189,7 @@ function Pester {
 
 function Clean {
     [DependsOn('Init')]
-    [cmdletbinding()]
+    [CmdletBinding()]
     param()
 
     if (Test-Path -Path $outputModVerDir) {
@@ -191,7 +199,7 @@ function Clean {
 
 function Build {
     [DependsOn('Clean')]
-    [cmdletbinding()]
+    [CmdletBinding()]
     param()
 
     if (-not (Test-Path -Path $outputDir)) {
@@ -204,7 +212,7 @@ function Build {
 
 function CreateMarkdownHelp {
     [DependsOn('Init')]
-    [cmdletbinding()]
+    [CmdletBinding()]
     param()
 
     $mdHelpPath = "$PSScriptRoot/docs/reference/functions"
@@ -213,7 +221,7 @@ function CreateMarkdownHelp {
 
 function UpdateMarkdownHelp {
     [DependsOn('Init')]
-    [cmdletbinding()]
+    [CmdletBinding()]
     param()
 
     'TODO'
@@ -221,7 +229,7 @@ function UpdateMarkdownHelp {
 
 function StageNuget {
     [DependsOn('Build')]
-    [cmdletbinding()]
+    [CmdletBinding()]
     param()
 
     $here = $PSScriptRoot
@@ -249,7 +257,7 @@ function StageNuget {
 
 function PublishChocolatey {
     [DependsOn('StageNuget')]
-    [cmdletbinding()]
+    [CmdletBinding()]
     param()
 
     try {
@@ -266,7 +274,7 @@ function PublishChocolatey {
 
 function PublishNuget {
     [DependsOn('StageNuget')]
-    [cmdletbinding()]
+    [CmdletBinding()]
     param()
 
     "Building nuget package version [$version]"
@@ -293,7 +301,7 @@ function PublishNuget {
 
 function PublishPSGallery {
     [DependsOn('Build')]
-    [cmdletbinding()]
+    [CmdletBinding()]
     param()
 
     "Publishing version [$Version] to PSGallery.."
@@ -301,9 +309,9 @@ function PublishPSGallery {
         throw 'PSGallery API is not set! Not publishing.'
     }
     $publishParams = @{
-        Path = $outputModVerDir
-        Repository = 'PSGallery'
-        Verbose = $VerbosePreference
+        Path        = $outputModVerDir
+        Repository  = 'PSGallery'
+        Verbose     = $VerbosePreference
         NuGetApiKey = $env:PSGALLERY_API_KEY
     }
 
