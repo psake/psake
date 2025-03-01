@@ -97,7 +97,7 @@ function ConfigureBuildEnvironment {
                 if ($ver -eq "15.0") {
                     if ($null -eq (Get-Module -Name VSSetup)) {
                         if ($null -eq (Get-Module -Name VSSetup -ListAvailable)) {
-                            WriteColoredOutput ($msgs.warning_missing_vsssetup_module -f $ver) -foregroundcolor Yellow
+                            WriteOutput ($msgs.warning_missing_vsssetup_module -f $ver) "warning"
                             continue
                         }
 
@@ -145,7 +145,7 @@ function ConfigureBuildEnvironment {
                 elseif ($ver -eq "16.0") {
                     if ($null -eq (Get-Module -Name VSSetup)) {
                         if ($null -eq (Get-Module -Name VSSetup -ListAvailable)) {
-                            WriteColoredOutput ($msgs.warning_missing_vsssetup_module -f $ver) -foregroundcolor Yellow
+                            WriteOutput ($msgs.warning_missing_vsssetup_module -f $ver) "warning"
                             continue
                         }
 

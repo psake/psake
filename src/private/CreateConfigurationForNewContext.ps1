@@ -14,6 +14,8 @@ function CreateConfigurationForNewContext {
         coloredOutput = $previousConfig.coloredOutput;
         modules = $previousConfig.modules;
         moduleScope =  $previousConfig.moduleScope;
+        outputHandler = $previousConfig.outputHandler;
+        outputHandlers = $previousConfig.outputHandlers.Clone();
     }
 
     if ($framework) {

@@ -43,7 +43,7 @@ function ExecuteInBuildFileScope {
     $currentContext = $psake.context.Peek()
 
     if ($framework -ne $frameworkOldValue) {
-        writecoloredoutput $msgs.warning_deprecated_framework_variable -foregroundcolor Yellow
+        WriteOutput $msgs.warning_deprecated_framework_variable "warning"
         $currentContext.config.framework = $framework
     }
 

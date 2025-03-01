@@ -6,5 +6,6 @@
   "search.exclude": {
     "?.?.?/": true
   },
-  "powershell.codeFormatting.preset": "OTBS"
+  "powershell.codeFormatting.preset": "OTBS",
+  "powershell.codeFormatting.alignPropertyValuePairs": true
 }
