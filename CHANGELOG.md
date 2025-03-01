@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Changed
 
+- [**#290**](https://github.com/psake/psake/pull/290) Enabling String and
+  FileInfo Objects To Be Piped To Include Function
 - [**#301**](https://github.com/psake/psake/pull/301) Add ability to override
   psake's internal logging.
 
