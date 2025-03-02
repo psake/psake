@@ -91,7 +91,7 @@ $psakeConfigFile = 'psake-config.ps1'
 $psake = @{}
 
 $psake.version = $manifest.Version.ToString()
-$psake.context = New-Object system.collections.stack # holds onto the current state of all variables
+$psake.Context = New-Object system.collections.stack # holds onto the current state of all variables
 $psake.run_by_psake_build_tester = $false # indicates that build is being run by psake-BuildTester
 $psake.LoadedTaskModules = @{}
 $psake.ReferenceTasks = @{}

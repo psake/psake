@@ -259,7 +259,7 @@ function Invoke-Psake {
             $BuildFile = Get-DefaultBuildFile
         }
 
-        $psake.ErrorMessage = $null
+        $psake.error_message = $null
 
         Invoke-InBuildFileScope -BuildFile $BuildFile -Module $MyInvocation.MyCommand.Module -ScriptBlock {
             param($CurrentContext, $Module)
@@ -267,7 +267,7 @@ function Invoke-Psake {
             $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 
             if ($docs -or $detailedDocs) {
-                Write-Documentation -ShowDetailed $detailedDocs
+                Write-Documentation -ShowDetailed:$detailedDocs
                 return
             }
 
@@ -298,7 +298,7 @@ function Invoke-Psake {
 
             # Simple dot sourcing will not work. We have to force the script block into our
             # module's scope in order to initialize variables properly.
-            . $Module $initialization
+            . $Module $Initialization
 
             & $CurrentContext.buildSetupScriptBlock
 
@@ -321,7 +321,7 @@ function Invoke-Psake {
             Write-PsakeOutput ("$($script:nl)${successMsg}$($script:nl)") "success"
 
             $stopwatch.Stop()
-            if (-not $notr) {
+            if (-not $NoTimeReport) {
                 Write-TaskTimeSummary $stopwatch.Elapsed
             }
         }
