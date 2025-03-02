@@ -149,10 +149,10 @@ function Task {
         [scriptblock]$PostAction = $null,
 
         [Parameter(Position = 4)]
-        [scriptblock]$PreCondition = {$true},
+        [scriptblock]$PreCondition = { $true },
 
         [Parameter(Position = 5)]
-        [scriptblock]$PostCondition = {$true},
+        [scriptblock]$PostCondition = { $true },
 
         [Parameter(Position = 6)]
         [switch]$ContinueOnError,
@@ -189,25 +189,23 @@ function Task {
         [string]$LessThanVersion
     )
 
-    function CreateTask {
-        @{
-            Name              = $Name
-            DependsOn         = $Depends
-            PreAction         = $PreAction
-            Action            = $Action
-            PostAction        = $PostAction
-            Precondition      = $PreCondition
-            Postcondition     = $PostCondition
-            ContinueOnError   = $ContinueOnError
-            Description       = $Description
-            Duration          = [System.TimeSpan]::Zero
-            RequiredVariables = $RequiredVariables
-            Alias             = $Alias
-            Success           = $true # let's be optimistic
-            ErrorMessage      = $null
-            ErrorDetail       = $null
-            ErrorFormatted    = $null
-        }
+    $taskSplat = @{
+        Name              = $Name
+        DependsOn         = $Depends
+        PreAction         = $PreAction
+        Action            = $Action
+        PostAction        = $PostAction
+        PreCondition      = $PreCondition
+        PostCondition     = $PostCondition
+        ContinueOnError   = $ContinueOnError
+        Description       = $Description
+        Duration          = [System.TimeSpan]::Zero
+        RequiredVariables = $RequiredVariables
+        Alias             = $Alias
+        Success           = $true # let's be optimistic
+        ErrorMessage      = $null
+        ErrorDetail       = $null
+        ErrorFormatted    = $null
     }
 
     # Default tasks have no action
@@ -220,7 +218,7 @@ function Task {
         Assert (!$Action) ($msgs.error_shared_task_cannot_have_action -f $Name, $FromModule)
     }
 
-    $currentContext = $psake.context.Peek()
+    $currentContext = $psake.Context.Peek()
 
     # Dot source the shared task module to load in its tasks
     if ($PSCmdlet.ParameterSetName -eq 'SharedTask') {
@@ -230,15 +228,15 @@ function Task {
             LessThanVersion = $LessThanVersion
         }
 
-        if(![string]::IsNullOrEmpty($RequiredVersion)){
+        if (![string]::IsNullOrEmpty($RequiredVersion)) {
             $testModuleParams.MinimumVersion = $RequiredVersion
             $testModuleParams.MaximumVersion = $RequiredVersion
         }
 
         if ($taskModule = Get-Module -Name $FromModule) {
             # Use the task module that is already loaded into the session
-            $testModuleParams.currentVersion  = $taskModule.Version
-            $taskModule = Where-Object -InputObject $taskModule -FilterScript {Test-ModuleVersion @testModuleParams}
+            $testModuleParams.currentVersion = $taskModule.Version
+            $taskModule = Where-Object -InputObject $taskModule -FilterScript { Test-ModuleVersion @testModuleParams }
         } else {
             # Find the module
             $getModuleParams = @{
@@ -248,17 +246,17 @@ function Task {
                 Verbose       = $false
             }
             $taskModule = Get-Module @getModuleParams |
-                            Where-Object -FilterScript {Test-ModuleVersion -currentVersion $_.Version @testModuleParams} |
-                            Sort-Object -Property Version -Descending |
-                            Select-Object -First 1
+                Where-Object -FilterScript { Test-ModuleVersion -currentVersion $_.Version @testModuleParams } |
+                Sort-Object -Property Version -Descending |
+                Select-Object -First 1
         }
 
         # This task references a task from a module
         # This reference task "could" include extra data about the task such as
-        # additional dependOn, aliase, etc.
+        # additional dependOn, alias, etc.
         # Store this task to the side so after we load the real task, we can combine
-        # this extra data if nesessary
-        $referenceTask = CreateTask
+        # this extra data if necessary
+        $referenceTask = [PsakeTask]::new($taskSplat)
         Assert (-not $psake.ReferenceTasks.ContainsKey($referenceTask.Name)) ($msgs.error_duplicate_task_name -f $referenceTask.Name)
         $referenceTaskKey = $referenceTask.Name.ToLower()
         $psake.ReferenceTasks.Add($referenceTaskKey, $referenceTask)
@@ -267,13 +265,13 @@ function Task {
         Assert ($null -ne $taskModule) ($msgs.error_unknown_module -f $FromModule)
         $psakeFilePath = Join-Path -Path $taskModule.ModuleBase -ChildPath 'psakeFile.ps1'
         if (-not $psake.LoadedTaskModules.ContainsKey($psakeFilePath)) {
-            WriteOutput "Loading tasks from task module [$psakeFilePath]" "debug"
+            Write-PsakeOutput "Loading tasks from task module [$psakeFilePath]" "debug"
             . $psakeFilePath
             $psake.LoadedTaskModules.Add($psakeFilePath, $null)
         }
     } else {
         # Create new task object
-        $newTask = CreateTask
+        $newTask = [PsakeTask]::new($taskSplat)
         $taskKey = $newTask.Name.ToLower()
 
         # If this task was referenced from a parent build script
@@ -319,7 +317,7 @@ function Task {
 
         # Add the task to the context
         Assert (-not $currentContext.tasks.ContainsKey($taskKey)) ($msgs.error_duplicate_task_name -f $taskKey)
-        WriteOutput "Adding task [$taskKey)]" "debug"
+        Write-PsakeOutput "Adding task [$taskKey)]" "debug"
         $currentContext.tasks[$taskKey] = $newTask
 
         if ($Alias) {

@@ -1,14 +1,23 @@
-describe 'PSake specs' {
+Describe 'PSake specs' {
+    BeforeDiscovery {
+        $buildFiles = Get-ChildItem $PSScriptRoot/../../specs/*.ps1
+        $script:testCases = $buildFiles | ForEach-Object {
+            @{
+                Name     = $_.Name
+                FullName = $_.FullName
+            }
+        }
+    }
 
     BeforeAll {
         $psake.run_by_psake_build_tester = $true
 
-        $psakeParams = @{
-            Parameters = @{
+        $script:psakeParams = @{
+            Parameters     = @{
                 p1 = 'v1'
                 p2 = 'v2'
             }
-            Properties = @{
+            Properties     = @{
                 x = '1'
                 y = '2'
             }
@@ -31,16 +40,8 @@ describe 'PSake specs' {
         $env:PSModulePath = $oldPSPath
     }
 
-    $buildFiles = Get-ChildItem $PSScriptRoot/../../specs/*.ps1
-    $testCases = $buildFiles | ForEach-Object {
-        @{
-            Name     = $_.Name
-            FullName = $_.FullName
-        }
-    }
-
-    it '<Name>' -TestCases $testCases {
-        $psakeParams.BuildFile = $FullName
+    It '<Name>' -TestCases $script:testCases {
+        $script:psakeParams.BuildFile = $FullName
         $shouldHaveError = $false
 
         if ($Name.EndsWith('_should_pass.ps1')) {

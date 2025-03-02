@@ -91,5 +91,5 @@ function FormatTaskName {
         $Format
     )
 
-    $psake.context.Peek().config.taskNameFormat = $Format
+    $psake.Context.Peek().config.taskNameFormat = $Format
 }

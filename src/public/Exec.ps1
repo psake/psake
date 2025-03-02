@@ -1,3 +1,4 @@
+# TODO: This breaks on Linux. Choose a new name.
 function Exec {
     <#
         .SYNOPSIS
@@ -81,8 +82,7 @@ function Exec {
                 throw "Exec: $ErrorMessage"
             }
             break
-        }
-        catch [Exception] {
+        } catch [Exception] {
             if ($tryCount -gt $MaxRetries) {
                 throw $_
             }
@@ -100,8 +100,7 @@ function Exec {
             $tryCount++
 
             [System.Threading.Thread]::Sleep([System.TimeSpan]::FromSeconds(1))
-        }
-        finally {
+        } finally {
             if ($WorkingDirectory) {
                 Pop-Location
             }

@@ -4,26 +4,26 @@ function CreateConfigurationForNewContext {
         [string] $framework
     )
 
-    $previousConfig = GetCurrentConfigurationOrDefault
+    $previousConfig = Get-CurrentConfigurationOrDefault
 
-    $config = new-object psobject -property @{
-        buildFileName = $previousConfig.buildFileName;
-        framework = $previousConfig.framework;
-        taskNameFormat = $previousConfig.taskNameFormat;
-        verboseError = $previousConfig.verboseError;
-        coloredOutput = $previousConfig.coloredOutput;
-        modules = $previousConfig.modules;
-        moduleScope =  $previousConfig.moduleScope;
-        outputHandler = $previousConfig.outputHandler;
-        outputHandlers = $previousConfig.outputHandlers.Clone();
+    $config = New-Object psobject -Property @{
+        buildFileName  = $previousConfig.buildFileName
+        framework      = $previousConfig.framework
+        taskNameFormat = $previousConfig.taskNameFormat
+        verboseError   = $previousConfig.verboseError
+        coloredOutput  = $previousConfig.coloredOutput
+        modules        = $previousConfig.modules
+        moduleScope    = $previousConfig.moduleScope
+        outputHandler  = $previousConfig.outputHandler
+        outputHandlers = $previousConfig.outputHandlers.Clone()
     }
 
     if ($framework) {
-        $config.framework = $framework;
+        $config.framework = $framework
     }
 
     if ($buildFile) {
-        $config.buildFileName = $buildFile;
+        $config.buildFileName = $buildFile
     }
 
     return $config

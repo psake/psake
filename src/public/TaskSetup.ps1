@@ -98,5 +98,5 @@ function TaskSetup {
         [scriptblock]$Setup
     )
 
-    $psake.context.Peek().taskSetupScriptBlock = $Setup
+    $psake.Context.Peek().taskSetupScriptBlock = $Setup
 }

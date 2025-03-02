@@ -51,5 +51,5 @@ function BuildSetup {
         [scriptblock]$Setup
     )
 
-    $psake.context.Peek().buildSetupScriptBlock = $Setup
+    $psake.Context.Peek().buildSetupScriptBlock = $Setup
 }

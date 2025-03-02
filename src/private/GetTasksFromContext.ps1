@@ -1,13 +1,18 @@
-function GetTasksFromContext($currentContext) {
+function Get-TasksFromContext {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory = $true)]
+        [System.Collections.Hashtable]
+        $CurrentContext
+    )
 
-    $docs = $currentContext.tasks.Keys | foreach-object {
-
-        $task = $currentContext.tasks.$_
-        new-object PSObject -property @{
-            Name = $task.Name;
-            Alias = $task.Alias;
-            Description = $task.Description;
-            DependsOn = $task.DependsOn;
+    $docs = $CurrentContext.tasks.Keys | ForEach-Object {
+        $task = $CurrentContext.tasks.$_
+        New-Object PSObject -Property @{
+            Name        = $task.Name
+            Alias       = $task.Alias
+            Description = $task.Description
+            DependsOn   = $task.DependsOn
         }
     }
 

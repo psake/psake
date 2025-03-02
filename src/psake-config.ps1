@@ -29,12 +29,12 @@ $config.outputHandler = {
     )
 
     Process {
-        if ($psake.context.peek().config.outputHandlers.$OutputType -is [scriptblock]) {
-            & $psake.context.peek().config.outputHandlers.$OutputType $Output
+        if ($psake.Context.peek().config.outputHandlers.$OutputType -is [scriptblock]) {
+            & $psake.Context.peek().config.outputHandlers.$OutputType $Output
         }
         elseif ($OutputType -ne "default") {
             Write-Warning "No outputHandler has been defined for $OutputType output. The default outputHandler will be used."
-            WriteOutput -Output $Output -OutputType "default"
+            Write-PsakeOutput -Output $Output -OutputType "default"
         }
         else {
             Write-Warning "The default outputHandler is invalid. Write-Output will be used."
@@ -43,11 +43,11 @@ $config.outputHandler = {
     }
 }
 $config.outputHandlers = @{
-    heading         = { Param($output) WriteColoredOutput $output -foregroundcolor Cyan };
+    heading         = { Param($output) Write-ColoredOutput $output -foregroundcolor Cyan };
     default         = { Param($output) Write-Output $output };
     debug           = { Param($output) Write-Debug $output };
-    warning         = { Param($output) WriteColoredOutput $output -foregroundcolor Yellow };
-    error           = { Param($output) WriteColoredOutput $output -foregroundcolor Red };
-    success         = { Param($output) WriteColoredOutput $output -foregroundcolor Green };
+    warning         = { Param($output) Write-ColoredOutput $output -foregroundcolor Yellow };
+    error           = { Param($output) Write-ColoredOutput $output -foregroundcolor Red };
+    success         = { Param($output) Write-ColoredOutput $output -foregroundcolor Green };
 }
 #>
