@@ -4,7 +4,8 @@
   "editor.insertSpaces": true,
   "editor.tabSize": 4,
   "search.exclude": {
-    "?.?.?/": true
+    "?.?.?/": true,
+    "output/": true
   },
   "powershell.codeFormatting.preset": "OTBS",
   "powershell.codeFormatting.alignPropertyValuePairs": true

@@ -1,5 +1,5 @@
 function LoadModules {
-    $currentConfig = $psake.context.peek().config
+    $currentConfig = $psake.Context.peek().config
     if ($currentConfig.modules) {
 
         $scope = $currentConfig.moduleScope
@@ -7,9 +7,9 @@ function LoadModules {
         $global = [string]::Equals($scope, "global", [StringComparison]::CurrentCultureIgnoreCase)
 
         $currentConfig.modules | ForEach-Object {
-            resolve-path $_ | ForEach-Object {
+            Resolve-Path $_ | ForEach-Object {
                 "Loading module: $_"
-                $module = Import-Module $_ -passthru -DisableNameChecking -global:$global
+                $module = Import-Module $_ -PassThru -DisableNameChecking -Global:$global
                 if (!$module) {
                     throw ($msgs.error_loading_module -f $_.Name)
                 }

@@ -103,5 +103,5 @@ function TaskTearDown {
         [scriptblock]$TearDown
     )
 
-    $psake.context.Peek().taskTearDownScriptBlock = $TearDown
+    $psake.Context.Peek().taskTearDownScriptBlock = $TearDown
 }

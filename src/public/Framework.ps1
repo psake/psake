@@ -49,7 +49,7 @@ function Framework {
         [string]$Framework
     )
 
-    $psake.context.Peek().config.framework = $Framework
+    $psake.Context.Peek().config.framework = $Framework
 
-    ConfigureBuildEnvironment
+    Set-BuildEnvironment
 }

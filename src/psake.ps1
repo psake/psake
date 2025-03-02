@@ -4,67 +4,81 @@
 
 # Must match parameter definitions for psake.psm1/invoke-psake
 # otherwise named parameter binding fails
-[cmdletbinding()]
+[CmdletBinding()]
 param(
     [Parameter(Position = 0, Mandatory = $false)]
-    [string]$buildFile,
+    [string]$BuildFile,
 
     [Parameter(Position = 1, Mandatory = $false)]
-    [string[]]$taskList = @(),
+    [string[]]$TaskList = @(),
 
     [Parameter(Position = 2, Mandatory = $false)]
-    [string]$framework,
+    [string]$Framework,
 
     [Parameter(Position = 3, Mandatory = $false)]
-    [switch]$docs = $false,
+    [switch]$Docs = $false,
 
     [Parameter(Position = 4, Mandatory = $false)]
-    [System.Collections.Hashtable]$parameters = @{},
+    [System.Collections.Hashtable]$Parameters = @{},
 
     [Parameter(Position = 5, Mandatory = $false)]
-    [System.Collections.Hashtable]$properties = @{},
+    [System.Collections.Hashtable]$Properties = @{},
 
     [Parameter(Position = 6, Mandatory = $false)]
     [alias("init")]
-    [scriptblock]$initialization = {},
+    [scriptblock]$Initialization = {},
 
     [Parameter(Position = 7, Mandatory = $false)]
-    [switch]$nologo = $false,
+    [switch]$NoLogo = $false,
 
     [Parameter(Position = 8, Mandatory = $false)]
-    [switch]$help = $false,
+    [switch]$Help = $false,
 
     [Parameter(Position = 9, Mandatory = $false)]
-    [string]$scriptPath,
+    [string]$ScriptPath,
 
     [Parameter(Position = 10, Mandatory = $false)]
-    [switch]$detailedDocs = $false,
+    [switch]$DetailedDocs = $false,
 
+    # spell-checker:ignore notr
     [Parameter(Position = 11, Mandatory = $false)]
-    [switch]$notr = $false
+    [Alias("notr")]
+    [switch]$NoTimeReport = $false
 )
 
-# setting $scriptPath here, not as default argument, to support calling as "powershell -File psake.ps1"
-if (-not $scriptPath) {
-    $scriptPath = $(Split-Path -Path $MyInvocation.MyCommand.path -Parent)
+# setting $ScriptPath here, not as default argument, to support calling as "powershell -File psake.ps1"
+if (-not $ScriptPath) {
+    $ScriptPath = $(Split-Path -Path $MyInvocation.MyCommand.path -Parent)
 }
 
 # '[p]sake' is the same as 'psake' but $Error is not polluted
 Remove-Module -Name [p]sake -Verbose:$false
-Import-Module -Name (Join-Path -Path $scriptPath -ChildPath 'psake.psd1') -Verbose:$false
+Import-Module -Name (Join-Path -Path $ScriptPath -ChildPath 'psake.psd1') -Verbose:$false
 if ($help) {
     Get-Help -Name Invoke-psake -Full
     return
 }
 
-if ($buildFile -and (-not (Test-Path -Path $buildFile))) {
-    $absoluteBuildFile = (Join-Path -Path $scriptPath -ChildPath $buildFile)
-    if (Test-path -Path $absoluteBuildFile) {
-        $buildFile = $absoluteBuildFile
+if ($BuildFile -and (-not (Test-Path -Path $BuildFile))) {
+    $absoluteBuildFile = (Join-Path -Path $ScriptPath -ChildPath $BuildFile)
+    if (Test-Path -Path $absoluteBuildFile) {
+        $BuildFile = $absoluteBuildFile
     }
 }
 
-Invoke-psake $buildFile $taskList $framework $docs $parameters $properties $initialization $nologo $detailedDocs $notr
+$psakeSplat = @{
+    BuildFile      = $BuildFile
+    TaskList       = $TaskList
+    Framework      = $Framework
+    Docs           = $Docs
+    Parameters     = $Parameters
+    Properties     = $Properties
+    Initialization = $Initialization
+    NoLogo         = $NoLogo
+    DetailedDocs   = $DetailedDocs
+    NoTimeReport   = $NoTimeReport
+}
+Invoke-psake @psakeSplat
 
 if (!$psake.build_success) {
     exit 1

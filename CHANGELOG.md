@@ -183,7 +183,7 @@ closed.
 - [**#200**](https://github.com/psake/psake/pull/200) Add `WorkingDirectory`
   parameter to `Exec` function. (via [@DaveSenn](https://github.com/DaveSenn))
 
-- [**#190**](https://github.com/psake/psake/pull/190) Use `WriteColoredOutput`
+- [**#190**](https://github.com/psake/psake/pull/190) Use `Write-ColoredOutput`
   for all task headers. (via [@damianpowell](https://github.com/damianpowell))
 
 ## [4.6.0] 2016-03-20
