@@ -37,8 +37,7 @@ function Get-PSakeScriptTasks {
 
     try {
         Invoke-InBuildFileScope -BuildFile $BuildFile -Module $MyInvocation.MyCommand.Module -ScriptBlock {
-            # TODO: $module looks to be unused
-            param($CurrentContext, $module)
+            param($CurrentContext)
             return Get-TasksFromContext -CurrentContext $CurrentContext
         }
     } finally {

@@ -1,8 +1,33 @@
+# spell-checker:ignore psmoduleinfo
 function Invoke-InBuildFileScope {
+    <#
+    .SYNOPSIS
+    Executes a script block in the context of a psake build file.
+
+    .DESCRIPTION
+    Executes a script block in the context of a psake build file.
+    This function is used to execute the psake build file and set up the tasks
+    and defaults.
+
+    .PARAMETER BuildFile
+    The path to the psake build script to execute.
+
+    .PARAMETER Module
+    The module that is calling this function.
+
+    .PARAMETER ScriptBlock
+    The script block to execute in the context of the build file.
+
+    .EXAMPLE
+    Invoke-InBuildFileScope -BuildFile '.\build.ps1' -Module $MyInvocation.MyCommand.Module -ScriptBlock { param($CurrentContext) $CurrentContext }
+
+    Executes the build.ps1 file and returns the current context.
+    #>
     [CmdletBinding()]
     param(
         [string]
         $BuildFile,
+        [psmoduleinfo]
         $Module,
         [scriptblock]
         $ScriptBlock
