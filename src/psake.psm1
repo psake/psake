@@ -115,7 +115,7 @@ $psake.ConfigDefault = New-Object 'PSObject' -Property @{
             [Parameter(Position = 0)]
             [object]$Output,
             [Parameter(Position = 1)]
-            [string]$OutputType = "default"
+            [string]$OutputType = 'Default'
         )
 
         Process {
@@ -123,10 +123,11 @@ $psake.ConfigDefault = New-Object 'PSObject' -Property @{
                 & $psake.Context.peek().config.OutputHandlers.$OutputType $Output
             } elseif ($OutputType -ne "default") {
                 Write-Warning "No OutputHandler has been defined for $OutputType output. The default OutputHandler will be used."
-                Write-PsakeOutput -Output $Output -OutputType "default"
+                Write-PsakeOutput -Output $Output -OutputType 'default'
             } else {
-                Write-Warning "The default OutputHandler is invalid. Write-Output will be used."
-                Write-Output $Output
+                Write-Warning "The default OutputHandler is invalid. Write-Host will be used."
+                # We use Write-Host because this should not output something that is captured by a variable
+                Write-Host $Output
             }
         }
     }

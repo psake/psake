@@ -31,7 +31,7 @@ function Invoke-InBuildFileScope {
             "aliases"                       = @{}
             "properties"                    = New-Object System.Collections.Stack
             "includes"                      = New-Object System.Collections.Queue
-            "config"                        = CreateConfigurationForNewContext $BuildFile $framework
+            "config"                        = New-ConfigurationForNewContext -Build $BuildFile -Framework $framework
         }
     )
 

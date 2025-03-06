@@ -8,9 +8,10 @@ Task CheckDocs {
         $origOutputRendering = $PSStyle.OutputRendering
         $PSStyle.OutputRendering = 'PlainText'
     }
+    $psake.ConfigDefault.OutputHandlers.Default = { Param($output) Write-Output $output }
 
     $docArray = @(Invoke-psake .\nested\docs.ps1 -docs -nologo | Out-String -Stream -Width 120)
-    $docString = (($docArray | Foreach-Object Trim) -join $NL).Trim()
+    $docString = (($docArray | ForEach-Object Trim) -join $NL).Trim()
 
     $expectedDoc = @"
 Name             Alias Depends On                         Default Description
@@ -23,7 +24,7 @@ Test                   UnitTests, IntegrationTests           True
 UnitTests        ut
 "@ -split $NL
 
-    $expectedDocString = (($expectedDoc | Foreach-Object Trim) -join $NL).Trim()
+    $expectedDocString = (($expectedDoc | ForEach-Object Trim) -join $NL).Trim()
 
     if ($origOutputRendering) {
         $PSStyle.OutputRendering = $origOutputRendering

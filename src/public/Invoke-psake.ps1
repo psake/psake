@@ -267,7 +267,11 @@ function Invoke-Psake {
             $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 
             if ($docs -or $detailedDocs) {
-                Write-Documentation -ShowDetailed:$detailedDocs
+                if ($DetailedDocs) {
+                    Write-Documentation -ShowDetailed:$true
+                } else {
+                    Write-Documentation
+                }
                 return
             }
 
@@ -306,10 +310,10 @@ function Invoke-Psake {
             try {
                 if ($TaskList) {
                     foreach ($task in $TaskList) {
-                        Invoke-Task $task
+                        Invoke-Task -taskName $task
                     }
                 } elseif ($CurrentContext.tasks.default) {
-                    Invoke-Task default
+                    Invoke-Task -taskName default
                 } else {
                     throw $msgs.error_no_default_task
                 }

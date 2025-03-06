@@ -6,7 +6,7 @@ function Invoke-Task {
     .DESCRIPTION
     This is a function that will allow you to invoke a Task from within another Task in the current build script.
 
-    .PARAMETER taskName
+    .PARAMETER TaskName
     The name of the task to execute.
 
     .EXAMPLE

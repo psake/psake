@@ -1,12 +1,13 @@
-function CreateConfigurationForNewContext {
+function New-ConfigurationForNewContext {
+    [CmdletBinding()]
     param(
-        [string] $buildFile,
-        [string] $framework
+        [string] $BuildFile,
+        [string] $Framework
     )
 
     $previousConfig = Get-CurrentConfigurationOrDefault
 
-    $config = New-Object psobject -Property @{
+    $config = New-Object -TypeName 'PSObject' -Property @{
         buildFileName  = $previousConfig.buildFileName
         framework      = $previousConfig.framework
         taskNameFormat = $previousConfig.taskNameFormat
@@ -18,12 +19,12 @@ function CreateConfigurationForNewContext {
         outputHandlers = $previousConfig.outputHandlers.Clone()
     }
 
-    if ($framework) {
-        $config.framework = $framework
+    if ($Framework) {
+        $config.framework = $Framework
     }
 
-    if ($buildFile) {
-        $config.buildFileName = $buildFile
+    if ($BuildFile) {
+        $config.buildFileName = $BuildFile
     }
 
     return $config

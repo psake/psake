@@ -1,6 +1,6 @@
-$config.outputHandlers.heading = $null
-$config.outputHandlers.default = { Param($output) Write-Output "default : $output" };
-$config.outputHandlers.debug = $null
-$config.outputHandlers.warning = $null
-$config.outputHandlers.error = $null
-$config.outputHandlers.success = $null
+$config.outputHandlers.Heading = $null
+$config.outputHandlers.Default = { Param($output) Write-Output "Default : $output" }
+$config.outputHandlers.Debug = $null
+$config.outputHandlers.Warning = $null
+$config.outputHandlers.Error = $null
+$config.outputHandlers.Success = $null

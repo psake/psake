@@ -1,11 +1,10 @@
-task default -depends TaskA
+Task default -depends TaskA
 
-task TaskA {
-    WriteOutput "heading" "heading"
-    WriteOutput "default" "default"
-    WriteOutput "debug" "debug"
-    WriteOutput "warning" "warning"
-    WriteOutput "error" "error"
-    WriteOutput "success" "success"
-    WriteOutput "other" "other"
+Task TaskA {
+    Write-PsakeOutput -Output "Heading" -OutputType "Heading"
+    Write-PsakeOutput -Output "Default" -OutputType "Default"
+    Write-PsakeOutput -Output "Debug" -OutputType "Debug"
+    Write-PsakeOutput -Output "Warning" -OutputType "Warning"
+    Write-PsakeOutput -Output "Error" -OutputType "Error"
+    Write-PsakeOutput -Output "Success" -OutputType "Success"
 }

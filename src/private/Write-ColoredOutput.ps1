@@ -1,13 +1,12 @@
 function Write-ColoredOutput {
     [CmdletBinding()]
-    [OutputType([string])]
     param(
         [Parameter(Mandatory = $true)]
-        [string]
+        [System.Object]
         $Message,
         [Parameter(Mandatory = $false)]
         [System.ConsoleColor]
-        $ForegroundColor
+        $ForegroundColor = $Host.UI.RawUI.ForegroundColor
     )
 
     $currentConfig = Get-CurrentConfigurationOrDefault
