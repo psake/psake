@@ -1,4 +1,19 @@
 function Format-ErrorMessage {
+    <#
+    .SYNOPSIS
+    Format an error message for display in psake.
+
+    .DESCRIPTION
+    Format an error message for display in psake. The error message includes the error message, error details, and script variables.
+
+    .PARAMETER ErrorRecord
+    The error record to format.
+
+    .EXAMPLE
+    Format-ErrorMessage -ErrorRecord $Error[0]
+
+    Formats the error message for the first error in the $Error array.
+    #>
     [CmdletBinding()]
     param(
         [Parameter(ValueFromPipeline = $true)]
