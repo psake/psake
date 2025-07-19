@@ -1,138 +1,148 @@
 function Task {
     <#
-        .SYNOPSIS
-        Defines a build task to be executed by psake
+    .SYNOPSIS
+    Defines a build task to be executed by psake
 
-        .DESCRIPTION
-        This function creates a 'task' object that will be used by the psake engine to execute a build task.
-        Note: There must be at least one task called 'default' in the build script
+    .DESCRIPTION
+    This function creates a 'task' object that will be used by the psake engine
+    to execute a build task.
+    Note: There must be at least one task called 'default' in the build script
 
-        .PARAMETER Name
-        The name of the task
+    .PARAMETER Name
+    The name of the task
 
-        .PARAMETER Action
-        A scriptblock containing the statements to execute for the task.
+    .PARAMETER Action
+    A scriptblock containing the statements to execute for the task.
 
-        .PARAMETER PreAction
-        A scriptblock to be executed before the 'Action' scriptblock.
-        Note: This parameter is ignored if the 'Action' scriptblock is not defined.
+    .PARAMETER PreAction
+    A scriptblock to be executed before the 'Action' scriptblock.
+    Note: This parameter is ignored if the 'Action' scriptblock is not defined.
 
-        .PARAMETER PostAction
-        A scriptblock to be executed after the 'Action' scriptblock.
-        Note: This parameter is ignored if the 'Action' scriptblock is not defined.
+    .PARAMETER PostAction
+    A scriptblock to be executed after the 'Action' scriptblock.
+    Note: This parameter is ignored if the 'Action' scriptblock is not defined.
 
-        .PARAMETER PreCondition
-        A scriptblock that is executed to determine if the task is executed or skipped.
-        This scriptblock should return $true or $false
+    .PARAMETER PreCondition
+    A scriptblock that is executed to determine if the task is executed or
+    skipped.
+    This scriptblock should return $true or $false
 
-        .PARAMETER PostCondition
-        A scriptblock that is executed to determine if the task completed its job correctly.
-        An exception is thrown if the scriptblock returns $false.
+    .PARAMETER PostCondition
+    A scriptblock that is executed to determine if the task completed its job
+    correctly.
+    An exception is thrown if the scriptblock returns $false.
 
-        .PARAMETER ContinueOnError
-        If this switch parameter is set then the task will not cause the build to fail when an exception is thrown by the task
+    .PARAMETER ContinueOnError
+    If this switch parameter is set then the task will not cause the build to
+    fail when an exception is thrown by the task
 
-        .PARAMETER Depends
-        An array of task names that this task depends on.
-        These tasks will be executed before the current task is executed.
+    .PARAMETER Depends
+    An array of task names that this task depends on.
+    These tasks will be executed before the current task is executed.
 
-        .PARAMETER RequiredVariables
-        An array of names of variables that must be set to run this task.
+    .PARAMETER RequiredVariables
+    An array of names of variables that must be set to run this task.
 
-        .PARAMETER Description
-        A description of the task.
+    .PARAMETER Description
+    A description of the task.
 
-        .PARAMETER Alias
-        An alternate name for the task.
+    .PARAMETER Alias
+    An alternate name for the task.
 
-        .PARAMETER FromModule
-        Load in the task from the specified PowerShell module.
+    .PARAMETER FromModule
+    Load in the task from the specified PowerShell module.
 
-        .PARAMETER RequiredVersion
-        The specific version of a module to load the task from
+    .PARAMETER RequiredVersion
+    The specific version of a module to load the task from
 
-        .PARAMETER MinimumVersion
-        The minimum (inclusive) version of the PowerShell module to load in the task from.
+    .PARAMETER MinimumVersion
+    The minimum (inclusive) version of the PowerShell module to load in the task
+    from.
 
-        .PARAMETER MaximumVersion
-        The maximum (inclusive) version of the PowerShell module to load in the task from.
+    .PARAMETER MaximumVersion
+    The maximum (inclusive) version of the PowerShell module to load in the task
+    from.
 
-        .PARAMETER LessThanVersion
-        The version of the PowerShell module to load in the task from that should not be met or exceeded. eg -LessThanVersion 2.0.0 will reject anything 2.0.0 or higher, allowing any module in the 1.x.x series.
+    .PARAMETER LessThanVersion
+    The version of the PowerShell module to load in the task from that should
+    not be met or exceeded. eg -LessThanVersion 2.0.0 will reject anything 2.0.0
+    or higher, allowing any module in the 1.x.x series.
 
-        .EXAMPLE
-        A sample build script is shown below:
+    .EXAMPLE
+    A sample build script is shown below:
 
-        Task default -Depends Test
+    Task default -Depends Test
 
-        Task Test -Depends Compile, Clean {
-            "This is a test"
-        }
+    Task Test -Depends Compile, Clean {
+        "This is a test"
+    }
 
-        Task Compile -Depends Clean {
-            "Compile"
-        }
+    Task Compile -Depends Clean {
+        "Compile"
+    }
 
-        Task Clean {
-            "Clean"
-        }
+    Task Clean {
+        "Clean"
+    }
 
-        The 'default' task is required and should not contain an 'Action' parameter.
-        It uses the 'Depends' parameter to specify that 'Test' is a dependency
+    The 'default' task is required and should not contain an 'Action' parameter.
+    It uses the 'Depends' parameter to specify that 'Test' is a dependency
 
-        The 'Test' task uses the 'Depends' parameter to specify that 'Compile' and 'Clean' are dependencies
-        The 'Compile' task depends on the 'Clean' task.
+    The 'Test' task uses the 'Depends' parameter to specify that 'Compile' and
+    'Clean' are dependencies
+    The 'Compile' task depends on the 'Clean' task.
 
-        Note:
-        The 'Action' parameter is defaulted to the script block following the 'Clean' task.
+    Note:
+    The 'Action' parameter is defaulted to the script block following the
+    'Clean' task.
 
-        An equivalent 'Test' task is shown below:
+    An equivalent 'Test' task is shown below:
 
-        Task Test -Depends Compile, Clean -Action {
-            $testMessage
-        }
+    Task Test -Depends Compile, Clean -Action {
+        $testMessage
+    }
 
-        The output for the above sample build script is shown below:
+    The output for the above sample build script is shown below:
 
-        Executing task, Clean...
-        Clean
-        Executing task, Compile...
-        Compile
-        Executing task, Test...
-        This is a test
+    Executing task, Clean...
+    Clean
+    Executing task, Compile...
+    Compile
+    Executing task, Test...
+    This is a test
 
-        Build Succeeded!
+    Build Succeeded!
 
-        ----------------------------------------------------------------------
-        Build Time Report
-        ----------------------------------------------------------------------
-        Name    Duration
-        ----    --------
-        Clean   00:00:00.0065614
-        Compile 00:00:00.0133268
-        Test    00:00:00.0225964
-        Total:  00:00:00.0782496
+    ----------------------------------------------------------------------
+    Build Time Report
+    ----------------------------------------------------------------------
+    Name    Duration
+    ----    --------
+    Clean   00:00:00.0065614
+    Compile 00:00:00.0133268
+    Test    00:00:00.0225964
+    Total:  00:00:00.0782496
 
-        .LINK
-        Assert
-        .LINK
-        Exec
-        .LINK
-        FormatTaskName
-        .LINK
-        Framework
-        .LINK
-        Get-PSakeScriptTasks
-        .LINK
-        Include
-        .LINK
-        Invoke-psake
-        .LINK
-        Properties
-        .LINK
-        TaskSetup
-        .LINK
-        TaskTearDown
+    .LINK
+    Assert
+    .LINK
+    Exec
+    .LINK
+    FormatTaskName
+    .LINK
+    Framework
+    .LINK
+    Get-PSakeScriptTasks
+    .LINK
+    Include
+    .LINK
+    Invoke-psake
+    .LINK
+    Properties
+    .LINK
+    TaskSetup
+    .LINK
+    TaskTearDown
     #>
     [CmdletBinding(DefaultParameterSetName = 'Normal')]
     param(
@@ -246,7 +256,9 @@ function Task {
                 Verbose       = $false
             }
             $taskModule = Get-Module @getModuleParams |
-                Where-Object -FilterScript { Test-ModuleVersion -currentVersion $_.Version @testModuleParams } |
+                Where-Object -FilterScript {
+                    Test-ModuleVersion -currentVersion $_.Version @testModuleParams
+                } |
                 Sort-Object -Property Version -Descending |
                 Select-Object -First 1
         }
@@ -305,12 +317,18 @@ function Task {
             }
 
             # Override the Depends
-            if ($refTask.DependsOn.Count -gt 0 -and (Compare-Object -ReferenceObject $refTask.DependsOn -DifferenceObject $newTask.DependsOn)) {
+            if (
+                $refTask.DependsOn.Count -gt 0 -and
+                (Compare-Object -ReferenceObject $refTask.DependsOn -DifferenceObject $newTask.DependsOn)
+            ) {
                 $newTask.DependsOn = $refTask.DependsOn
             }
 
             # Override the RequiredVariables
-            if ($refTask.RequiredVariables.Count -gt 0 -and (Compare-Object -ReferenceObject.RequiredVariables -DifferenceObject $newTask.RequiredVariables)) {
+            if (
+                $refTask.RequiredVariables.Count -gt 0 -and
+                (Compare-Object -ReferenceObject $refTask.RequiredVariables -DifferenceObject $newTask.RequiredVariables)
+            ) {
                 $newTask.RequiredVariables += $refTask.RequiredVariables
             }
         }

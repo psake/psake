@@ -1,4 +1,4 @@
-# spell-checker:ignore notr
+# spell-checker:ignore notr bitness
 function Invoke-Psake {
     <#
     .SYNOPSIS
@@ -68,7 +68,7 @@ function Invoke-Psake {
     Prints a report of all the tasks and their dependencies and descriptions and then exits
 
     .EXAMPLE
-    Invoke-psake .\parameters.ps1 -parameters @{"p1"="v1";"p2"="v2"}
+    Invoke-psake .\parameters.ps1 -Parameters @{"p1"="v1";"p2"="v2"}
 
     Runs the build script called 'parameters.ps1' and passes in parameters 'p1' and 'p2' with values 'v1' and 'v2'
 
@@ -243,6 +243,16 @@ function Invoke-Psake {
 
     # Note: $psake var is instantiated by the psake.psm1
 
+    #region Store Script Variables
+    $script:Framework = $Framework
+    $script:Docs = $Docs
+    $script:DetailedDocs = $DetailedDocs
+    $script:Properties = $Properties
+    $script:Initialization = $Initialization
+    $script:Parameters = $Parameters
+    $script:NoTimeReport = $NoTimeReport
+    #endregion Store Script Variables
+
     try {
         if (-not $NoLogo) {
             "psake version {0}$($script:nl)Copyright (c) 2010-2018 James Kovacs & Contributors$($script:nl)" -f $psake.version
@@ -266,8 +276,8 @@ function Invoke-Psake {
 
             $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 
-            if ($docs -or $detailedDocs) {
-                if ($DetailedDocs) {
+            if ($script:Docs -or $script:DetailedDocs) {
+                if ($script:DetailedDocs) {
                     Write-Documentation -ShowDetailed:$true
                 } else {
                     Write-Documentation
@@ -276,11 +286,16 @@ function Invoke-Psake {
             }
 
             try {
-                foreach ($key in $parameters.keys) {
+                foreach ($key in $Parameters.keys) {
+                    $variableSplat = @{
+                        Value   = $Parameters.$key
+                        WhatIf  = $false
+                        Confirm = $false
+                    }
                     if (Test-Path "variable:\$key") {
-                        $null = Set-Variable -Name $key -Value $parameters.$key -WhatIf:$false -Confirm:$false
+                        $null = Set-Variable @variableSplat -Name $key
                     } else {
-                        $null = New-Item -Path "variable:\$key" -Value $parameters.$key -WhatIf:$false -Confirm:$false
+                        $null = New-Item @variableSplat -Path "variable:\$key"
                     }
                 }
             } catch {
@@ -288,21 +303,25 @@ function Invoke-Psake {
                 throw
             }
 
-            # The initial dot (.) indicates that variables initialized/modified in the propertyBlock are available in the parent scope.
+            # The initial dot (.) indicates that variables initialized/modified
+            # in the propertyBlock are available in the parent scope.
             while ($CurrentContext.properties.Count -gt 0) {
                 $propertyBlock = $CurrentContext.properties.Pop()
                 . $propertyBlock
             }
 
-            foreach ($key in $properties.keys) {
+            # Inject properties passed from the command line into the current
+            # scope. This allows the properties to be used in the build script
+            # before the properties function is called.
+            foreach ($key in $Properties.keys) {
                 if (Test-Path "variable:\$key") {
-                    $null = Set-Variable -Name $key -Value $properties.$key -WhatIf:$false -Confirm:$false
+                    $null = Set-Variable -Name $key -Value $Properties.$key -WhatIf:$false -Confirm:$false
                 }
             }
 
             # Simple dot sourcing will not work. We have to force the script block into our
             # module's scope in order to initialize variables properly.
-            . $Module $Initialization
+            . $Module $script:Initialization
 
             & $CurrentContext.buildSetupScriptBlock
 
@@ -336,8 +355,10 @@ function Invoke-Psake {
         $psake.build_success = $false
         $psake.error_message = Format-ErrorMessage $_
 
-        # if we are running in a nested scope (i.e. running a psake script from a psake script) then we need to re-throw the exception
-        # so that the parent script will fail otherwise the parent script will report a successful build
+        # if we are running in a nested scope (i.e. running a psake script from
+        # a psake script) then we need to re-throw the exception so that the
+        # parent script will fail otherwise the parent script will report a
+        # successful build
         $inNestedScope = ($psake.Context.count -gt 1)
         if ( $inNestedScope ) {
             throw $_
