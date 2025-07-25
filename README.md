@@ -1,9 +1,11 @@
 Welcome to the psake project
 =============================
 
-| Azure Pipelines | GitHub Actions | PS Gallery | Chocolatey | Nuget.org |
-|-----------------|----------------|------------|------------|-----------|
-[![Azure Pipelines Build Status][azure-pipeline-badge]][azure-pipeline-build] | [![GitHub Actions Status][github-actions-badge]][github-actions-build] | [![PowerShell Gallery][psgallery-badge]][psgallery] | [![Chocolatey][chocolatey-badge]][chocolatey] | [![Nuget downloads][nuget-downloads]][nuget] |
+[![GitHub Actions Status][github-actions-badge]][github-actions-build]
+[![PowerShell Gallery][psgallery-badge]][psgallery]
+[![Chocolatey][chocolatey-badge]][chocolatey]
+[![Nuget downloads][nuget-downloads]][nuget]
+![Open Collective backers and sponsors](https://img.shields.io/opencollective/all/psake)
 
 psake is a build automation tool written in PowerShell. It avoids the angle-bracket tax associated with executable XML by leveraging the PowerShell syntax in your build scripts.
 psake has a syntax inspired by rake (aka make in Ruby) and bake (aka make in Boo), but is easier to script because it leverages your existing command-line knowledge.
@@ -70,11 +72,9 @@ psake is released under the [MIT license](http://www.opensource.org/licenses/MIT
 [azure-pipeline-build]: https://dev.azure.com/devblackops/psake/_build/latest?definitionId=5&branchName=main
 [github-actions-badge]: https://github.com/psake/psake/workflows/CI/badge.svg
 [github-actions-build]: https://github.com/psake/psake/actions
-[gitter-badge]: https://badges.gitter.im/Join%20Chat.svg
-[gitter]: https://gitter.im/psake/psake?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
-[psgallery-badge]: https://img.shields.io/powershellgallery/dt/psake.svg
+[psgallery-badge]: https://img.shields.io/powershellgallery/dt/psake.svg?label=PowerShell%20Gallery%20Downloads
 [psgallery]: https://www.powershellgallery.com/packages/psake
-[chocolatey-badge]: https://img.shields.io/chocolatey/dt/psake.svg
+[chocolatey-badge]: https://img.shields.io/chocolatey/dt/psake.svg?logo=chocolatey
 [chocolatey]: https://chocolatey.org/packages/psake
-[nuget-downloads]: https://img.shields.io/nuget/dt/psake.svg
+[nuget-downloads]: https://img.shields.io/nuget/dt/psake.svg?logo=nuget
 [nuget]: https://www.nuget.org/packages/psake/
