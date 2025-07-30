@@ -1,14 +1,23 @@
-describe 'PSake specs' {
+Describe 'PSake specs' {
+    BeforeDiscovery {
+        $buildFiles = Get-ChildItem $PSScriptRoot/../../specs/*.ps1
+        $script:testCases = $buildFiles | ForEach-Object {
+            @{
+                Name     = $_.Name
+                FullName = $_.FullName
+            }
+        }
+    }
 
     BeforeAll {
         $psake.run_by_psake_build_tester = $true
 
-        $psakeParams = @{
-            Parameters = @{
+        $script:psakeParams = @{
+            Parameters     = @{
                 p1 = 'v1'
                 p2 = 'v2'
             }
-            Properties = @{
+            Properties     = @{
                 x = '1'
                 y = '2'
             }
@@ -31,16 +40,8 @@ describe 'PSake specs' {
         $env:PSModulePath = $oldPSPath
     }
 
-    $buildFiles = Get-ChildItem $PSScriptRoot/../../specs/*.ps1
-    $testCases = $buildFiles | ForEach-Object {
-        @{
-            Name     = $_.Name
-            FullName = $_.FullName
-        }
-    }
-
-    it '<Name>' -TestCases $testCases {
-        $psakeParams.BuildFile = $FullName
+    It '<Name>' -TestCases $script:testCases {
+        $script:psakeParams.BuildFile = $FullName
         $shouldHaveError = $false
 
         if ($Name.EndsWith('_should_pass.ps1')) {
@@ -52,7 +53,9 @@ describe 'PSake specs' {
             throw "Invalid specification syntax. Specs file [$Name] should end with _should_pass or _should_fail."
         }
 
-        Invoke-psake @psakeParams | Out-Null
+        $output = Invoke-psake @psakeParams
+        Write-Debug "build_success=$($psake.build_success), expectedResult=$expectedResult"
+        Write-Debug "output=$output"
         $psake.build_success | Should -Be $expectedResult
 
         if ($shouldHaveError) {

@@ -71,5 +71,5 @@ function BuildTearDown {
         [scriptblock]$Setup
     )
 
-    $psake.context.Peek().buildTearDownScriptBlock = $Setup
+    $psake.Context.Peek().buildTearDownScriptBlock = $Setup
 }

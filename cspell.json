@@ -1,0 +1,15 @@
+{
+    "version": "0.2",
+    "ignorePaths": [],
+    "dictionaryDefinitions": [],
+    "dictionaries": [
+        "powershell"
+    ],
+    "words": [
+        "psake",
+        "psakefile",
+        "timespan"
+    ],
+    "ignoreWords": [],
+    "import": []
+}

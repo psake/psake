@@ -64,12 +64,12 @@ function Include {
     #>
     [CmdletBinding(DefaultParameterSetName = 'Path')]
     param(
-        [Parameter(ParameterSetName='Path', Mandatory=$true, Position=0, ValueFromPipelineByPropertyName=$true, ValueFromPipeline=$true)]
+        [Parameter(ParameterSetName = 'Path', Mandatory = $true, Position = 0, ValueFromPipelineByPropertyName = $true, ValueFromPipeline = $true)]
         [Alias("fileNamePathToInclude")]
         [ValidateNotNullOrEmpty()]
         [SupportsWildcards()]
         [string]$Path,
-        [Parameter(ParameterSetName='LiteralPath', Mandatory=$true, Position=0, ValueFromPipelineByPropertyName=$true)]
+        [Parameter(ParameterSetName = 'LiteralPath', Mandatory = $true, Position = 0, ValueFromPipelineByPropertyName = $true)]
         [ValidateNotNullOrEmpty()]
         [string]$LiteralPath
     )
@@ -82,9 +82,9 @@ function Include {
         }
 
         foreach ($resolvedPath in $resolvedPaths) {
-            Assert (test-path $resolvedPath -pathType Leaf) ($msgs.error_invalid_include_path -f $resolvedPath)
+            Assert (Test-Path $resolvedPath -PathType Leaf) ($msgs.error_invalid_include_path -f $resolvedPath)
 
-            $psake.context.Peek().includes.Enqueue($resolvedPath);
+            $psake.Context.Peek().includes.Enqueue($resolvedPath)
         }
     }
 }

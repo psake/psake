@@ -27,19 +27,20 @@ function Get-PSakeScriptTasks {
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseSingularNouns', '')]
     [CmdletBinding()]
     param(
-        [string]$BuildFile
+        [string]
+        $BuildFile
     )
 
     if (-not $BuildFile) {
-        $BuildFile = $psake.config_default.BuildFileName
+        $BuildFile = $psake.ConfigDefault.BuildFileName
     }
 
     try {
-        ExecuteInBuildFileScope $BuildFile $MyInvocation.MyCommand.Module {
-            param($currentContext, $module)
-            return GetTasksFromContext $currentContext
+        Invoke-InBuildFileScope -BuildFile $BuildFile -Module $MyInvocation.MyCommand.Module -ScriptBlock {
+            param($CurrentContext)
+            return Get-TasksFromContext -CurrentContext $CurrentContext
         }
     } finally {
-        CleanupEnvironment
+        Restore-Environment
     }
 }

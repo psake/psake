@@ -7,7 +7,7 @@ function BuildSetup {
         .PARAMETER Setup
         A scriptblock to execute
         .EXAMPLE
-        A sample build script is shown below:
+        A sample build script is shown below:1
         Task default -Depends Test
         Task Test -Depends Compile, Clean {
         }
@@ -51,5 +51,5 @@ function BuildSetup {
         [scriptblock]$Setup
     )
 
-    $psake.context.Peek().buildSetupScriptBlock = $Setup
+    $psake.Context.Peek().buildSetupScriptBlock = $Setup
 }
