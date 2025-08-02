@@ -8,6 +8,7 @@ param(
         'Pester',
         'Clean',
         'Build',
+        'ConvertFromLocalizationYaml',
         'CreateMarkdownHelp',
         'BuildNuget',
         'PublishChocolatey',
@@ -279,7 +280,7 @@ function PublishNuget {
 
     "Building nuget package version [$version]"
     $nugetInPath = Get-Command 'nuget' -ErrorAction 'SilentlyContinue'
-    if (-Not $nugetInPath) {
+    if (-not $nugetInPath) {
         Write-Warning "Nuget not detected in path. Using local copy..."
         $nugetBin = Resolve-Path "$PSScriptRoot\build\nuget\NuGet.exe"
     } else {
@@ -316,6 +317,73 @@ function PublishPSGallery {
     }
 
     Publish-Module @publishParams
+}
+
+function ConvertFromLocalizationYaml {
+    [DependsOn('Init')]
+    [CmdletBinding()]
+    param()
+
+    $languages = Get-ChildItem -Path "$PSScriptRoot\l10n" -Filter '*.yml' -File
+
+    foreach ($lang in $languages) {
+        $yaml = Get-Content -Path $lang.FullName -Raw | ConvertFrom-Yaml
+
+        foreach ($locale in $yaml.Keys) {
+            Write-Verbose "Processing locale: $locale"
+            $localeDir = Join-Path -Path $sut -ChildPath $locale
+            if (-not (Test-Path -Path $localeDir)) {
+                New-Item -Path $localeDir -ItemType Directory > $null
+            }
+
+            $psd1 = Join-Path -Path $localeDir -ChildPath "Messages.psd1"
+            $content = [System.Text.StringBuilder]::new()
+
+            $warningMessage = "# This file is auto-generated from YAML localization files. Do not edit manually."
+
+            [void]$content.AppendLine($warningMessage)
+            [void]$content.AppendLine("ConvertFrom-StringData @'")
+            foreach ($key in $yaml[$locale].Keys) {
+                Write-Verbose "Processing key: $key"
+                # We don't need to worry about escaping here, as the keys are simple strings
+                # and the values are already escaped by ConvertFrom-Yaml
+                $value = $yaml[$locale][$key]
+                [void]$content.AppendLine("    $key=$value")
+            }
+            [void]$content.AppendLine("'@")
+            Write-Verbose "Writing to $psd1"
+            Set-Content -Path $psd1 -Encoding UTF8 -Value $content.ToString()
+
+            # Due to a pwsh bug we need to keep a copy in the PSM1 file
+            if ($locale -eq 'en-US') {
+                $psm1 = Join-Path -Path $sut -ChildPath 'psake.psm1'
+                # Also copy the en-US messages to the psm1 file
+                $Tokens = $null
+                $Errors = $null
+                $ast = [System.Management.Automation.Language.Parser]::ParseFile(
+                    $psm1,
+                    [ref]$Tokens,
+                    [ref]$Errors
+                )
+
+                # find the data block and replace it
+                $dataBlock = $ast.Find({ param($ast) $ast -is [System.Management.Automation.Language.DataStatementAst] }, $false)
+                # dataBlock.Extent will give us the range of the data block
+                if ($dataBlock) {
+                    Write-Verbose "Updating data block in psake.psm1 with en-US messages"
+                    # Remove the first line which is the comment
+                    [void]$content.Remove(0, $warningMessage.Length + 1)
+                    $dataBlockContent = $content.ToString()
+                    $dataBlockExtent = $dataBlock.Body.Extent
+                    # WARNING: Be careful with the offsets, as they are 0-based and the content is UTF8 encoded
+                    $newContent = $ast.Extent.Text.Substring(0, $dataBlockExtent.StartOffset + 1) + $dataBlockContent + $ast.Extent.Text.Substring($dataBlockExtent.EndOffset - 1)
+                    Set-Content -Path $psm1 -Value $newContent -Encoding UTF8
+                } else {
+                    Write-Warning "No data block found in psake.psm1 to update with en-US messages."
+                }
+            }
+        }
+    }
 }
 
 try {
