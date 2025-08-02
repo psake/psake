@@ -6,6 +6,7 @@
         "powershell"
     ],
     "words": [
+        "choco",
         "psake",
         "psakefile",
         "timespan"
