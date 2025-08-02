@@ -1,5 +1,9 @@
-Welcome to the psake project
-=============================
+# psake
+
+<center><img src="https://github.com/psake/graphics/blob/master/png/psake-single-icon-olive-128x128.png?raw=true" alt="psake icon"></center>
+
+A build automation tool written in PowerShell that leverages your existing
+command-line knowledge.
 
 [![GitHub Actions Status][github-actions-badge]][github-actions-build]
 [![PowerShell Gallery][psgallery-badge]][psgallery]
@@ -7,69 +11,139 @@ Welcome to the psake project
 [![Nuget downloads][nuget-downloads]][nuget]
 ![Open Collective backers and sponsors](https://img.shields.io/opencollective/all/psake)
 
-psake is a build automation tool written in PowerShell. It avoids the angle-bracket tax associated with executable XML by leveraging the PowerShell syntax in your build scripts.
-psake has a syntax inspired by rake (aka make in Ruby) and bake (aka make in Boo), but is easier to script because it leverages your existing command-line knowledge.
+## What is psake?
 
-psake is pronounced sake – as in Japanese rice wine. It does NOT rhyme with make, bake, or rake.
+psake is a build automation tool written in PowerShell. It avoids the
+angle-bracket tax associated with executable XML by leveraging the PowerShell
+syntax in your build scripts. psake has a syntax inspired by rake (aka make
+in Ruby) and bake (aka make in Boo), but is easier to script because it
+leverages your existing command-line knowledge.
 
-## How to get started
+> **Note:** psake is pronounced "sake" – as in Japanese rice wine. It does
+> NOT rhyme with make, bake, or rake.
 
-**Step 1:** Download and extract the project
+## Installation
 
-You will need to "unblock" the zip file before extracting - PowerShell by default does not run files downloaded from the Internet.
-Just right-click the zip and click on "properties" and click on the "unblock" button.
+psake can be installed in several ways:
 
-**Step 2:** CD into the directory where you extracted the project (where the psake.psm1 file is)
+### Option 1: PowerShell Gallery (Recommended)
 
-> Import-Module .\psake.psm1
+```powershell
+Install-Module -Name psake -Scope CurrentUser
+```
 
-If you encounter the following error "Import-Module : ...psake.psm1 cannot be loaded because the execution of scripts is disabled on this system." Please see "get-help about_signing" for more details.
+### Option 2: Chocolatey
 
-1. Run PowerShell as administrator
-2. Set-ExecutionPolicy RemoteSigned
+```powershell
+choco install psake
+```
 
-> Get-Help Invoke-psake -Full
->
-> - this will show you help and examples of how to use psake
+### Option 3: Manual Installation
 
-**Step 3:** Run some examples
+1. Download and extract the project from the
+   [releases page](https://github.com/psake/psake/releases)
+2. Unblock the zip file before extracting (right-click → Properties → Unblock)
+3. Import the module:
 
-> CD .\examples
->
-> Invoke-psake
->
-> - This will execute the "default" task in the "psakefile.ps1"
->
-> Invoke-psake .\psakefile.ps1 Clean
->
-> - will execute the single task in the psakefile.ps1 script
+   ```powershell
+   Import-Module .\psake.psm1
+   ```
 
-**Step 4:** Set your PATH variable
+## Quick Start
 
-If you wish to use the psake command from outside of the install folder, add the folder install directory to your PATH variable.
+### Prerequisites
 
-**Step 5: (With VS2017)** Install the VSSetup dependency
+- PowerShell 5.1 or later
+- Execution policy set to allow script execution:
 
-psake uses [VSSetup](https://blogs.msdn.microsoft.com/heaths/2017/01/25/visual-studio-setup-powershell-module-available/) to locate msbuild when using Visual Studio 2017.  The VSSetup PowerShell module must be installed prior to compiling a VS2017 project with psake.  Install instructions for VSSetup can be found [here](https://github.com/Microsoft/vssetup.powershell#installing) and [here](https://www.powershellgallery.com/packages/VSSetup).
+  ```powershell
+  Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+  ```
+
+### Your First Build Script
+
+We highly recommend reading the [psake docs](https://psake.dev/docs/intro) for a
+more thorough walk through.
+
+1. Create a build script file (e.g., `psakefile.ps1`):
+
+   ```powershell
+   Task Default -Depends Test, Package
+
+   Task Test {
+       Write-Host "Running tests..."
+   }
+
+   Task Package {
+       Write-Host "Creating package..."
+   }
+   ```
+
+2. Run the build:
+
+   ```powershell
+   Invoke-psake
+   ```
+
+### Running Examples
+
+Navigate to the examples directory and try out the sample build scripts:
+
+```powershell
+cd .\examples
+Invoke-psake                    # Runs the default task
+Invoke-psake .\psakefile.ps1 Clean  # Runs the Clean task
+```
+
+## Getting Help
+
+Get detailed help and examples:
+
+```powershell
+Get-Help Invoke-psake -Full
+```
+
+## Visual Studio Integration
+
+For Visual Studio 2017 and later, psake can automatically locate MSBuild.
+If you encounter issues, you may need to install the
+[VSSetup PowerShell module](https://www.powershellgallery.com/packages/VSSetup):
+
+```powershell
+Install-Module -Name VSSetup -Scope CurrentUser
+```
 
 ## Release Notes
 
-You can find all the information about each release of psake in the [releases section](https://github.com/psake/psake/releases) and the [Changelog](CHANGELOG.md).
+You can find information about each release of psake in the
+[releases section](https://github.com/psake/psake/releases) and the
+[Changelog](CHANGELOG.md).
 
-## How To Contribute, Collaborate, Communicate
+## Contributing
 
-If you'd like to get involved with psake, we have [GitHub Discussions](https://github.com/orgs/psake/discussions), the #psake channel on the [PowerShell Discord](https://aka.ms/psdiscord), and the #psake channel on [PowerShell Slack](https://aka.ms/psslack).
+We welcome contributions! Here's how you can get involved:
 
-Anyone can fork the main repository and submit patches, as well. And lastly, the [psake docs](http://github.com/psake/docs) and [issues list](http://github.com/psake/psake/issues) are also open for additions, edits, and discussion.
+### Community
 
-Also check out the **[psake-contrib](http://github.com/psake/psake-contrib)** project for scripts, modules and functions to help you with a build.
+- [GitHub Discussions](https://github.com/orgs/psake/discussions) - Ask
+  questions and share ideas
+- [PowerShell Discord](https://aka.ms/psdiscord) - Join the #psake channel
+- [PowerShell Slack](https://aka.ms/psslack) - Join the #psake channel
+
+### Development
+
+- Fork the [main repository](https://github.com/psake/psake) and submit
+  pull requests
+- Check out the [psake docs](http://github.com/psake/docs) for documentation
+- Browse the [issues list](http://github.com/psake/psake/issues) for bugs
+  and feature requests
+- Explore [psake-contrib](http://github.com/psake/psake-contrib) for
+  additional scripts and modules
 
 ## License
 
 psake is released under the [MIT license](http://www.opensource.org/licenses/MIT).
 
-[azure-pipeline-badge]: https://dev.azure.com/devblackops/psake/_apis/build/status/psake.psake?branchName=main
-[azure-pipeline-build]: https://dev.azure.com/devblackops/psake/_build/latest?definitionId=5&branchName=main
 [github-actions-badge]: https://github.com/psake/psake/workflows/CI/badge.svg
 [github-actions-build]: https://github.com/psake/psake/actions
 [psgallery-badge]: https://img.shields.io/powershellgallery/dt/psake.svg?label=PowerShell%20Gallery%20Downloads
