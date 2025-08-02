@@ -377,6 +377,8 @@ function ConvertFromLocalizationYaml {
                     $dataBlockExtent = $dataBlock.Body.Extent
                     # WARNING: Be careful with the offsets, as they are 0-based and the content is UTF8 encoded
                     $newContent = $ast.Extent.Text.Substring(0, $dataBlockExtent.StartOffset + 1) + $dataBlockContent + $ast.Extent.Text.Substring($dataBlockExtent.EndOffset - 1)
+                    # Remove extra new line at the end
+                    $newContent = $newContent.TrimEnd("`r`n")
                     Set-Content -Path $psm1 -Value $newContent -Encoding UTF8
                 } else {
                     Write-Warning "No data block found in psake.psm1 to update with en-US messages."

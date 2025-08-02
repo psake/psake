@@ -179,15 +179,3 @@ $psake.error_message = $null # contains the error message which caused the scrip
 Import-PsakeConfiguration
 
 Export-ModuleMember -Function $public.BaseName -Variable psake
-
-
-
-
-
-
-
-
-
-
-
-
