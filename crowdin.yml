@@ -6,7 +6,7 @@
 
 "files": [
   {
-    "source": "/src/en-US/",
-    "translation": "/src/%locale%/%original_file_name%"
+    "source": "/l10n/en-US.yml",
+    "translation": "/l10n/%locale%.yml"
   },
 ]
