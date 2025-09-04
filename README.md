@@ -10,6 +10,7 @@ command-line knowledge.
 [![Chocolatey][chocolatey-badge]][chocolatey]
 [![Nuget downloads][nuget-downloads]][nuget]
 ![Open Collective backers and sponsors](https://img.shields.io/opencollective/all/psake)
+[![Crowdin](https://badges.crowdin.net/psake/localized.svg)](https://crowdin.com/project/psake)
 
 ## What is psake?
 
@@ -152,3 +153,4 @@ psake is released under the [MIT license](http://www.opensource.org/licenses/MIT
 [chocolatey]: https://chocolatey.org/packages/psake
 [nuget-downloads]: https://img.shields.io/nuget/dt/psake.svg?logo=nuget
 [nuget]: https://www.nuget.org/packages/psake/
+
