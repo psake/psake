@@ -1,7 +1,9 @@
-﻿properties {
-  $x = $null
-  $y = $null
-  $z = $null
+﻿# Use script-scoped variables to avoid PSScriptAnalyzer warnings
+# See Get-Help Properties -Full for details
+properties {
+  $script:x = $null
+  $script:y = $null
+  $script:z = $null
 }
 
 task default -depends TestProperties

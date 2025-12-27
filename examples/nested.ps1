@@ -1,5 +1,5 @@
 Properties {
-    $x = 1
+    $script:x = 1
 }
 
 Task default -Depends RunNested1, RunNested2, CheckX

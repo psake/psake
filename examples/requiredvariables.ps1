@@ -1,7 +1,7 @@
 ﻿properties {
-  $x = $null
-  $y = $null
-  $z = $null
+  $script:x = $null
+  $script:y = $null
+  $script:z = $null
 }
 
 task default -depends TestRequiredVariables

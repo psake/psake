@@ -1,7 +1,8 @@
+# Use script-scoped variables to avoid PSScriptAnalyzer warnings
 properties {
-  $testMessage = 'Executed Test!'
-  $compileMessage = 'Executed Compile!'
-  $cleanMessage = 'Executed Clean!'
+  $script:testMessage = 'Executed Test!'
+  $script:compileMessage = 'Executed Compile!'
+  $script:cleanMessage = 'Executed Clean!'
 }
 
 task default -depends Test
