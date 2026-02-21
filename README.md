@@ -130,7 +130,7 @@ Task Compile {
 
 The `$script:` prefix has no functional difference at runtime but satisfies PSScriptAnalyzer's static analysis requirements.
 
-For more details, see `Get-Help Properties -Full` or visit our [troubleshooting documentation](docs/troubleshooting.md).
+For more details, see `Get-Help Properties -Full` or visit our [troubleshooting documentation](https://psake.dev/docs/troubleshooting/common-errors).
 
 ## Visual Studio Integration
 
