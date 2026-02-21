@@ -1,6 +1,6 @@
 properties {
-  $runTaskA = $false
-  $taskBSucceded = $true
+  $script:runTaskA = $false
+  $script:taskBSucceded = $true
 }
 
 task default -depends TaskC

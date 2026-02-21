@@ -1,5 +1,5 @@
 Properties {
-    $x = 100
+    $script:x = 100
 }
 
 Task default -Depends Nested1CheckX

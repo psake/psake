@@ -1,5 +1,5 @@
 ﻿properties {
-    $buildOutputPath = ".\bin\$buildConfiguration"
+    $script:buildOutputPath = ".\bin\$buildConfiguration"
 }
 
 task default -depends DoRelease

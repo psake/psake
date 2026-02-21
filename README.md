@@ -103,6 +103,35 @@ Get detailed help and examples:
 Get-Help Invoke-psake -Full
 ```
 
+## Troubleshooting
+
+### PSScriptAnalyzer Warnings in Properties Blocks
+
+When using PSScriptAnalyzer with psake build scripts, you may encounter warnings like:
+
+```
+PSUseDeclaredVarsMoreThanAssignments: The variable 'build_dir' is assigned but never used.
+```
+
+This is a known limitation - PSScriptAnalyzer's static analysis cannot detect that psake dot-sources Properties blocks into task scope at runtime. The variables ARE actually used, but the analyzer can't see it.
+
+**Solution:** Use script-scoped variables in your Properties blocks:
+
+```powershell
+Properties {
+    $script:build_dir = "c:\build"
+    $script:connection_string = "datasource=localhost;..."
+}
+
+Task Compile {
+    "Building to: $build_dir"  # Works identically at runtime
+}
+```
+
+The `$script:` prefix has no functional difference at runtime but satisfies PSScriptAnalyzer's static analysis requirements.
+
+For more details, see `Get-Help Properties -Full` or visit our [troubleshooting documentation](https://psake.dev/docs/troubleshooting/common-errors).
+
 ## Visual Studio Integration
 
 For Visual Studio 2017 and later, psake can automatically locate MSBuild.

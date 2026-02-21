@@ -1,5 +1,5 @@
 Properties {
-    $x = 200
+    $script:x = 200
 }
 
 Task default -Depends Nested2CheckX

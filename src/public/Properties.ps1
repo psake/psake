@@ -33,6 +33,35 @@ function Properties {
 
     Note: You can have more than one "Properties" function defined in the build script.
 
+    .EXAMPLE
+    Recommended: Use script-scoped variables to avoid PSScriptAnalyzer warnings
+
+    Properties {
+        $script:build_dir = "c:\build"
+        $script:connection_string = "datasource=localhost;initial catalog=northwind;integrated security=sspi"
+    }
+
+    Task Compile {
+        "Building to: $build_dir"  # No PSScriptAnalyzer warning, variable is recognized
+    }
+
+    The $script: prefix has identical runtime behavior but satisfies PSScriptAnalyzer's
+    static analysis requirements.
+
+    .EXAMPLE
+    Alternative: Non-scoped variables (generates PSScriptAnalyzer warnings)
+
+    Properties {
+        $build_dir = "c:\build"  # Warning: PSUseDeclaredVarsMoreThanAssignments
+    }
+
+    Task Compile {
+        "Building to: $build_dir"  # Works at runtime, but PSScriptAnalyzer warns
+    }
+
+    Variables still work correctly at runtime, but PSScriptAnalyzer cannot detect
+    that they will be used in tasks.
+
     .LINK
     Assert
     .LINK
@@ -60,6 +89,21 @@ function Properties {
     This means that the variables defined in the script block will be
     available in the scope of the tasks, but not in the global scope of the
     build script.
+
+    PSScriptAnalyzer may warn about variables assigned but not used
+    (PSUseDeclaredVarsMoreThanAssignments) when variables are declared in
+    Properties blocks. This is a false positive - the variables ARE used
+    in tasks when the Properties scriptblock is dot-sourced at runtime.
+
+    To suppress this warning, use script-scoped variables:
+
+    Properties {
+        $script:build_dir = "c:\build"
+        $script:connection_string = "datasource=..."
+    }
+
+    This has identical runtime behavior but satisfies PSScriptAnalyzer's
+    static analysis requirements. See the examples above for more details.
     #>
     [CmdletBinding()]
     param(

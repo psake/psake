@@ -1,6 +1,6 @@
 ﻿Properties {
-  $x = 1
-  $y = 2
+  $script:x = 1
+  $script:y = 2
 }
 
 FormatTaskName "[{0}]"

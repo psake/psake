@@ -1,5 +1,5 @@
 ﻿properties {
-    $my_property = $p1 + $p2
+    $script:my_property = $p1 + $p2
 }
 
 task default -depends TestParams
