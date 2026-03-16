@@ -58,6 +58,7 @@ function Invoke-InBuildFileScope {
             "properties"                    = New-Object System.Collections.Stack
             "includes"                      = New-Object System.Collections.Queue
             "config"                        = New-ConfigurationForNewContext -Build $BuildFile -Framework $script:Framework
+            "outputView"                    = $script:OutputView
         }
     )
 
