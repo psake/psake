@@ -101,14 +101,20 @@ function Invoke-Task {
                                     & $task.PreAction
                                 }
 
-                                if ($currentContext.config.taskNameFormat -is [ScriptBlock]) {
-                                    $taskHeader = & $currentContext.config.taskNameFormat $TaskName
-                                } else {
-                                    $taskHeader = $currentContext.config.taskNameFormat -f $TaskName
+                                if ($currentContext.outputView -eq 'Normal') {
+                                    if ($currentContext.config.taskNameFormat -is [ScriptBlock]) {
+                                        $taskHeader = & $currentContext.config.taskNameFormat $TaskName
+                                    } else {
+                                        $taskHeader = $currentContext.config.taskNameFormat -f $TaskName
+                                    }
+                                    Write-PsakeOutput $taskHeader "heading"
                                 }
-                                Write-PsakeOutput $taskHeader "heading"
 
-                                & $task.Action
+                                if ($currentContext.outputView -ne 'Normal') {
+                                    $task.Output = & $task.Action *>&1
+                                } else {
+                                    & $task.Action
+                                }
                             } finally {
                                 if ($task.PostAction) {
                                     & $task.PostAction

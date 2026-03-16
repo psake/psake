@@ -16,6 +16,7 @@ class PsakeTask {
     [string]$ErrorMessage
     [string]$ErrorDetail
     [string]$ErrorFormatted
+    [object[]]$Output
     #endregion Properties
 
     #region Constructors
@@ -35,7 +36,8 @@ class PsakeTask {
         [bool]$Success,
         [string]$ErrorMessage,
         [string]$ErrorDetail,
-        [string]$ErrorFormatted
+        [string]$ErrorFormatted,
+        [object[]]$Output
     ) {
         $this.Name = $Name
         $this.DependsOn = $DependsOn
@@ -53,6 +55,7 @@ class PsakeTask {
         $this.ErrorMessage = $ErrorMessage
         $this.ErrorDetail = $ErrorDetail
         $this.ErrorFormatted = $ErrorFormatted
+        $this.Output = $Output
     }
 
     PsakeTask(
@@ -75,6 +78,7 @@ class PsakeTask {
             'ErrorMessage' { $this.ErrorMessage = $Hashtable.ErrorMessage }
             'ErrorDetail' { $this.ErrorDetail = $Hashtable.ErrorDetail }
             'ErrorFormatted' { $this.ErrorFormatted = $Hashtable.ErrorFormatted }
+            'Output' { $this.Output = $Hashtable.Output }
         }
     }
     #endregion Constructors

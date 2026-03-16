@@ -42,6 +42,12 @@ function Invoke-Psake {
     .PARAMETER NoTimeReport
     Do not display the time report.
 
+    .PARAMETER OutputView
+    Controls how build results are presented.
+    - Normal: Default behavior — full output from all tasks.
+    - Summary: Compact text summary with task status table and error details. Child task output is suppressed for passing tasks.
+    - JSON: Machine-readable JSON object with build result, task statuses, and error details. Ideal for LLM consumption and CI log parsing.
+
     .EXAMPLE
     Invoke-psake
 
@@ -131,6 +137,7 @@ function Invoke-Psake {
     $psake.build_script_file            # contains a System.IO.FileInfo for the current build script
     $psake.build_script_dir             # contains the fully qualified path to the current build script
     $psake.error_message                # contains the error message which caused the script to fail
+    $psake.error_record                 # contains the full ErrorRecord object for programmatic inspection
 
     You should see the following when you display the contents of the $psake variable right after importing psake
 
@@ -238,7 +245,11 @@ function Invoke-Psake {
 
         [Parameter(Position = 9, Mandatory = $false)]
         [Alias("notr")]
-        [switch]$NoTimeReport # disable time report
+        [switch]$NoTimeReport, # disable time report
+
+        [Parameter(Position = 10, Mandatory = $false)]
+        [ValidateSet('Normal', 'Summary', 'JSON')]
+        [string]$OutputView = 'Normal'
     )
 
     # Note: $psake var is instantiated by the psake.psm1
@@ -251,10 +262,11 @@ function Invoke-Psake {
     $script:Initialization = $Initialization
     $script:Parameters = $Parameters
     $script:NoTimeReport = $NoTimeReport
+    $script:OutputView = $OutputView
     #endregion Store Script Variables
 
     try {
-        if (-not $NoLogo) {
+        if (-not $NoLogo -and $OutputView -eq 'Normal') {
             "psake version {0}$($script:nl)Copyright (c) 2010-2018 James Kovacs & Contributors$($script:nl)" -f $psake.version
         }
         if (!$BuildFile) {
@@ -270,6 +282,7 @@ function Invoke-Psake {
         }
 
         $psake.error_message = $null
+        $psake.error_record = $null
 
         Invoke-InBuildFileScope -BuildFile $BuildFile -Module $MyInvocation.MyCommand.Module -ScriptBlock {
             param($CurrentContext, $Module)
@@ -340,20 +353,29 @@ function Invoke-Psake {
                 & $CurrentContext.buildTearDownScriptBlock
             }
 
-            $successMsg = $msgs.psake_success -f $BuildFile
-            Write-PsakeOutput ("$($script:nl)${successMsg}$($script:nl)") "success"
-
             $stopwatch.Stop()
-            if (-not $NoTimeReport) {
-                Write-TaskTimeSummary $stopwatch.Elapsed
+            $script:buildDuration = $stopwatch.Elapsed
+
+            if ($script:OutputView -eq 'Normal') {
+                $successMsg = $msgs.psake_success -f $BuildFile
+                Write-PsakeOutput ("$($script:nl)${successMsg}$($script:nl)") "success"
+
+                if (-not $NoTimeReport) {
+                    Write-TaskTimeSummary $stopwatch.Elapsed
+                }
             }
         }
 
         $psake.build_success = $true
 
+        if ($script:OutputView -ne 'Normal' -and $script:buildDuration) {
+            Write-BuildSummary -Duration $script:buildDuration -OutputView $script:OutputView
+        }
+
     } catch {
         $psake.build_success = $false
         $psake.error_message = Format-ErrorMessage $_
+        $psake.error_record = $_
 
         # if we are running in a nested scope (i.e. running a psake script from
         # a psake script) then we need to re-throw the exception so that the
@@ -363,7 +385,23 @@ function Invoke-Psake {
         if ( $inNestedScope ) {
             throw $_
         } else {
-            if (!$psake.run_by_psake_build_tester) {
+            if ($script:OutputView -ne 'Normal') {
+                if ($script:buildDuration) {
+                    Write-BuildSummary -Duration $script:buildDuration -OutputView $script:OutputView
+                } else {
+                    # Error occurred before tasks ran — fall back to raw error
+                    if ($script:OutputView -eq 'JSON') {
+                        $errorJson = ConvertTo-Json -InputObject ([ordered]@{
+                            result = "FAILED"
+                            error  = $psake.error_message
+                            tasks  = @()
+                        }) -Depth 3
+                        Write-PsakeOutput $errorJson
+                    } else {
+                        Write-PsakeOutput $psake.error_message "error"
+                    }
+                }
+            } elseif (!$psake.run_by_psake_build_tester) {
                 Write-PsakeOutput $psake.error_message "error"
             }
         }
