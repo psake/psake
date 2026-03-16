@@ -5,14 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+## [4.10.0] 2026-03-16
 
-## Changed
+### Added
 
 - [**#290**](https://github.com/psake/psake/pull/290) Enabling String and
   FileInfo Objects To Be Piped To Include Function
+- Output handling and summary reporting via `OutputView` parameter and
+  `Write-BuildSummary` function
+- Localization (l10n) support with Crowdin integration configuration
+
+### Changed
+
 - [**#301**](https://github.com/psake/psake/pull/301) Add ability to override
-  psake's internal logging.
+  psake's internal logging
+- [**#342**](https://github.com/psake/psake/pull/342) Best practices refactor
+  with PascalCase parameters
+- [**#344**](https://github.com/psake/psake/pull/344) Improved documentation
+- [**#350**](https://github.com/psake/psake/pull/350) Added troubleshooting
+  guide for PSScriptAnalyzer warnings and script-scoped variables
+
+### Security
+
+- [**#349**](https://github.com/psake/psake/pull/349) Fix for code scanning
+  alert: Added permissions configuration to workflows
 
 ## [4.9.1] 2024-10-06
 
