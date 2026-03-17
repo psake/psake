@@ -52,7 +52,7 @@ foreach ($import in @($enums + $classes + $public + $private)) {
 # and then we can try to load from a locale folder.
 #region Auto-generated from YAML localization files.
 data msgs {
-ConvertFrom-StringData @'
+    ConvertFrom-StringData @'
     error_task_name_does_not_exist=Task {0} does not exist.
     error_invalid_include_path=Unable to include {0}. File not found.
     error_no_default_task='default' task required.

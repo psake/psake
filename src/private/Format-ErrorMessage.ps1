@@ -15,6 +15,7 @@ function Format-ErrorMessage {
     Formats the error message for the first error in the $Error array.
     #>
     [CmdletBinding()]
+    [OutputType([string])]
     param(
         [Parameter(ValueFromPipeline = $true)]
         $ErrorRecord = $Error[0]
@@ -27,9 +28,8 @@ function Format-ErrorMessage {
 
     process {
         $errorMessage = [System.Text.StringBuilder]::new()
-        $date = Get-Date
         if ($currentConfig.VerboseError) {
-            $errorMessage.AppendFormat("{0}: An Error Occurred. See Error Details Below:", $date)
+            $errorMessage.AppendFormat("{0}: An Error Occurred. See Error Details Below:", [datetime]::Now)
             $errorMessage.AppendLine()
             $errorMessage.AppendLine($dash)
             $errorMessage.AppendFormat("Error: {0}", $(Resolve-Error $ErrorRecord -Short))
@@ -42,13 +42,10 @@ function Format-ErrorMessage {
             $errorMessage.AppendLine($(Get-Variable -Scope script | Format-Table | Out-String))
         } else {
             # ($_ | Out-String) gets error messages with source information included.
-            $errorMessage.AppendFormat("Error: {0}:", $date)
+            $errorMessage.AppendFormat("Error: {0}:", [datetime]::Now)
             $errorMessage.AppendLine()
             $errorMessage.AppendLine("{0}" -f (Resolve-Error $ErrorRecord -Short))
         }
-    }
-
-    end {
         $errorMessage.ToString()
     }
 }
