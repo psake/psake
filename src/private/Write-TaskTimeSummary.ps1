@@ -16,9 +16,9 @@ function Write-TaskTimeSummary {
     } elseif ($currentContext.config.taskNameFormat -ne "Executing {0}") {
         $currentContext.config.taskNameFormat -f "Build Time Report"
     } else {
-        Write-PsakeOutput ("-" * 70)
-        Write-PsakeOutput "Build Time Report"
-        Write-PsakeOutput ("-" * 70)
+        Write-PsakeOutput -Output ("-" * 70)
+        Write-PsakeOutput -Output "Build Time Report"
+        Write-PsakeOutput -Output ("-" * 70)
     }
 
     $list = @()

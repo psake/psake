@@ -77,7 +77,7 @@ function Invoke-InBuildFileScope {
     $currentContext = $psake.Context.Peek()
 
     if ($script:Framework -ne $frameworkOldValue) {
-        Write-PsakeOutput $msgs.warning_deprecated_framework_variable "warning"
+        Write-PsakeOutput -Output $msgs.warning_deprecated_framework_variable -OutputType 'Warning'
         $currentContext.config.framework = $script:Framework
     }
 

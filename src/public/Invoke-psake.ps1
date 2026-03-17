@@ -312,7 +312,7 @@ function Invoke-Psake {
                     }
                 }
             } catch {
-                Write-PsakeOutput -Message "Parameter '$key' is null" -OutputType 'Error'
+                Write-PsakeOutput -Output "Parameter '$key' is null" -OutputType 'Error'
                 throw
             }
 
@@ -358,7 +358,7 @@ function Invoke-Psake {
 
             if ($script:OutputView -eq 'Normal') {
                 $successMsg = $msgs.psake_success -f $BuildFile
-                Write-PsakeOutput ("$($script:nl)${successMsg}$($script:nl)") "success"
+                Write-PsakeOutput -Output ("$($script:nl)${successMsg}$($script:nl)") -OutputType 'Success'
 
                 if (-not $NoTimeReport) {
                     Write-TaskTimeSummary $stopwatch.Elapsed
@@ -396,13 +396,13 @@ function Invoke-Psake {
                             error  = $psake.error_message
                             tasks  = @()
                         }) -Depth 3
-                        Write-PsakeOutput $errorJson
+                        Write-PsakeOutput -Output $errorJson
                     } else {
-                        Write-PsakeOutput $psake.error_message "error"
+                        Write-PsakeOutput -Output $psake.error_message -OutputType 'Error'
                     }
                 }
             } elseif (!$psake.run_by_psake_build_tester) {
-                Write-PsakeOutput $psake.error_message "error"
+                Write-PsakeOutput -Output $psake.error_message -OutputType 'Error'
             }
         }
     } finally {

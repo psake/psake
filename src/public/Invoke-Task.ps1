@@ -70,7 +70,7 @@ function Invoke-Task {
         $precondition_is_valid = & $task.Precondition
 
         if (!$precondition_is_valid) {
-            Write-PsakeOutput ($msgs.precondition_was_false -f $TaskName) "heading"
+            Write-PsakeOutput -Output ($msgs.precondition_was_false -f $TaskName) -OutputType 'Heading'
         } else {
             if ($taskKey -ne 'default') {
 
@@ -107,7 +107,7 @@ function Invoke-Task {
                                     } else {
                                         $taskHeader = $currentContext.config.taskNameFormat -f $TaskName
                                     }
-                                    Write-PsakeOutput $taskHeader "heading"
+                                    Write-PsakeOutput -Output $taskHeader -OutputType 'Heading'
                                 }
 
                                 if ($currentContext.outputView -ne 'Normal') {
@@ -138,7 +138,7 @@ function Invoke-Task {
                     } catch {
                         if ($task.ContinueOnError) {
                             "-" * 70
-                            Write-PsakeOutput ($msgs.continue_on_error -f $TaskName, $_) "warning"
+                            Write-PsakeOutput -Output ($msgs.continue_on_error -f $TaskName, $_) -OutputType 'Warning'
                             "-" * 70
                         } else {
                             throw $_
