@@ -99,7 +99,7 @@ function Set-BuildEnvironment {
                 if ($ver -eq "15.0") {
                     if ($null -eq (Get-Module -Name VSSetup)) {
                         if ($null -eq (Get-Module -Name VSSetup -ListAvailable)) {
-                            Write-PsakeOutput ($msgs.warning_missing_vsssetup_module -f $ver) "warning"
+                            Write-PsakeOutput -Output ($msgs.warning_missing_vsssetup_module -f $ver) -OutputType 'Warning'
                             continue
                         }
 
@@ -142,7 +142,7 @@ function Set-BuildEnvironment {
                 } elseif ($ver -eq "16.0") {
                     if ($null -eq (Get-Module -Name VSSetup)) {
                         if ($null -eq (Get-Module -Name VSSetup -ListAvailable)) {
-                            Write-PsakeOutput ($msgs.warning_missing_vsssetup_module -f $ver) "warning"
+                            Write-PsakeOutput -Output ($msgs.warning_missing_vsssetup_module -f $ver) -OutputType 'Warning'
                             continue
                         }
 
