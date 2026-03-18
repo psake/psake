@@ -41,6 +41,7 @@ function Write-PsakeOutput {
 
     begin {
         $handler = { param($Output) Write-Output $Output }
+        $outputTypeKey = [string]$OutputType
         # Check if we're in a psake context; if not, just write to output and exit.
         if (
             $psake.Context.Count -eq 0 -or
@@ -48,10 +49,10 @@ function Write-PsakeOutput {
             $null -eq $psake.Context.peek().config.outputHandlers
         ) {
             Write-Warning "No psake context found. Write-PsakeOutput will write to standard output."
-        } elseif (-not $psake.Context.peek().config.outputHandlers.ContainsKey($OutputType)) {
+        } elseif (-not $psake.Context.peek().config.outputHandlers.ContainsKey($outputTypeKey)) {
             Write-Warning "No output handler defined for '$OutputType'."
         } else {
-            $configured = $psake.Context.peek().config.outputHandlers[$OutputType]
+            $configured = $psake.Context.peek().config.outputHandlers[$outputTypeKey]
             if ($configured -is [scriptblock]) {
                 $handler = $configured
             } else {

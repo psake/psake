@@ -17,7 +17,7 @@ function Write-ColoredOutput {
         }
     }
 
-    $message
+    Write-Host $message
 
     if ($null -ne $previousColor) {
         $Host.UI.RawUI.ForegroundColor = $previousColor

@@ -351,10 +351,9 @@ function Invoke-Psake {
                 }
             } finally {
                 & $CurrentContext.buildTearDownScriptBlock
+                $stopwatch.Stop()
+                $script:buildDuration = $stopwatch.Elapsed
             }
-
-            $stopwatch.Stop()
-            $script:buildDuration = $stopwatch.Elapsed
 
             if ($script:OutputView -eq 'Normal') {
                 $successMsg = $msgs.psake_success -f $BuildFile
@@ -392,10 +391,10 @@ function Invoke-Psake {
                     # Error occurred before tasks ran — fall back to raw error
                     if ($script:OutputView -eq 'JSON') {
                         $errorJson = ConvertTo-Json -InputObject ([ordered]@{
-                            result = "FAILED"
-                            error  = $psake.error_message
-                            tasks  = @()
-                        }) -Depth 3
+                                result = "FAILED"
+                                error  = $psake.error_message
+                                tasks  = @()
+                            }) -Depth 3
                         Write-PsakeOutput -Output $errorJson
                     } else {
                         Write-PsakeOutput -Output $psake.error_message -OutputType 'Error'

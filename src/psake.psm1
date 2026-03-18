@@ -149,7 +149,7 @@ $psake.ConfigDefault = New-Object 'PSObject' -Property @{
         }
         Default = {
             param($Output)
-            Write-Output $Output
+            Write-ColoredOutput -Message $Output -ForegroundColor 'White'
         }
         Debug   = {
             param($Output)

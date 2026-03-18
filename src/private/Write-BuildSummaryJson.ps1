@@ -9,7 +9,7 @@ function Write-BuildSummaryJson {
     foreach ($task in $Tasks) {
         $entry = [ordered]@{
             name     = $task.Name
-            status   = if ($task.Success) { "Passed" } else { "Failed" }
+            status   = if ($task.Success -and $task.Executed) { "Passed" } elseif (-not $task.Success -and $task.Executed) { "Failed" } else { "Not Executed" }
             duration = $task.Duration.ToString("hh\:mm\:ss\.fff")
         }
         if (-not $task.Success) {
@@ -24,7 +24,7 @@ function Write-BuildSummaryJson {
     }
 
     $summary = [ordered]@{
-        result    = if ($psake.build_success) { "SUCCEEDED" } else { "FAILED" }
+        success   = $psake.build_success
         duration  = $Duration.ToString("hh\:mm\:ss\.fff")
         buildFile = if ($psake.build_script_file) { $psake.build_script_file.Name } else { $null }
         tasks     = $taskData
@@ -35,5 +35,6 @@ function Write-BuildSummaryJson {
     }
 
     $json = ConvertTo-Json -InputObject $summary -Depth 3
-    Write-PsakeOutput -Output $json
+    # This is one of the few times Write-Output would be appropriate in a psake script, since we're outputting structured data that may be consumed by other tools. In this case, we'll write the JSON string to standard output so it can be captured or redirected as needed.
+    Write-Output $json
 }

@@ -9,15 +9,21 @@ function Write-BuildSummaryText {
     $dash = "-" * 70
 
     # Build Summary header
-    Write-PsakeOutput -Output ""
-    Write-PsakeOutput -Output $dash
-    Write-PsakeOutput -Output "Build Summary"
-    Write-PsakeOutput -Output $dash
+    Write-PsakeOutput -Output $dash -OutputType 'Heading'
+    Write-PsakeOutput -Output "Build Summary" -OutputType 'Heading'
+    Write-PsakeOutput -Output $dash -OutputType 'Heading'
 
     # Task table
     $summaryList = @()
     foreach ($task in $Tasks) {
-        $status = if ($task.Success) { "[+]" } else { "[-]" }
+        # Status: [ ] = not executed, [+] = success, [-] = failed
+        if ($task.Executed -and $task.RecursiveSuccess($Tasks)) {
+            $status = "[+]"
+        } elseif ($task.Executed -and -not $task.RecursiveSuccess($Tasks)) {
+            $status = "[-]"
+        } else {
+            $status = "[ ]"
+        }
         $summaryList += New-Object PSObject -Property @{
             Name     = $task.Name
             Status   = $status
@@ -41,10 +47,9 @@ function Write-BuildSummaryText {
 
     # Error Summary section
     if ($FailedTasks.Count -gt 0) {
-        Write-PsakeOutput -Output ""
-        Write-PsakeOutput -Output $dash
-        Write-PsakeOutput -Output "Error Summary"
-        Write-PsakeOutput -Output $dash
+        Write-PsakeOutput -Output $dash -OutputType 'Heading'
+        Write-PsakeOutput -Output "Error Summary" -OutputType 'Heading'
+        Write-PsakeOutput -Output $dash -OutputType 'Heading'
 
         foreach ($task in $FailedTasks) {
             Write-PsakeOutput -Output "Task: $($task.Name)" -OutputType 'Error'
@@ -54,10 +59,11 @@ function Write-BuildSummaryText {
                 Write-PsakeOutput -Output "Error: $($task.ErrorMessage)" -OutputType 'Error'
             }
             if ($task.Output) {
-                Write-PsakeOutput -Output "--- Captured Output ---"
-                $task.Output | ForEach-Object { Write-PsakeOutput -Output ($_.ToString()) }
+                Write-PsakeOutput -Output "--- Captured Output ---" -OutputType 'Error'
+                $task.Output | ForEach-Object { Write-PsakeOutput -Output ($_.ToString()) -OutputType 'Error' }
             }
-            Write-PsakeOutput -Output $dash
+            Write-PsakeOutput -Output $dash -OutputType 'Heading'
         }
+        Write-PsakeOutput -Output "See `$psake.error_record for full error record(s)." -OutputType 'Error'
     }
 }

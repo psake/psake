@@ -107,7 +107,9 @@ function Invoke-Task {
                                     } else {
                                         $taskHeader = $currentContext.config.taskNameFormat -f $TaskName
                                     }
-                                    Write-PsakeOutput -Output $taskHeader -OutputType 'Heading'
+                                    if (-not [string]::IsNullOrEmpty($taskHeader)) {
+                                        Write-PsakeOutput -Output $taskHeader -OutputType 'Heading'
+                                    }
                                 }
 
                                 if ($currentContext.outputView -ne 'Normal') {
@@ -116,6 +118,7 @@ function Invoke-Task {
                                     & $task.Action
                                 }
                             } finally {
+                                $task.Executed = $true
                                 if ($task.PostAction) {
                                     & $task.PostAction
                                 }
@@ -128,9 +131,6 @@ function Invoke-Task {
                             $task.ErrorMessage = $_
                             $task.ErrorDetail = $_ | Out-String
                             $task.ErrorFormatted = Format-ErrorMessage $_
-
-
-
                             throw $_ # pass this up the chain; cleanup is handled higher int he stack
                         } finally {
                             & $currentContext.taskTearDownScriptBlock $task
@@ -144,6 +144,7 @@ function Invoke-Task {
                             throw $_
                         }
                     } finally {
+                        $task.Executed = $true
                         $task.Duration = $stopwatch.Elapsed
                     }
                 } else {
@@ -151,6 +152,7 @@ function Invoke-Task {
                     foreach ($childTask in $task.DependsOn) {
                         Invoke-Task $childTask
                     }
+                    $task.Executed = $true
                 }
             } else {
                 foreach ($childTask in $task.DependsOn) {
@@ -161,11 +163,28 @@ function Invoke-Task {
             Assert (& $task.PostCondition) ($msgs.postcondition_failed -f $TaskName)
         }
     } catch {
+        if ($task.Success) {
+            $task.Success = $false
+            $task.ErrorMessage = $_
+            $task.ErrorDetail = $_ | Out-String
+            $task.ErrorFormatted = Format-ErrorMessage $_
+        }
         throw $_
     } finally {
+        # Record any dependencies that were skipped due to an earlier failure
+        if ($task -and $task.DependsOn) {
+            foreach ($dep in $task.DependsOn) {
+                $depKey = $dep.ToLower()
+                if (-not $currentContext.executedTasks.Contains($depKey)) {
+                    $depTask = $currentContext.tasks[$depKey]
+                    if ($depTask) {
+                        $currentContext.executedTasks.Push($depKey)
+                    }
+                }
+            }
+        }
         $poppedTaskKey = $currentContext.callStack.Pop()
         Assert ($poppedTaskKey -eq $taskKey) ($msgs.error_corrupt_callstack -f $taskKey, $poppedTaskKey)
+        $currentContext.executedTasks.Push($taskKey)
     }
-
-    $currentContext.executedTasks.Push($taskKey)
 }

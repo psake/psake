@@ -29,22 +29,22 @@ function Format-ErrorMessage {
     process {
         $errorMessage = [System.Text.StringBuilder]::new()
         if ($currentConfig.VerboseError) {
-            $errorMessage.AppendFormat("{0}: An Error Occurred. See Error Details Below:", [datetime]::Now)
-            $errorMessage.AppendLine()
-            $errorMessage.AppendLine($dash)
-            $errorMessage.AppendFormat("Error: {0}", $(Resolve-Error $ErrorRecord -Short))
-            $errorMessage.AppendLine()
-            $errorMessage.AppendLine($dash)
-            $errorMessage.AppendLine($(Resolve-Error $ErrorRecord))
-            $errorMessage.AppendLine($dash)
-            $errorMessage.AppendLine("Script Variables")
-            $errorMessage.AppendLine($dash)
-            $errorMessage.AppendLine($(Get-Variable -Scope script | Format-Table | Out-String))
+            [void]$errorMessage.AppendFormat("{0}: An Error Occurred. See Error Details Below:", [datetime]::Now)
+            [void]$errorMessage.AppendLine()
+            [void]$errorMessage.AppendLine($dash)
+            [void]$errorMessage.AppendFormat("Error: {0}", $(Resolve-Error $ErrorRecord -Short))
+            [void]$errorMessage.AppendLine()
+            [void]$errorMessage.AppendLine($dash)
+            [void]$errorMessage.AppendLine($(Resolve-Error $ErrorRecord))
+            [void]$errorMessage.AppendLine($dash)
+            [void]$errorMessage.AppendLine("Script Variables")
+            [void]$errorMessage.AppendLine($dash)
+            [void]$errorMessage.AppendLine($(Get-Variable -Scope script | Format-Table | Out-String))
         } else {
             # ($_ | Out-String) gets error messages with source information included.
-            $errorMessage.AppendFormat("Error: {0}:", [datetime]::Now)
-            $errorMessage.AppendLine()
-            $errorMessage.AppendLine("{0}" -f (Resolve-Error $ErrorRecord -Short))
+            [void]$errorMessage.AppendFormat("Error: {0}:", [datetime]::Now)
+            [void]$errorMessage.AppendLine()
+            [void]$errorMessage.AppendLine("{0}" -f (Resolve-Error $ErrorRecord -Short))
         }
         $errorMessage.ToString()
     }

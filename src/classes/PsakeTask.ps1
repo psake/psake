@@ -13,6 +13,7 @@ class PsakeTask {
     [string[]]$RequiredVariables
     [string]$Alias
     [bool]$Success = $true # let's be optimistic
+    [bool]$Executed = $false
     [string]$ErrorMessage
     [string]$ErrorDetail
     [string]$ErrorFormatted
@@ -82,4 +83,24 @@ class PsakeTask {
         }
     }
     #endregion Constructors
+
+    #region Methods
+    [bool] RecursiveSuccess([PsakeTask[]]$TaskList) {
+        if ($this.DependsOn.Count -ne 0) {
+            # Recurse down each dependency and check for any false
+            foreach ($dependant in $this.DependsOn) {
+                $dependentTask = $TaskList | Where-Object { $_.Name -eq $dependant }
+                # If dependency isn't in the task list, we'll consider that a
+                # failure (since it can't be executed successfully)
+                if ($null -eq $dependentTask) {
+                    return $false
+                }
+                if (-not $dependentTask.RecursiveSuccess($TaskList)) {
+                    return $false
+                }
+            }
+        }
+        return $this.Success -and $this.Executed
+    }
+    #endregion Methods
 }
