@@ -1,5 +1,5 @@
 
-Task default -depends CheckDetailedDocs
+Task default -Depends CheckDetailedDocs
 
 Task CheckDetailedDocs {
     $NL = [System.Environment]::NewLine
@@ -8,9 +8,9 @@ Task CheckDetailedDocs {
         $origOutputRendering = $PSStyle.OutputRendering
         $PSStyle.OutputRendering = 'PlainText'
     }
-    $psake.ConfigDefault.OutputHandlers.Default = { Param($output) Write-Output $output }
+    $psake.ConfigDefault.OutputHandlers.Default = { param($output) Write-Host $output }
 
-    $docArray = @(Invoke-psake .\nested\docs.ps1 -detailedDocs -nologo | Out-String -Stream -Width 120)
+    $docArray = @(Invoke-Psake $PSScriptRoot\nested\docs.ps1 -DetailedDocs -NoLogo | Out-String -Stream -Width 120)
     $docString = (($docArray | ForEach-Object Trim) -join $NL).Trim()
 
     $expectedDoc = @"

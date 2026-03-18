@@ -17,7 +17,12 @@ function Write-ColoredOutput {
         }
     }
 
-    Write-Host $message
+    # Need to write-host for plain text, but write-output for things like tables
+    if ($Message -is [string]) {
+        Write-Host $Message
+    } else {
+        Write-Output $Message
+    }
 
     if ($null -ne $previousColor) {
         $Host.UI.RawUI.ForegroundColor = $previousColor

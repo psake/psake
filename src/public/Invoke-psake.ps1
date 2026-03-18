@@ -253,6 +253,16 @@ function Invoke-Psake {
     )
 
     # Note: $psake var is instantiated by the psake.psm1
+    if ($null -eq $psake) {
+        # Something funky happened to get here but we can recover by
+        # re-instantiating the $psake variable. This should not cause any issues
+        # since the default configuration will be used if there is no current
+        # context, and there should not be a current context at this point in
+        # execution.
+        # The psake var should be in the callers scope, so we need to set it there as well.
+        Set-Variable -Name psake -Value (Get-DefaultPsakeConfig) -Scope 1
+        Import-PsakeConfiguration
+    }
 
     #region Store Script Variables
     $script:Framework = $Framework
