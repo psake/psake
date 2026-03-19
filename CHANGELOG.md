@@ -7,46 +7,53 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [5.0.0] - Unreleased
 
-### Breaking Changes
+### Added
 
-- **Minimum PowerShell version raised to 5.1** (was 3.0)
-- **Removed `default.ps1` fallback** — build files must be named `psakefile.ps1` (or specified explicitly)
-- **Removed standalone runner** — `psake.ps1` and `psake.cmd` are deleted; use `Import-Module psake; Invoke-psake` instead
-- **Removed ancient .NET Framework versions** — versions 1.0, 1.1, 2.0, 3.0, 3.5 are no longer supported; default changed from `4.0` to `4.7.2`
-- **Removed deprecated `$framework` global variable** — use the `Framework` function or `psake-config.ps1` instead
-- **`Invoke-psake` now returns a `PsakeBuildResult` object** — previously returned nothing; `$psake.build_success` is retained for backward compatibility
-
-### New Features
-
-- **Declarative Task Syntax** — `Task 'Build' @{ DependsOn = 'Clean'; Action = { ... } }` with validated keys (typos throw errors)
-- **`Version` declaration** — `Version 5` at the top of a build file enforces the required psake major version
-- **Hashtable `Properties`** — `Properties @{ Config = 'Release' }` as alternative to scriptblock syntax
-- **Two-Phase Compile/Run Model** — dependency graph is validated via topological sort before any task executes; circular dependencies and missing tasks are caught at compile time
-- **`-CompileOnly` parameter** — returns the build plan without executing tasks (for tooling/testing)
-- **Local File-Based Caching** — tasks with `Inputs`/`Outputs` glob patterns are content-addressed cached in `.psake/cache/`; unchanged tasks are skipped
-- **Structured Output** — `PsakeBuildResult` with per-task `PsakeTaskResult` (status, duration, cached flag)
-- **JSON Output** — `Invoke-psake -OutputFormat JSON` for CI integration
-- **`-Quiet` parameter** — suppress all console output while still returning structured results
-- **`-NoCache` parameter** — bypass caching for a single run
-- **`Get-PsakeBuildPlan`** — testability API: compile a build file and inspect the plan
-- **`Test-PsakeTask`** — testability API: execute a single task in isolation without dependencies
-- **`Clear-PsakeCache`** — clear the local task cache
-- **Cached column in Build Time Report** — shows which tasks were served from cache
+- Declarative Task syntax: `Task 'Build' @{ DependsOn = 'Clean'; Action = { ... } }` with validated keys (typos throw errors)
+- `Version` declaration: `Version 5` at the top of a build file enforces the required psake major version
+- Hashtable `Properties` syntax: `Properties @{ Config = 'Release' }` as alternative to scriptblock
+- Two-phase compile/run model: dependency graph is validated via topological sort before any task executes; circular dependencies and missing tasks are caught at compile time
+- `-CompileOnly` parameter on `Invoke-psake`: returns the build plan without executing tasks (for tooling/testing)
+- Local file-based caching: tasks with `Inputs`/`Outputs` glob patterns are content-addressed cached in `.psake/cache/`; unchanged tasks are skipped
+- `-NoCache` parameter on `Invoke-psake`: bypass caching for a single run
+- Structured output: `Invoke-psake` returns a `PsakeBuildResult` with per-task `PsakeTaskResult` (status, duration, cached flag)
+- `-OutputFormat JSON` parameter on `Invoke-psake` for CI integration
+- `-Quiet` parameter on `Invoke-psake`: suppress all console output while still returning structured results
+- `Get-PsakeBuildPlan` function: testability API to compile a build file and inspect the plan without executing
+- `Test-PsakeTask` function: testability API to execute a single task in isolation without triggering dependencies
+- `Clear-PsakeCache` function: clear the local task cache
+- `Cached` column in Build Time Report showing which tasks were served from cache
+- `Inputs`, `Outputs`, `InputHash`, `Cached`, `Executed` properties on `PsakeTask` class
+- `PsakeBuildPlan` class for compile-phase build plan representation
+- `PsakeBuildResult` and `PsakeTaskResult` classes for structured output
+- Migration guide at `docs/migration-v4-to-v5.md`
 
 ### Changed
 
-- `PsakeTask` class extended with `Inputs`, `Outputs`, `InputHash`, `Cached`, `Executed` properties
-- Build Time Report now shows a `Cached` column
+- Minimum PowerShell version raised to 5.1 (was 3.0)
+- Default .NET Framework version changed from `4.0` to `4.7.2`
+- `Invoke-psake` now returns a `PsakeBuildResult` object (previously returned nothing); `$psake.build_success` is retained for backward compatibility
 - `New-Object PSObject` replaced with `[PSCustomObject]` in module internals
 
-## Changed (pre-5.0)
+### Removed
+
+- `default.ps1` fallback: build files must be named `psakefile.ps1` (or specified explicitly via `-BuildFile`)
+- Standalone runner scripts `psake.ps1` and `psake.cmd`: use `Import-Module psake; Invoke-psake` instead
+- .NET Framework versions 1.0, 1.1, 2.0, 3.0, 3.5: only 4.0 and above are supported
+- Deprecated `$framework` global variable: use the `Framework` function or `psake-config.ps1` instead
+- PowerShell 2.0 compatibility code
+- `LegacyBuildFileName` configuration option
+
+## [Unreleased]
+
+### Changed
 
 - [**#290**](https://github.com/psake/psake/pull/290) Enabling String and
   FileInfo Objects To Be Piped To Include Function
 - [**#301**](https://github.com/psake/psake/pull/301) Add ability to override
   psake's internal logging.
 
-## [4.9.1] 2024-10-06
+## [4.9.1] - 2024-10-06
 
 ### Fixed
 
@@ -55,7 +62,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Required variables set on a task are now validated even if the task has no
   action defined.
 
-### Improvements
+### Changed
 
 - [**#297**](https://github.com/psake/psake/pull/297) Enable type conversion
   when passing properties (via [@whut](https://github.com/whut))
@@ -78,7 +85,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
   - Framework [**#323**](https://github.com/psake/psake/pull/323)
   - Get-PsakeScriptTasks [**#324**](https://github.com/psake/psake/pull/324)
 
-## [4.9.0] 2019-09-21
+## [4.9.0] - 2019-09-21
 
 ### Fixed
 
@@ -99,13 +106,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
   have completed, or a task has failed). (via
   [@UberDoodles](https://github.com/UberDoodles))
 
-## [4.8.0] 2019-04-23
+## [4.8.0] - 2019-04-23
 
-### Features
+### Added
 
 - Add support for loading in tasks contained in PowerShell modules
 
-### Improvements
+### Changed
 
 - [**#267**](https://github.com/psake/psake/pull/267) Add wrapper script for
   Linux and macOS. (via [@dermeister0](https://github.com/dermeister0))
@@ -129,7 +136,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
   failure (via
   [@GreatTeacherBasshead](https://github.com/GreatTeacherBasshead))
 
-## [4.7.4] 2018-09-07
+## [4.7.4] - 2018-09-07
 
 ### Fixed
 
@@ -141,28 +148,28 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
   instead of `$lastexitcode` in Exec (via
   [@gpetrou](https://github.com/gpetrou))
 
-### Improvements
+### Changed
 
 - [**#259**](https://github.com/psake/psake/pull/259) Add $psake.error_message
   property which contains the error message that cause the build to fail (via
   [@sideproject](https://github.com/sideproject))
 
-## [4.7.3] 2018-08-11
+## [4.7.3] - 2018-08-11
 
 ### Fixed
 
 - Re-apply changes from PR #257 as they apparently were not committed correctly.
 
-## [4.7.2] 2018-08-09
+## [4.7.2] - 2018-08-09
 
-### Improvements
+### Changed
 
 - [**#257**](https://github.com/psake/psake/pull/257) Add support for .Net 4.7.2
   (via [@dawoodmm](https://github.com/dawoodmm))
 
-## [4.7.1] 2018-07-03
+## [4.7.1] - 2018-07-03
 
-### Improvements
+### Changed
 
 - [**#244**](https://github.com/psake/psake/pull/244) Update build success
   message to be more general: psake succeeded (via
@@ -177,24 +184,28 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
   `$IsWindows` so it doesn't generate an error record (via
   [@rkeithhill](https://github.com/rkeithhill))
 
-## [4.7.0] 2017-11-21
+## [4.7.0] - 2017-11-21
 
 As part of this release we had
 [13 issues](https://github.com/psake/psake/issues?q=milestone%3Av4.7.0+is%3Aclosed)
 closed.
 
-### Features
+### Added
 
 - [**#198**](https://github.com/psake/psake/pull/198) Add support for PowerShell
   Core on macOS and Linux. (via [@dbroeglin](https://github.com/dbroeglin))
+
+### Deprecated
 
 - [**#196**](https://github.com/psake/psake/pull/196) Deprecate default build
   script name `default.ps1` in favor of `psakefile.ps1`. (via
   [@glennsarti](https://github.com/glennsarti))
 
-- Remove legacy PowerShell v2 support. PSake now supports v3 and above.
+### Removed
 
-### Improvements
+- Legacy PowerShell v2 support. PSake now supports v3 and above.
+
+### Changed
 
 - [**#228**](https://github.com/psake/psake/pull/228) Project structure refactor
   (via [@devblackops](https://github.com/devblackops))
@@ -218,7 +229,7 @@ closed.
 - [**#190**](https://github.com/psake/psake/pull/190) Use `Write-ColoredOutput`
   for all task headers. (via [@damianpowell](https://github.com/damianpowell))
 
-## [4.6.0] 2016-03-20
+## [4.6.0] - 2016-03-20
 
 As part of this release we had
 [6 issues](https://github.com/psake/psake/issues?milestone=6&state=closed)
@@ -229,7 +240,7 @@ closed.
 - [**#149**](https://github.com/psake/psake/pull/149) Using ErrorAction Ignore
   in PSv3+
 
-### Features
+### Added
 
 - [**#153**](https://github.com/psake/psake/issues/153) Invoke-psake with option
   to return documentation should return objects instead of formated string
@@ -238,7 +249,7 @@ closed.
 - [**#143**](https://github.com/psake/psake/issues/143) Publish Psake on
   PowerShellGallery
 
-### Improvements
+### Changed
 
 - [**#155**](https://github.com/psake/psake/issues/155) Move wiki content to
   readthedocs
@@ -247,9 +258,9 @@ closed.
 - [**#138**](https://github.com/psake/psake/pull/138) Cleanup MaxRetries and
   RetryTriggerErrorPattern in the context of Task. (#117 and #103)
 
-## [4.5.0] 2015-12-12
+## [4.5.0] - 2015-12-12
 
-### Improvements
+### Changed
 
 - [**#141**](https://github.com/psake/psake/pull/141) Added support for .NET
   4.6.1
