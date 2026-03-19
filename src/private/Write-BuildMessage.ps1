@@ -8,6 +8,11 @@ function Write-BuildMessage {
     Respects $env:NO_COLOR, supports Default/GitHubActions output formats,
     and suppresses output in JSON/Quiet modes.
     #>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage(
+        "PSAvoidUsingWriteHost",
+        "",
+        Justification = "This function centralizes all console output for psake, allowing for consistent formatting and color control. Write-Host is necessary here to achieve the desired output behavior across different modes (Default, GitHubActions, JSON, Quiet)."
+    )]
     [CmdletBinding()]
     param(
         [Parameter(Position = 0, ValueFromPipeline = $true)]
@@ -26,10 +31,10 @@ function Write-BuildMessage {
         # GitHub Actions annotation format
         if ($script:CurrentOutputFormat -eq 'GitHubActions') {
             switch ($Type) {
-                'Error'   { Write-Host "::error::$Message" }
+                'Error' { Write-Host "::error::$Message" }
                 'Warning' { Write-Host "::warning::$Message" }
-                'Debug'   { Write-Host "::debug::$Message" }
-                default   { Write-Host $Message }
+                'Debug' { Write-Host "::debug::$Message" }
+                default { Write-Host $Message }
             }
             return
         }
@@ -45,9 +50,9 @@ function Write-BuildMessage {
             switch ($Type) {
                 'Heading' { Write-Host $Message -ForegroundColor Cyan }
                 'Warning' { Write-Host $Message -ForegroundColor Yellow }
-                'Error'   { Write-Host $Message -ForegroundColor Red }
+                'Error' { Write-Host $Message -ForegroundColor Red }
                 'Success' { Write-Host $Message -ForegroundColor Green }
-                default   { Write-Host $Message }
+                default { Write-Host $Message }
             }
         } else {
             Write-Host $Message

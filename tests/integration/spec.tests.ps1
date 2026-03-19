@@ -7,6 +7,7 @@ Describe 'PSake specs' {
                 FullName = $_.FullName
             }
         }
+        Import-Module $PSScriptRoot/../../output/psake
     }
 
     BeforeAll {
@@ -53,7 +54,7 @@ Describe 'PSake specs' {
             throw "Invalid specification syntax. Specs file [$Name] should end with _should_pass or _should_fail."
         }
 
-        $output = Invoke-psake @psakeParams
+        $output = Invoke-Psake @psakeParams -OutputFormat JSON
         Write-Debug "build_success=$($psake.build_success), expectedResult=$expectedResult"
         Write-Debug "output=$output"
         $psake.build_success | Should -Be $expectedResult
