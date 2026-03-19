@@ -79,7 +79,7 @@ function Execute {
                 }
             }
 
-            Write-PsakeOutput -Output ($msgs.retrying_execute -f $tryCount) -OutputType 'Warning'
+            Write-BuildMessage ($msgs.retrying_execute -f $tryCount) "Warning"
             $tryCount++
 
             [System.Threading.Thread]::Sleep([System.TimeSpan]::FromSeconds(1))

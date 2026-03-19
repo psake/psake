@@ -16,9 +16,9 @@ function Write-TaskTimeSummary {
     } elseif ($currentContext.config.taskNameFormat -ne "Executing {0}") {
         $currentContext.config.taskNameFormat -f "Build Time Report"
     } else {
-        Write-PsakeOutput ("-" * 70)
-        Write-PsakeOutput "Build Time Report"
-        Write-PsakeOutput ("-" * 70)
+        Write-BuildMessage ("-" * 70)
+        Write-BuildMessage "Build Time Report"
+        Write-BuildMessage ("-" * 70)
     }
 
     $list = @()
@@ -41,5 +41,5 @@ function Write-TaskTimeSummary {
         Cached   = $false
     }
     # using "out-string | where-object" to filter out the blank line that format-table prepends
-    $list | Format-Table -AutoSize -Property Name, Duration, Cached | Out-String -Stream | Where-Object { $_ } | Write-PsakeOutput
+    $list | Format-Table -AutoSize -Property Name, Duration, Cached | Out-String -Stream | Where-Object { $_ } | Write-BuildMessage
 }

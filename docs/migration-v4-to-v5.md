@@ -123,6 +123,16 @@ $result.Status    # 'Executed'
 $result.Duration  # TimeSpan
 ```
 
+## Output Handlers Removed
+
+The `OutputHandler`, `OutputHandlers`, and `ColoredOutput` configuration properties have been removed. If you customized output via `psake-config.ps1`, those overrides no longer apply.
+
+**What replaces them:**
+- Console output respects `$env:NO_COLOR` — set it to disable colored output
+- Use `-OutputFormat GitHubActions` for CI workflow annotations (`::error::`, `::warning::`, `::debug::`)
+- Use `-OutputFormat JSON` for machine-readable output
+- Use `-Quiet` to suppress all console output
+
 ## Backward Compatibility
 
 The `$psake.build_success` variable is still set after each build, so existing CI scripts like:

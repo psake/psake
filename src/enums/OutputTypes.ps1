@@ -11,4 +11,5 @@ enum OutputFormat {
     Default
     JSON
     Quiet
+    GitHubActions
 }

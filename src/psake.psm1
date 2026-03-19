@@ -109,57 +109,8 @@ $psake.ConfigDefault = [PSCustomObject]@{
     Framework           = "4.7.2"
     TaskNameFormat      = "Executing {0}"
     VerboseError        = $False
-    ColoredOutput       = $True
     Modules             = $Null
     ModuleScope         = ""
-    OutputHandler       = {
-        [CmdLetBinding()]
-        param (
-            [Parameter(Position = 0)]
-            [object]$Output,
-            [Parameter(Position = 1)]
-            [string]$OutputType = 'Default'
-        )
-
-        process {
-            if ($psake.Context.peek().config.OutputHandlers.$OutputType -is [scriptblock]) {
-                & $psake.Context.peek().config.OutputHandlers.$OutputType $Output
-            } elseif ($OutputType -ne "default") {
-                Write-Warning "No OutputHandler has been defined for $OutputType output. The default OutputHandler will be used."
-                Write-PsakeOutput -Output $Output -OutputType 'default'
-            } else {
-                Write-Warning "The default OutputHandler is invalid. Write-Host will be used."
-                # We use Write-Host because this should not output something that is captured by a variable
-                Write-Host $Output
-            }
-        }
-    }
-    OutputHandlers      = @{
-        Heading = {
-            param($Output)
-            Write-ColoredOutput -Message $Output -ForegroundColor 'Cyan'
-        }
-        Default = {
-            param($Output)
-            Write-Output $Output
-        }
-        Debug   = {
-            param($Output)
-            Write-Debug $Output
-        }
-        Warning = {
-            param($Output)
-            Write-ColoredOutput -Message $Output -ForegroundColor 'Yellow'
-        }
-        Error   = {
-            param($Output)
-            Write-ColoredOutput -Message $Output -ForegroundColor 'Red'
-        }
-        Success = {
-            param($Output)
-            Write-ColoredOutput -Message $Output -ForegroundColor 'Green'
-        }
-    }
 }
 #endregion
 

@@ -85,7 +85,7 @@ function Invoke-BuildPlan {
 
                 $precondition_is_valid = & $task.PreCondition
                 if (-not $precondition_is_valid) {
-                    Write-PsakeOutput ($msgs.precondition_was_false -f $task.Name) "heading"
+                    Write-BuildMessage ($msgs.precondition_was_false -f $task.Name) "heading"
                     $taskResult.Status = 'Skipped'
                     $taskResult.Duration = [System.TimeSpan]::Zero
                     $buildResult.Tasks += $taskResult
@@ -103,7 +103,7 @@ function Invoke-BuildPlan {
                         $taskResult.InputHash = $task.InputHash
                         $buildResult.Tasks += $taskResult
                         $CurrentContext.executedTasks.Push($taskKey)
-                        Write-PsakeOutput "Skipping task '$($task.Name)' (cached)" "heading"
+                        Write-BuildMessage "Skipping task '$($task.Name)' (cached)" "heading"
                         continue
                     }
                 }
@@ -135,7 +135,7 @@ function Invoke-BuildPlan {
                                 } else {
                                     $taskHeader = $CurrentContext.config.taskNameFormat -f $task.Name
                                 }
-                                Write-PsakeOutput $taskHeader "heading"
+                                Write-BuildMessage $taskHeader "heading"
 
                                 & $task.Action
                             } finally {
@@ -154,9 +154,9 @@ function Invoke-BuildPlan {
                         }
                     } catch {
                         if ($task.ContinueOnError) {
-                            Write-PsakeOutput ("-" * 70)
-                            Write-PsakeOutput ($msgs.continue_on_error -f $task.Name, $_) "warning"
-                            Write-PsakeOutput ("-" * 70)
+                            Write-BuildMessage ("-" * 70)
+                            Write-BuildMessage ($msgs.continue_on_error -f $task.Name, $_) "warning"
+                            Write-BuildMessage ("-" * 70)
                             $taskResult.Status = 'Failed'
                             $taskResult.ErrorMessage = $_.ToString()
                         } else {

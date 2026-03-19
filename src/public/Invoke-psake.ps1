@@ -50,7 +50,8 @@ function Invoke-Psake {
     Do not display the time report.
 
     .PARAMETER OutputFormat
-    The output format. 'Default' for console output, 'JSON' for JSON to stdout.
+    The output format. 'Default' for console output, 'JSON' for JSON to stdout,
+    'GitHubActions' for GitHub Actions workflow annotations (::error::, ::warning::, ::debug::).
 
     .PARAMETER NoCache
     Bypass task caching. All tasks will execute regardless of cache state.
@@ -117,7 +118,7 @@ function Invoke-Psake {
         [switch]$NoTimeReport,
 
         [Parameter(Mandatory = $false)]
-        [ValidateSet('Default', 'JSON')]
+        [ValidateSet('Default', 'JSON', 'GitHubActions')]
         [string]$OutputFormat = 'Default',
 
         [Parameter(Mandatory = $false)]
@@ -141,6 +142,9 @@ function Invoke-Psake {
     $script:Parameters = $Parameters
     $script:NoTimeReport = $NoTimeReport
     #endregion Store Script Variables
+
+    # Set output format for Write-BuildMessage
+    $script:CurrentOutputFormat = if ($Quiet) { 'Quiet' } else { $OutputFormat }
 
     $buildResult = $null
 
@@ -214,7 +218,7 @@ function Invoke-Psake {
             if ($buildResult.Success) {
                 $successMsg = $msgs.psake_success -f $BuildFile
                 if (-not $Quiet -and $OutputFormat -ne 'JSON') {
-                    Write-PsakeOutput ("$($script:nl)${successMsg}$($script:nl)") "success"
+                    Write-BuildMessage ("$($script:nl)${successMsg}$($script:nl)") "Success"
                 }
             }
 
@@ -257,7 +261,7 @@ function Invoke-Psake {
         } else {
             if (!$psake.run_by_psake_build_tester) {
                 if (-not $Quiet -and $OutputFormat -ne 'JSON') {
-                    Write-PsakeOutput $psake.error_message "error"
+                    Write-BuildMessage $psake.error_message "Error"
                 }
             }
         }

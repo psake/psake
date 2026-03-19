@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Local file-based caching: tasks with `Inputs`/`Outputs` (glob patterns or scriptblocks) are content-addressed cached in `.psake/cache/`; unchanged tasks are skipped
 - `-NoCache` parameter on `Invoke-psake`: bypass caching for a single run
 - Structured output: `Invoke-psake` returns a `PsakeBuildResult` with per-task `PsakeTaskResult` (status, duration, cached flag)
-- `-OutputFormat JSON` parameter on `Invoke-psake` for CI integration
+- `-OutputFormat JSON|GitHubActions` parameter on `Invoke-psake` for CI integration; GitHubActions emits `::error::`, `::warning::`, `::debug::` workflow annotations
 - `-Quiet` parameter on `Invoke-psake`: suppress all console output while still returning structured results
 - `Get-PsakeBuildPlan` function: testability API to compile a build file and inspect the plan without executing
 - `Test-PsakeTask` function: testability API to execute a single task in isolation without triggering dependencies
@@ -34,6 +34,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Default .NET Framework version changed from `4.0` to `4.7.2`
 - `Invoke-psake` now returns a `PsakeBuildResult` object (previously returned nothing); `$psake.build_success` is retained for backward compatibility
 - `New-Object PSObject` replaced with `[PSCustomObject]` in module internals
+- Console output uses `Write-BuildMessage` with `$env:NO_COLOR` support; colored output is disabled automatically when `NO_COLOR` is set
 
 ### Removed
 
@@ -43,6 +44,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Deprecated `$framework` global variable: use the `Framework` function or `psake-config.ps1` instead
 - PowerShell 2.0 compatibility code
 - `LegacyBuildFileName` configuration option
+- `OutputHandler`, `OutputHandlers`, and `ColoredOutput` configuration properties: output is now handled by `Write-BuildMessage` with format-based routing (`-OutputFormat GitHubActions` for CI annotations)
+- `Write-PsakeOutput` and `Write-ColoredOutput` internal functions
+- `psake-config.ps1` output handler override examples
 
 ## [Unreleased]
 

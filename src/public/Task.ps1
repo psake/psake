@@ -350,7 +350,7 @@ function Task {
         Assert ($null -ne $taskModule) ($msgs.error_unknown_module -f $FromModule)
         $psakeFilePath = Join-Path -Path $taskModule.ModuleBase -ChildPath 'psakeFile.ps1'
         if (-not $psake.LoadedTaskModules.ContainsKey($psakeFilePath)) {
-            Write-PsakeOutput "Loading tasks from task module [$psakeFilePath]" "debug"
+            Write-BuildMessage "Loading tasks from task module [$psakeFilePath]" "debug"
             . $psakeFilePath
             $psake.LoadedTaskModules.Add($psakeFilePath, $null)
         }
@@ -408,7 +408,7 @@ function Task {
 
         # Add the task to the context
         Assert (-not $currentContext.tasks.ContainsKey($taskKey)) ($msgs.error_duplicate_task_name -f $taskKey)
-        Write-PsakeOutput "Adding task [$taskKey)]" "debug"
+        Write-BuildMessage "Adding task [$taskKey)]" "debug"
         $currentContext.tasks[$taskKey] = $newTask
 
         if ($Alias) {

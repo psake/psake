@@ -76,7 +76,7 @@ function Set-BuildEnvironment {
                 if ($ver -eq "15.0") {
                     if ($null -eq (Get-Module -Name VSSetup)) {
                         if ($null -eq (Get-Module -Name VSSetup -ListAvailable)) {
-                            Write-PsakeOutput ($msgs.warning_missing_vsssetup_module -f $ver) "warning"
+                            Write-BuildMessage ($msgs.warning_missing_vsssetup_module -f $ver) "warning"
                             continue
                         }
 
@@ -119,7 +119,7 @@ function Set-BuildEnvironment {
                 } elseif ($ver -eq "16.0") {
                     if ($null -eq (Get-Module -Name VSSetup)) {
                         if ($null -eq (Get-Module -Name VSSetup -ListAvailable)) {
-                            Write-PsakeOutput ($msgs.warning_missing_vsssetup_module -f $ver) "warning"
+                            Write-BuildMessage ($msgs.warning_missing_vsssetup_module -f $ver) "warning"
                             continue
                         }
 
@@ -149,7 +149,7 @@ function Set-BuildEnvironment {
                 } elseif ($ver -eq "17.0") {
                     if ($null -eq (Get-Module -Name VSSetup)) {
                         if ($null -eq (Get-Module -Name VSSetup -ListAvailable)) {
-                            Write-ColoredOutput -Message ($msgs.warning_missing_vsssetup_module -f $ver) -ForegroundColor 'Yellow'
+                            Write-BuildMessage ($msgs.warning_missing_vsssetup_module -f $ver) "Warning"
                             continue
                         }
 

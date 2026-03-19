@@ -12,11 +12,8 @@ function New-ConfigurationForNewContext {
         framework      = $previousConfig.framework
         taskNameFormat = $previousConfig.taskNameFormat
         verboseError   = $previousConfig.verboseError
-        coloredOutput  = $previousConfig.coloredOutput
         modules        = $previousConfig.modules
         moduleScope    = $previousConfig.moduleScope
-        outputHandler  = $previousConfig.outputHandler
-        outputHandlers = $previousConfig.outputHandlers.Clone()
     }
 
     if ($Framework) {
