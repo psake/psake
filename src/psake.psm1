@@ -18,14 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-# TODO: Remove this when we drop support for PowerShell 2.0
-#Requires -Version 2.0
-
-if ($PSVersionTable.PSVersion.Major -ge 3) {
-    $script:IgnoreError = 'Ignore'
-} else {
-    $script:IgnoreError = 'SilentlyContinue'
-}
+$script:IgnoreError = 'Ignore'
 
 $script:nl = [System.Environment]::NewLine
 
@@ -64,7 +57,7 @@ ConvertFrom-StringData @'
     error_invalid_task_name=Task name should not be null or empty string.
     error_corrupt_callstack=Call stack was corrupt. Expected {0}, but got {1}.
     error_circular_reference=Circular reference found for task {0}.
-    warning_deprecated_framework_variable=Warning: Using global variable $framework to set .NET framework version used is deprecated. Instead use Framework function or configuration file psake-config.ps1.
+
     error_loading_module=Error loading module {0}.
     postcondition_failed=PostCondition failed for task {0}.
     required_variable_not_set=Variable {0} must be set to run task {1}.
@@ -107,14 +100,12 @@ $psake.run_by_psake_build_tester = $false # indicates that build is being run by
 $psake.LoadedTaskModules = @{}
 $psake.ReferenceTasks = @{}
 
-# TODO: Replace New-Object with [PSCustomObject] when dropping support for PowerShell 2.0
 #region Default Psake Configuration
 # Contains default configuration, can be overridden in psake-config.ps1 in
 # directory with psake.psm1 or in directory with current build script
-$psake.ConfigDefault = New-Object 'PSObject' -Property @{
+$psake.ConfigDefault = [PSCustomObject]@{
     BuildFileName       = "psakefile.ps1"
-    LegacyBuildFileName = "default.ps1"
-    Framework           = "4.0"
+    Framework           = "4.7.2"
     TaskNameFormat      = "Executing {0}"
     VerboseError        = $False
     ColoredOutput       = $True

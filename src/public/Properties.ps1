@@ -105,12 +105,23 @@ function Properties {
     This has identical runtime behavior but satisfies PSScriptAnalyzer's
     static analysis requirements. See the examples above for more details.
     #>
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'ScriptBlock')]
     param(
-        [Parameter(Mandatory = $true)]
-        [scriptblock]
-        $Properties
+        [Parameter(Mandatory = $true, Position = 0, ParameterSetName = 'ScriptBlock')]
+        [scriptblock]$Properties,
+
+        [Parameter(Mandatory = $true, Position = 0, ParameterSetName = 'Hashtable')]
+        [hashtable]$Hashtable
     )
+
+    if ($PSCmdlet.ParameterSetName -eq 'Hashtable') {
+        # Convert hashtable to a scriptblock that sets each key as a variable
+        $assignments = foreach ($key in $Hashtable.Keys) {
+            "`$script:$key = `$Hashtable['$key']"
+        }
+        $scriptText = $assignments -join "`n"
+        $Properties = [scriptblock]::Create($scriptText)
+    }
 
     $psake.Context.Peek().properties.Push($Properties)
 }

@@ -16,6 +16,11 @@ class PsakeTask {
     [string]$ErrorMessage
     [string]$ErrorDetail
     [string]$ErrorFormatted
+    [string[]]$Inputs
+    [string[]]$Outputs
+    [string]$InputHash
+    [bool]$Cached = $false
+    [bool]$Executed = $false
     #endregion Properties
 
     #region Constructors
@@ -75,6 +80,11 @@ class PsakeTask {
             'ErrorMessage' { $this.ErrorMessage = $Hashtable.ErrorMessage }
             'ErrorDetail' { $this.ErrorDetail = $Hashtable.ErrorDetail }
             'ErrorFormatted' { $this.ErrorFormatted = $Hashtable.ErrorFormatted }
+            'Inputs' { $this.Inputs = $Hashtable.Inputs }
+            'Outputs' { $this.Outputs = $Hashtable.Outputs }
+            'InputHash' { $this.InputHash = $Hashtable.InputHash }
+            'Cached' { $this.Cached = $Hashtable.Cached }
+            'Executed' { $this.Executed = $Hashtable.Executed }
         }
     }
     #endregion Constructors

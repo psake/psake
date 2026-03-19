@@ -6,8 +6,8 @@
 
 psake (pronounced "sah-keh") is a build automation tool written in PowerShell. It uses PowerShell syntax instead of XML, inspired by Ruby's Rake. The module is published to the PowerShell Gallery, Chocolatey, and NuGet.
 
-- **Current version:** 4.9.1
-- **Minimum PowerShell version:** 3.0
+- **Current version:** 5.0.0
+- **Minimum PowerShell version:** 5.1
 - **License:** MIT
 
 ## psake Organization Ecosystem
@@ -35,11 +35,12 @@ psake/
 ├── src/                        # Module source code
 │   ├── psake.psm1              # Module loader — dot-sources everything, initializes $psake
 │   ├── psake.psd1              # Module manifest
-│   ├── psake.ps1               # Standalone runner script
-│   ├── psake.cmd               # Windows batch wrapper
 │   ├── psake-config.ps1        # Configuration defaults template
-│   ├── classes/PsakeTask.ps1   # The PsakeTask class definition
-│   ├── enums/OutputTypes.ps1   # Output type enumeration
+│   ├── classes/
+│   │   ├── PsakeTask.ps1       # Task class with Inputs/Outputs/Cached properties
+│   │   ├── PsakeBuildPlan.ps1  # Compile-phase build plan
+│   │   └── PsakeBuildResult.ps1 # Structured build result
+│   ├── enums/OutputTypes.ps1   # Output type and format enumerations
 │   ├── public/                 # Exported functions (see below)
 │   ├── private/                # Internal helper functions
 │   └── en-US/, es-US/          # Localization data files
@@ -58,20 +59,59 @@ psake/
 
 | Function | Purpose |
 |---|---|
-| `Invoke-psake` | Main entry point — runs a build script |
+| `Invoke-psake` | Main entry point — runs a build script (two-phase compile/run) |
 | `Invoke-Task` | Execute a task by name from within another task |
 | `Get-PSakeScriptTasks` | Introspect tasks defined in a build script |
-| `Task` | Define a build task |
-| `Properties` | Define shared variables accessible to all tasks |
+| `Get-PsakeBuildPlan` | Compile a build file and return the plan without executing (testability API) |
+| `Test-PsakeTask` | Run a single task in isolation without dependencies (testability API) |
+| `Task` | Define a build task (supports both legacy and declarative hashtable syntax) |
+| `Properties` | Define shared variables (supports both scriptblock and hashtable syntax) |
 | `Include` | Dot-source an external file into build scope |
 | `FormatTaskName` | Customize the task execution header |
 | `TaskSetup` / `TaskTearDown` | Hooks that run before/after each task |
 | `BuildSetup` / `BuildTearDown` | Hooks that run once at build start/end |
-| `Framework` | Select a .NET Framework version |
+| `Framework` | Select a .NET Framework version (4.0+) |
 | `Assert` | Throw if a condition is false |
 | `Exec` | Run an external command and assert success |
+| `Version` | Declare the required psake version for the build script |
+| `Clear-PsakeCache` | Clear the local file-based task cache |
 
 The module also exports the `$psake` global variable (a hashtable with build state).
+
+## v5 Architecture: Two-Phase Compile/Run Model
+
+psake v5 uses a two-phase model inspired by Pester v5's Discovery/Run pattern:
+
+### Compile Phase
+1. `Invoke-psake` calls `Invoke-InBuildFileScope`, which **dot-sources** the build file
+2. The build file's `Task`, `Properties`, `Include`, `Version` calls register definitions into the context
+3. `Compile-BuildPlan` validates the dependency graph via topological sort
+4. Circular dependencies and missing task references are detected **before** any task executes
+5. Input hashes are computed for cacheable tasks
+6. Returns a `PsakeBuildPlan` object
+
+### Run Phase
+1. `Invoke-BuildPlan` executes tasks in the pre-computed order
+2. For each task: check cache → check precondition → run setup → execute action → run teardown → update cache
+3. Returns a `PsakeBuildResult` with structured per-task results
+
+### Declarative Task Syntax (v5)
+```powershell
+Task 'Build' @{
+    DependsOn = 'Clean'
+    Inputs    = 'src/**/*.cs'
+    Outputs   = 'bin/**/*.dll'
+    Action    = { dotnet build }
+}
+```
+
+The legacy syntax `Task 'Build' -Depends 'Clean' -Action { dotnet build }` continues to work.
+
+### Local File-Based Caching
+Tasks with `Inputs` and `Outputs` are content-addressed cached in `.psake/cache/`. A task is skipped when its input hash matches the cached hash and output files exist.
+
+### Structured Output
+`Invoke-psake` returns a `PsakeBuildResult` object with `Success`, `Duration`, `Tasks` (per-task results), and `ErrorMessage`. Use `-OutputFormat JSON` for CI integration.
 
 ## Critical Architecture: Script Scope Execution
 
@@ -89,37 +129,17 @@ All task code, property blocks, and included files run in **the same script scop
 
 ### Ramifications
 
-**Variables leak between tasks.** Because all tasks share the same scope, a variable set in one task is visible in later tasks. This is by design — it allows `Properties` blocks to define shared state — but it means:
-
-- A task can accidentally overwrite a variable that a later task depends on
-- There is no isolation between tasks; order of execution matters
-- `$script:` scoped variables in a build file refer to the build file's scope (which is the execution scope)
-- You cannot rely on a variable being "unset" just because the current task didn't define it — a prior task or property block may have
-
-**`$script:` prefix in Properties blocks is cosmetic at runtime.** Using `$script:build_dir` vs `$build_dir` inside a `Properties` block has no functional difference — both are dot-sourced into the same scope. The `$script:` prefix exists solely to satisfy PSScriptAnalyzer's `PSUseDeclaredVarsMoreThanAssignments` rule, which cannot see across dot-source boundaries.
+**Variables leak between tasks.** Because all tasks share the same scope, a variable set in one task is visible in later tasks. This is by design — it allows `Properties` blocks to define shared state.
 
 **Parameters vs Properties have different injection timing:**
 - `-Parameters` are injected **before** `Properties` blocks run (so Properties can reference them)
 - `-Properties` are injected **after** `Properties` blocks run (so they override Properties values)
-- Both use `Set-Variable` / `New-Item variable:\` to inject into the current scope
 
-**Included files share scope.** Files loaded via `Include` are dot-sourced into the same scope, so functions and variables defined in included files are available to all tasks. This enables code sharing but also means name collisions between includes are silent.
-
-**Nested builds get their own context.** `Invoke-psake` pushes a new context onto `$psake.Context` (a `Stack`), so nested builds have isolated task registrations and state. The context is popped when the nested build completes. However, the `$psake` variable itself is global.
-
-**Circular dependency detection uses a call stack.** `Invoke-Task` pushes task names onto `$currentContext.callStack` before recursing into dependencies and pops them after. If a task is already on the stack, it throws.
-
-### Why this matters for contributors
-
-When modifying the engine:
-- Never assume a variable is "local" to a task unless it's declared with `$local:` or inside a function body
-- Be careful adding new variables in `Invoke-InBuildFileScope` or `Invoke-psake`'s scriptblock — they become visible to user tasks
-- Test property/parameter injection order carefully — `-Parameters` before dot-sourcing, `-Properties` after
-- Remember that `& $scriptblock` creates a child scope but `. $scriptblock` does not — psake uses dot-sourcing deliberately
+**Nested builds get their own context.** `Invoke-psake` pushes a new context onto `$psake.Context` (a `Stack`), so nested builds have isolated task registrations and state.
 
 ## Build & Test
 
-The repo's own build script (`build.ps1`) does **not** use psake — it uses a custom `Invoke-Step` system with `[DependsOn]` attributes. This avoids bootstrapping issues.
+The repo's own build script (`build.ps1`) does **not** use psake — it uses a custom `Invoke-Step` system with `[DependsOn]` attributes.
 
 ```powershell
 # Bootstrap dependencies and run tests (what CI does)
@@ -133,9 +153,6 @@ The repo's own build script (`build.ps1`) does **not** use psake — it uses a c
 
 # Build the module to output/
 ./build.ps1 -Task Build
-
-# Regenerate cmdlet markdown help (for docs repo)
-./build.ps1 -Task CreateMarkdownHelp
 ```
 
 **Dependencies** (installed by `-Bootstrap`):
@@ -148,8 +165,8 @@ The repo's own build script (`build.ps1`) does **not** use psake — it uses a c
 
 ## Testing
 
-- **Unit tests** are in `tests/` and use Pester 5. They validate the manifest, help content, and code quality.
-- **Integration tests** are in `specs/`. Each `.ps1` file is a standalone psake build script that exercises a specific feature (dependencies, properties, error handling, framework selection, shared tasks, etc.). The test runner in `tests/integration/spec.tests.ps1` invokes each spec file with `Invoke-psake` and checks for success/failure.
+- **Unit tests** are in `tests/` and use Pester 5. They validate the manifest, help content, code quality, and v5 features (compile phase, declarative syntax, structured output, testability APIs).
+- **Integration tests** are in `specs/`. Each `.ps1` file is a standalone psake build script that exercises a specific feature. The test runner in `tests/integration/spec.tests.ps1` invokes each spec file with `Invoke-psake` and checks for success/failure.
 - When adding a new feature, add both a spec file demonstrating the feature and any necessary Pester tests.
 
 ## Localization

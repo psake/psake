@@ -149,55 +149,93 @@ function Task {
         [Parameter(Mandatory = $true, Position = 0)]
         [string]$Name,
 
-        [Parameter(Position = 1)]
+        [Parameter(Position = 1, ParameterSetName = 'Normal')]
+        [Parameter(Position = 1, ParameterSetName = 'SharedTask')]
         [scriptblock]$Action = $null,
 
-        [Parameter(Position = 2)]
+        [Parameter(ParameterSetName = 'Normal')]
+        [Parameter(ParameterSetName = 'SharedTask')]
         [scriptblock]$PreAction = $null,
 
-        [Parameter(Position = 3)]
+        [Parameter(ParameterSetName = 'Normal')]
+        [Parameter(ParameterSetName = 'SharedTask')]
         [scriptblock]$PostAction = $null,
 
-        [Parameter(Position = 4)]
+        [Parameter(ParameterSetName = 'Normal')]
+        [Parameter(ParameterSetName = 'SharedTask')]
         [scriptblock]$PreCondition = { $true },
 
-        [Parameter(Position = 5)]
+        [Parameter(ParameterSetName = 'Normal')]
+        [Parameter(ParameterSetName = 'SharedTask')]
         [scriptblock]$PostCondition = { $true },
 
-        [Parameter(Position = 6)]
+        [Parameter(ParameterSetName = 'Normal')]
+        [Parameter(ParameterSetName = 'SharedTask')]
         [switch]$ContinueOnError,
 
         [ValidateNotNull()]
-        [Parameter(Position = 7)]
+        [Parameter(ParameterSetName = 'Normal')]
+        [Parameter(ParameterSetName = 'SharedTask')]
         [string[]]$Depends = @(),
 
         [ValidateNotNull()]
-        [Parameter(Position = 8)]
+        [Parameter(ParameterSetName = 'Normal')]
+        [Parameter(ParameterSetName = 'SharedTask')]
         [string[]]$RequiredVariables = @(),
 
-        [Parameter(Position = 9)]
+        [Parameter(ParameterSetName = 'Normal')]
+        [Parameter(ParameterSetName = 'SharedTask')]
         [string]$Description = $null,
 
-        [Parameter(Position = 10)]
+        [Parameter(ParameterSetName = 'Normal')]
+        [Parameter(ParameterSetName = 'SharedTask')]
         [string]$Alias = $null,
 
-        [parameter(Mandatory = $true, ParameterSetName = 'SharedTask', Position = 11)]
+        [parameter(Mandatory = $true, ParameterSetName = 'SharedTask')]
         [ValidateNotNullOrEmpty()]
         [string]$FromModule,
 
         [Alias('Version')]
-        [parameter(ParameterSetName = 'SharedTask', Position = 12)]
+        [parameter(ParameterSetName = 'SharedTask')]
         [string]$RequiredVersion,
 
-        [parameter(ParameterSetName = 'SharedTask', Position = 13)]
+        [parameter(ParameterSetName = 'SharedTask')]
         [string]$MinimumVersion,
 
-        [parameter(ParameterSetName = 'SharedTask', Position = 14)]
+        [parameter(ParameterSetName = 'SharedTask')]
         [string]$MaximumVersion,
 
-        [parameter(ParameterSetName = 'SharedTask', Position = 15)]
-        [string]$LessThanVersion
+        [parameter(ParameterSetName = 'SharedTask')]
+        [string]$LessThanVersion,
+
+        [Parameter(Position = 1, ParameterSetName = 'Declarative')]
+        [hashtable]$Definition
     )
+
+    # Handle declarative hashtable syntax: Task 'Build' @{ DependsOn = 'Clean'; Action = { ... } }
+    if ($PSCmdlet.ParameterSetName -eq 'Declarative' -and $Definition) {
+        $validKeys = @('DependsOn', 'Action', 'Inputs', 'Outputs', 'PreAction', 'PostAction',
+                       'PreCondition', 'PostCondition', 'ContinueOnError', 'Description',
+                       'Alias', 'RequiredVariables')
+        foreach ($key in $Definition.Keys) {
+            if ($key -notin $validKeys) {
+                throw "Unknown task definition key '$key' for task '$Name'. Valid keys are: $($validKeys -join ', ')"
+            }
+        }
+        $Action            = if ($Definition.ContainsKey('Action'))            { $Definition.Action }            else { $null }
+        $PreAction         = if ($Definition.ContainsKey('PreAction'))         { $Definition.PreAction }         else { $null }
+        $PostAction        = if ($Definition.ContainsKey('PostAction'))        { $Definition.PostAction }        else { $null }
+        $PreCondition      = if ($Definition.ContainsKey('PreCondition'))      { $Definition.PreCondition }      else { { $true } }
+        $PostCondition     = if ($Definition.ContainsKey('PostCondition'))     { $Definition.PostCondition }     else { { $true } }
+        $ContinueOnError   = if ($Definition.ContainsKey('ContinueOnError'))  { $Definition.ContinueOnError }   else { $false }
+        $Depends           = if ($Definition.ContainsKey('DependsOn'))         { @($Definition.DependsOn) }     else { @() }
+        $RequiredVariables = if ($Definition.ContainsKey('RequiredVariables')) { @($Definition.RequiredVariables) } else { @() }
+        $Description       = if ($Definition.ContainsKey('Description'))      { $Definition.Description }       else { $null }
+        $Alias             = if ($Definition.ContainsKey('Alias'))            { $Definition.Alias }             else { $null }
+    }
+
+    $Inputs  = if ($Definition -and $Definition.ContainsKey('Inputs'))  { @($Definition.Inputs) }  else { @() }
+    $Outputs = if ($Definition -and $Definition.ContainsKey('Outputs')) { @($Definition.Outputs) } else { @() }
 
     $taskSplat = @{
         Name              = $Name
@@ -212,6 +250,8 @@ function Task {
         Duration          = [System.TimeSpan]::Zero
         RequiredVariables = $RequiredVariables
         Alias             = $Alias
+        Inputs            = $Inputs
+        Outputs           = $Outputs
         Success           = $true # let's be optimistic
         ErrorMessage      = $null
         ErrorDetail       = $null

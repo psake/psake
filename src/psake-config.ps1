@@ -3,8 +3,7 @@
 Defaults
 -------------------------------------------------------------------
 $config.buildFileName="psakefile.ps1"
-$config.legacyBuildFileName="default.ps1"
-$config.framework = "4.0"
+$config.framework = "4.7.2"
 $config.taskNameFormat="Executing {0}"
 $config.verboseError=$false
 $config.coloredOutput = $true

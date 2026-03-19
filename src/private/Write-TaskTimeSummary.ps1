@@ -28,16 +28,18 @@ function Write-TaskTimeSummary {
         if ($taskKey -eq "default") {
             continue
         }
-        $list += New-Object PSObject -Property @{
+        $list += [PSCustomObject]@{
             Name     = $task.Name
             Duration = $task.Duration.ToString("hh\:mm\:ss\.fff")
+            Cached   = $task.Cached
         }
     }
     [Array]::Reverse($list)
-    $list += New-Object PSObject -Property @{
+    $list += [PSCustomObject]@{
         Name     = "Total:"
         Duration = $invokePsakeDuration.ToString("hh\:mm\:ss\.fff")
+        Cached   = $false
     }
     # using "out-string | where-object" to filter out the blank line that format-table prepends
-    $list | Format-Table -AutoSize -Property Name, Duration | Out-String -Stream | Where-Object { $_ } | Write-PsakeOutput
+    $list | Format-Table -AutoSize -Property Name, Duration, Cached | Out-String -Stream | Where-Object { $_ } | Write-PsakeOutput
 }

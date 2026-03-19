@@ -5,7 +5,9 @@ function Invoke-Psake {
     Runs a psake build script.
 
     .DESCRIPTION
-    This function runs a psake build script
+    This function runs a psake build script using a two-phase compile/run model.
+    The compile phase loads the build file and validates the dependency graph.
+    The run phase executes tasks in the resolved order.
 
     .PARAMETER BuildFile
     The path to the psake build script to execute
@@ -16,7 +18,7 @@ function Invoke-Psake {
     .PARAMETER Framework
     The version of the .NET framework you want to use during build. You can append x86 or x64 to force a specific framework.
     If not specified, x86 or x64 will be detected based on the bitness of the PowerShell process.
-    Possible values: '1.0', '1.1', '2.0', '2.0x86', '2.0x64', '3.0', '3.0x86', '3.0x64', '3.5', '3.5x86', '3.5x64', '4.0', '4.0x86', '4.0x64', '4.5', '4.5x86', '4.5x64', '4.5.1', '4.5.1x86', '4.5.1x64'
+    Possible values: '4.0', '4.0x86', '4.0x64', '4.5', '4.5x86', '4.5x64', '4.5.1', '4.5.1x86', '4.5.1x64', '4.6', '4.6.1', '4.6.2', '4.7', '4.7.1', '4.7.2', '4.8', '4.8.1'
 
     .PARAMETER Docs
     Prints a list of tasks and their descriptions
@@ -24,7 +26,6 @@ function Invoke-Psake {
     .PARAMETER Parameters
     A hashtable containing parameters to be passed into the current build script.
     These parameters will be processed before the 'Properties' function of the script is processed.
-    This means you can access parameters from within the 'Properties' function!
 
     .PARAMETER Properties
     A hashtable containing properties to be passed into the current build script.
@@ -42,146 +43,37 @@ function Invoke-Psake {
     .PARAMETER NoTimeReport
     Do not display the time report.
 
+    .PARAMETER OutputFormat
+    The output format. 'Default' for console output, 'JSON' for JSON to stdout.
+
+    .PARAMETER NoCache
+    Bypass task caching. All tasks will execute regardless of cache state.
+
+    .PARAMETER CompileOnly
+    Return the build plan without executing any tasks. Useful for tooling and testing.
+
+    .PARAMETER Quiet
+    Suppress all console output. The PsakeBuildResult is still returned.
+
     .EXAMPLE
     Invoke-psake
 
-    Runs the 'default' task in the '.build.ps1' build script
+    Runs the 'default' task in the 'psakefile.ps1' build script
 
     .EXAMPLE
     Invoke-psake '.\build.ps1' Tests,Package
 
-    Runs the 'Tests' and 'Package' tasks in the '.build.ps1' build script
+    Runs the 'Tests' and 'Package' tasks in the 'build.ps1' build script
 
     .EXAMPLE
-    Invoke-psake Tests
+    Invoke-psake -CompileOnly
 
-    This example will run the 'Tests' tasks in the 'psakefile.ps1' build script. The 'psakefile.ps1' is assumed to be in the current directory.
-
-    .EXAMPLE
-    Invoke-psake 'Tests, Package'
-
-    This example will run the 'Tests' and 'Package' tasks in the 'psakefile.ps1' build script. The 'psakefile.ps1' is assumed to be in the current directory.
+    Returns the build plan without executing any tasks.
 
     .EXAMPLE
-    Invoke-psake .\build.ps1 -docs
+    Invoke-psake -OutputFormat JSON
 
-    Prints a report of all the tasks and their dependencies and descriptions and then exits
-
-    .EXAMPLE
-    Invoke-psake .\parameters.ps1 -Parameters @{"p1"="v1";"p2"="v2"}
-
-    Runs the build script called 'parameters.ps1' and passes in parameters 'p1' and 'p2' with values 'v1' and 'v2'
-
-    Here's the .\parameters.ps1 build script:
-
-    properties {
-        $my_property = $p1 + $p2
-    }
-
-    task default -depends TestParams
-
-    task TestParams {
-        Assert ($my_property -ne $null) '$my_property should not be null'
-    }
-
-    Notice how you can refer to the parameters that were passed into the script from within the "properties" function.
-    The value of the $p1 variable should be the string "v1" and the value of the $p2 variable should be "v2".
-
-    .EXAMPLE
-    Invoke-psake .\properties.ps1 -properties @{"x"="1";"y"="2"}
-
-    Runs the build script called 'properties.ps1' and passes in parameters 'x' and 'y' with values '1' and '2'
-
-    This feature allows you to override existing properties in your build script.
-
-    Here's the .\properties.ps1 build script:
-
-    properties {
-        $x = $null
-        $y = $null
-        $z = $null
-    }
-
-    task default -depends TestProperties
-
-    task TestProperties {
-        Assert ($x -ne $null) "x should not be null"
-        Assert ($y -ne $null) "y should not be null"
-        Assert ($z -eq $null) "z should be null"
-    }
-
-    .NOTES
-    ---- Exceptions ----
-
-    If there is an exception thrown during the running of a build script psake will set the '$psake.build_success' variable to $false.
-    To detect failure outside PowerShell (for example by build server), finish PowerShell process with non-zero exit code when '$psake.build_success' is $false.
-    Calling psake from 'cmd.exe' with 'psake.cmd' will give you that behavior.
-
-    ---- $psake variable ----
-
-    When the psake module is loaded a variable called $psake is created which is a hashtable
-    containing some variables:
-
-    $psake.version                      # contains the current version of psake
-    $psake.Context                      # holds onto the current state of all variables
-    $psake.run_by_psake_build_tester    # indicates that build is being run by psake-BuildTester
-    $psake.ConfigDefault               # contains default configuration
-                                        # can be overridden in psake-config.ps1 in directory with psake.psm1 or in directory with current build script
-    $psake.build_success                # indicates that the current build was successful
-    $psake.build_script_file            # contains a System.IO.FileInfo for the current build script
-    $psake.build_script_dir             # contains the fully qualified path to the current build script
-    $psake.error_message                # contains the error message which caused the script to fail
-
-    You should see the following when you display the contents of the $psake variable right after importing psake
-
-    PS projects:\psake\> Import-Module .\psake.psm1
-    PS projects:\psake\> $psake
-
-    Name                           Value
-    ----                           -----
-    run_by_psake_build_tester      False
-    version                        4.2
-    build_success                  False
-    build_script_file
-    build_script_dir
-    config_default                 @{framework=3.5; ...
-    context                        {}
-    error_message
-
-    After a build is executed the following $psake values are updated: build_script_file, build_script_dir, build_success
-
-    PS projects:\psake\> Invoke-psake .\examples\psakefile.ps1
-    Executing task: Clean
-    Executed Clean!
-    Executing task: Compile
-    Executed Compile!
-    Executing task: Test
-    Executed Test!
-
-    Build Succeeded!
-
-    ----------------------------------------------------------------------
-    Build Time Report
-    ----------------------------------------------------------------------
-    Name    Duration
-    ----    --------
-    Clean   00:00:00.0798486
-    Compile 00:00:00.0869948
-    Test    00:00:00.0958225
-    Total:  00:00:00.2712414
-
-    PS projects:\psake\> $psake
-
-    Name                           Value
-    ----                           -----
-    build_script_file              YOUR_PATH\examples\psakefile.ps1
-    run_by_psake_build_tester      False
-    build_script_dir               YOUR_PATH\examples
-    context                        {}
-    version                        4.2
-    build_success                  True
-    config_default                 @{framework=3.5; ...
-    error_message
+    Runs the build and outputs the result as JSON.
 
     .LINK
     Assert
@@ -238,7 +130,20 @@ function Invoke-Psake {
 
         [Parameter(Position = 9, Mandatory = $false)]
         [Alias("notr")]
-        [switch]$NoTimeReport # disable time report
+        [switch]$NoTimeReport,
+
+        [Parameter(Mandatory = $false)]
+        [ValidateSet('Default', 'JSON')]
+        [string]$OutputFormat = 'Default',
+
+        [Parameter(Mandatory = $false)]
+        [switch]$NoCache,
+
+        [Parameter(Mandatory = $false)]
+        [switch]$CompileOnly,
+
+        [Parameter(Mandatory = $false)]
+        [switch]$Quiet
     )
 
     # Note: $psake var is instantiated by the psake.psm1
@@ -253,8 +158,10 @@ function Invoke-Psake {
     $script:NoTimeReport = $NoTimeReport
     #endregion Store Script Variables
 
+    $buildResult = $null
+
     try {
-        if (-not $NoLogo) {
+        if (-not $NoLogo -and -not $Quiet -and $OutputFormat -ne 'JSON') {
             "psake version {0}$($script:nl)Copyright (c) 2010-2018 James Kovacs & Contributors$($script:nl)" -f $psake.version
         }
         if (!$BuildFile) {
@@ -263,18 +170,15 @@ function Invoke-Psake {
             !(Test-Path $BuildFile -PathType Leaf) -and
             ($null -ne (Get-DefaultBuildFile -UseDefaultIfNoneExist $false))
         ) {
-            # If the default file exists and the given "buildfile" isn't found assume that the given
-            # $BuildFile is actually the target Tasks to execute in the $config.buildFileName script.
             $TaskList = $BuildFile.Split(', ')
             $BuildFile = Get-DefaultBuildFile
         }
 
         $psake.error_message = $null
 
+        # === COMPILE PHASE ===
         Invoke-InBuildFileScope -BuildFile $BuildFile -Module $MyInvocation.MyCommand.Module -ScriptBlock {
             param($CurrentContext, $Module)
-
-            $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 
             if ($script:Docs -or $script:DetailedDocs) {
                 if ($script:DetailedDocs) {
@@ -285,89 +189,95 @@ function Invoke-Psake {
                 return
             }
 
-            try {
-                foreach ($key in $Parameters.keys) {
-                    $variableSplat = @{
-                        Value   = $Parameters.$key
-                        WhatIf  = $false
-                        Confirm = $false
-                    }
-                    if (Test-Path "variable:\$key") {
-                        $null = Set-Variable @variableSplat -Name $key
-                    } else {
-                        $null = New-Item @variableSplat -Path "variable:\$key"
-                    }
+            # Compile the build plan
+            $effectiveTaskList = if ($TaskList -and $TaskList.Count -gt 0) {
+                $TaskList
+            } elseif ($CurrentContext.tasks.ContainsKey('default')) {
+                @('default')
+            } else {
+                @()
+            }
+
+            $plan = Compile-BuildPlan -BuildFile $BuildFile -TaskList $effectiveTaskList
+
+            if (-not $plan.IsValid) {
+                throw ($plan.ValidationErrors -join "`n")
+            }
+
+            # If CompileOnly, store plan and return
+            if ($CompileOnly) {
+                $script:compiledPlan = $plan
+                return
+            }
+
+            # === RUN PHASE ===
+            $buildResult = Invoke-BuildPlan -Plan $plan `
+                -NoCache:$NoCache `
+                -Module $Module `
+                -CurrentContext $CurrentContext `
+                -Parameters $script:Parameters `
+                -Properties $script:Properties `
+                -Initialization $script:Initialization
+
+            $script:buildResultOut = $buildResult
+
+            if ($buildResult.Success) {
+                $successMsg = $msgs.psake_success -f $BuildFile
+                if (-not $Quiet -and $OutputFormat -ne 'JSON') {
+                    Write-PsakeOutput ("$($script:nl)${successMsg}$($script:nl)") "success"
                 }
-            } catch {
-                Write-PsakeOutput -Message "Parameter '$key' is null" -OutputType 'Error'
-                throw
             }
 
-            # The initial dot (.) indicates that variables initialized/modified
-            # in the propertyBlock are available in the parent scope.
-            while ($CurrentContext.properties.Count -gt 0) {
-                $propertyBlock = $CurrentContext.properties.Pop()
-                . $propertyBlock
-            }
-
-            # Inject properties passed from the command line into the current
-            # scope. This allows the properties to be used in the build script
-            # before the properties function is called.
-            foreach ($key in $Properties.keys) {
-                if (Test-Path "variable:\$key") {
-                    $null = Set-Variable -Name $key -Value $Properties.$key -WhatIf:$false -Confirm:$false
-                }
-            }
-
-            # Simple dot sourcing will not work. We have to force the script block into our
-            # module's scope in order to initialize variables properly.
-            . $Module $script:Initialization
-
-            & $CurrentContext.buildSetupScriptBlock
-
-            # Execute the list of tasks or the default task
-            try {
-                if ($TaskList) {
-                    foreach ($task in $TaskList) {
-                        Invoke-Task -taskName $task
-                    }
-                } elseif ($CurrentContext.tasks.default) {
-                    Invoke-Task -taskName default
-                } else {
-                    throw $msgs.error_no_default_task
-                }
-            } finally {
-                & $CurrentContext.buildTearDownScriptBlock
-            }
-
-            $successMsg = $msgs.psake_success -f $BuildFile
-            Write-PsakeOutput ("$($script:nl)${successMsg}$($script:nl)") "success"
-
-            $stopwatch.Stop()
-            if (-not $NoTimeReport) {
-                Write-TaskTimeSummary $stopwatch.Elapsed
+            if (-not $script:NoTimeReport -and -not $Quiet -and $OutputFormat -ne 'JSON') {
+                Write-TaskTimeSummary $buildResult.Duration
             }
         }
 
+        if ($CompileOnly) {
+            $psake.build_success = $true
+            return $script:compiledPlan
+        }
+
+        $buildResult = $script:buildResultOut
         $psake.build_success = $true
+
+        if ($buildResult) {
+            $buildResult.Success = $true
+        }
 
     } catch {
         $psake.build_success = $false
         $psake.error_message = Format-ErrorMessage $_
 
-        # if we are running in a nested scope (i.e. running a psake script from
-        # a psake script) then we need to re-throw the exception so that the
-        # parent script will fail otherwise the parent script will report a
-        # successful build
+        if ($buildResult) {
+            $buildResult.Success = $false
+            $buildResult.ErrorMessage = $psake.error_message
+        } else {
+            $buildResult = [PsakeBuildResult]::new()
+            $buildResult.Success = $false
+            $buildResult.BuildFile = $BuildFile
+            $buildResult.ErrorMessage = $psake.error_message
+            $buildResult.CompletedAt = [datetime]::UtcNow
+        }
+
         $inNestedScope = ($psake.Context.count -gt 1)
         if ( $inNestedScope ) {
             throw $_
         } else {
             if (!$psake.run_by_psake_build_tester) {
-                Write-PsakeOutput $psake.error_message "error"
+                if (-not $Quiet -and $OutputFormat -ne 'JSON') {
+                    Write-PsakeOutput $psake.error_message "error"
+                }
             }
         }
     } finally {
         Restore-Environment
     }
+
+    # Output
+    if ($OutputFormat -eq 'JSON' -and $buildResult) {
+        $buildResult | ConvertTo-Json -Depth 5
+    }
+
+    return $buildResult
 }

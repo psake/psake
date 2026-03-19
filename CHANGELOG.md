@@ -5,9 +5,41 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+## [5.0.0] - Unreleased
 
-## Changed
+### Breaking Changes
+
+- **Minimum PowerShell version raised to 5.1** (was 3.0)
+- **Removed `default.ps1` fallback** — build files must be named `psakefile.ps1` (or specified explicitly)
+- **Removed standalone runner** — `psake.ps1` and `psake.cmd` are deleted; use `Import-Module psake; Invoke-psake` instead
+- **Removed ancient .NET Framework versions** — versions 1.0, 1.1, 2.0, 3.0, 3.5 are no longer supported; default changed from `4.0` to `4.7.2`
+- **Removed deprecated `$framework` global variable** — use the `Framework` function or `psake-config.ps1` instead
+- **`Invoke-psake` now returns a `PsakeBuildResult` object** — previously returned nothing; `$psake.build_success` is retained for backward compatibility
+
+### New Features
+
+- **Declarative Task Syntax** — `Task 'Build' @{ DependsOn = 'Clean'; Action = { ... } }` with validated keys (typos throw errors)
+- **`Version` declaration** — `Version 5` at the top of a build file enforces the required psake major version
+- **Hashtable `Properties`** — `Properties @{ Config = 'Release' }` as alternative to scriptblock syntax
+- **Two-Phase Compile/Run Model** — dependency graph is validated via topological sort before any task executes; circular dependencies and missing tasks are caught at compile time
+- **`-CompileOnly` parameter** — returns the build plan without executing tasks (for tooling/testing)
+- **Local File-Based Caching** — tasks with `Inputs`/`Outputs` glob patterns are content-addressed cached in `.psake/cache/`; unchanged tasks are skipped
+- **Structured Output** — `PsakeBuildResult` with per-task `PsakeTaskResult` (status, duration, cached flag)
+- **JSON Output** — `Invoke-psake -OutputFormat JSON` for CI integration
+- **`-Quiet` parameter** — suppress all console output while still returning structured results
+- **`-NoCache` parameter** — bypass caching for a single run
+- **`Get-PsakeBuildPlan`** — testability API: compile a build file and inspect the plan
+- **`Test-PsakeTask`** — testability API: execute a single task in isolation without dependencies
+- **`Clear-PsakeCache`** — clear the local task cache
+- **Cached column in Build Time Report** — shows which tasks were served from cache
+
+### Changed
+
+- `PsakeTask` class extended with `Inputs`, `Outputs`, `InputHash`, `Cached`, `Executed` properties
+- Build Time Report now shows a `Cached` column
+- `New-Object PSObject` replaced with `[PSCustomObject]` in module internals
+
+## Changed (pre-5.0)
 
 - [**#290**](https://github.com/psake/psake/pull/290) Enabling String and
   FileInfo Objects To Be Piped To Include Function

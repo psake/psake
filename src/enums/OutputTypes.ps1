@@ -6,3 +6,9 @@ enum OutputTypes {
     Error
     Success
 }
+
+enum OutputFormat {
+    Default
+    JSON
+    Quiet
+}

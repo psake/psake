@@ -14,27 +14,6 @@ function Set-BuildEnvironment {
         $versions = $null
         $buildToolsVersions = $null
         switch ($versionPart) {
-            '1.0' {
-                $versions = @('v1.0.3705')
-            }
-            '1.1' {
-                $versions = @('v1.1.4322')
-            }
-            '1.1.0' {
-                $versions = @()
-            }
-            '2.0' {
-                $versions = @('v2.0.50727')
-            }
-            '2.0.0' {
-                $versions = @()
-            }
-            '3.0' {
-                $versions = @('v2.0.50727')
-            }
-            '3.5' {
-                $versions = @('v3.5', 'v2.0.50727')
-            }
             '4.0' {
                 $versions = @('v4.0.30319')
             }
@@ -61,8 +40,7 @@ function Set-BuildEnvironment {
         }
 
         $bitness = 'Framework'
-        if ($versionPart -ne '1.0' -and $versionPart -ne '1.1') {
-            switch ($bitnessPart) {
+        switch ($bitnessPart) {
                 'x86' {
                     $bitness = 'Framework'
                     $buildToolsKey = 'MSBuildToolsPath32'
@@ -91,7 +69,6 @@ function Set-BuildEnvironment {
                     throw ($msgs.error_unknown_bitnesspart -f $bitnessPart, $framework)
                 }
             }
-        }
 
         $frameworkDirs = @()
         if ($null -ne $buildToolsVersions) {

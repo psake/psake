@@ -57,6 +57,7 @@ function Invoke-InBuildFileScope {
             "aliases"                       = @{}
             "properties"                    = New-Object System.Collections.Stack
             "includes"                      = New-Object System.Collections.Queue
+            "requiredVersion"               = $null
             "config"                        = New-ConfigurationForNewContext -Build $BuildFile -Framework $script:Framework
         }
     )
@@ -69,16 +70,9 @@ function Invoke-InBuildFileScope {
     # Import any modules declared in the build script
     LoadModules
 
-    $frameworkOldValue = $script:Framework
-
     . $psake.build_script_file.FullName
 
     $currentContext = $psake.Context.Peek()
-
-    if ($script:Framework -ne $frameworkOldValue) {
-        Write-PsakeOutput $msgs.warning_deprecated_framework_variable "warning"
-        $currentContext.config.framework = $script:Framework
-    }
 
     Set-BuildEnvironment
 

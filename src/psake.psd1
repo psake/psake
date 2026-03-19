@@ -1,15 +1,17 @@
 @{
     RootModule = 'psake.psm1'
-    ModuleVersion = '4.9.1'
+    ModuleVersion = '5.0.0'
     GUID = 'cfb53216-072f-4a46-8975-ff7e6bda05a5'
     Author = 'James Kovacs'
     Copyright = 'Copyright (c) 2010-18 James Kovacs, Damian Hickey, Brandon Olin, and Contributors'
-    PowerShellVersion = '3.0'
+    PowerShellVersion = '5.1'
     Description = 'psake is a build automation tool written in PowerShell.'
     FunctionsToExport = @(
         'Invoke-psake'
         'Invoke-Task'
         'Get-PSakeScriptTasks'
+        'Get-PsakeBuildPlan'
+        'Test-PsakeTask'
         'Task'
         'Properties'
         'Include'
@@ -19,6 +21,8 @@
         'Framework'
         'Assert'
         'Exec'
+        'Version'
+        'Clear-PsakeCache'
     )
     VariablesToExport = 'psake'
     PrivateData = @{
