@@ -88,6 +88,7 @@ function Properties {
         [hashtable]$Hashtable
     )
 
+    Write-Debug "Registering Properties block (ParameterSet='$($PSCmdlet.ParameterSetName)')"
     if ($PSCmdlet.ParameterSetName -eq 'Hashtable') {
         # Convert hashtable to a scriptblock that sets each key as a variable
         $assignments = foreach ($key in $Hashtable.Keys) {

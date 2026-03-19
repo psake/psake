@@ -22,6 +22,7 @@ function Version {
         [int]$RequiredVersion
     )
 
+    Write-Debug "Version declaration: requiring psake v$RequiredVersion"
     $currentContext = $psake.Context.Peek()
     $currentContext.requiredVersion = $RequiredVersion
 }

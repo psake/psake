@@ -3,8 +3,10 @@ function Set-BuildEnvironment {
     [CmdletBinding()]
     param ()
 
+    Write-Debug "Setting build environment"
     if (!(Test-Path Variable:\IsWindows) -or $IsWindows) {
         $framework = $psake.Context.peek().config.framework
+        Write-Debug "Configuring .NET Framework '$framework'"
         if ($framework -cmatch '^((?:\d+\.\d+)(?:\.\d+){0,1})(x86|x64){0,1}$') {
             $versionPart = $matches[1]
             $bitnessPart = $matches[2]

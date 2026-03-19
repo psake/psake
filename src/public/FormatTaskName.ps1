@@ -71,5 +71,6 @@ function FormatTaskName {
         $Format
     )
 
+    Write-Debug "Setting task name format to $(if ($Format -is [scriptblock]) { 'scriptblock' } else { "'$Format'" })"
     $psake.Context.Peek().config.taskNameFormat = $Format
 }

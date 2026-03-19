@@ -5,6 +5,7 @@ function New-ConfigurationForNewContext {
         [string] $Framework
     )
 
+    Write-Debug "Creating new configuration context (BuildFile='$BuildFile', Framework='$Framework')"
     $previousConfig = Get-CurrentConfigurationOrDefault
 
     $config = New-Object -TypeName 'PSObject' -Property @{

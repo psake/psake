@@ -16,6 +16,7 @@ function Compile-BuildPlan {
         [string[]]$TaskList
     )
 
+    Write-Debug "Compiling build plan for '$BuildFile' with tasks: $($TaskList -join ', ')"
     $currentContext = $psake.Context.Peek()
 
     # Validate Version declaration if present
@@ -127,5 +128,6 @@ function Compile-BuildPlan {
     $plan.ExecutionOrder = $order.ToArray()
     $plan.IsValid = $true
 
+    Write-Debug "Build plan compiled: $($plan.ExecutionOrder.Count) tasks in execution order: $($plan.ExecutionOrder -join ' -> ')"
     return $plan
 }

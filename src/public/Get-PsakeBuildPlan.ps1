@@ -42,6 +42,7 @@ function Get-PsakeBuildPlan {
         $BuildFile = $psake.ConfigDefault.BuildFileName
     }
 
+    Write-Debug "Get-PsakeBuildPlan: BuildFile='$BuildFile' TaskList='$($TaskList -join ', ')'"
     try {
         $result = Invoke-Psake -BuildFile $BuildFile -TaskList $TaskList -CompileOnly -NoLogo -Quiet
         return $result

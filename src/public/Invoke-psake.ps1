@@ -146,6 +146,8 @@ function Invoke-Psake {
     # Set output format for Write-BuildMessage
     $script:CurrentOutputFormat = if ($Quiet) { 'Quiet' } else { $OutputFormat }
 
+    Write-Debug "Invoke-Psake: BuildFile='$BuildFile' TaskList='$($TaskList -join ', ')' OutputFormat='$OutputFormat' NoCache=$NoCache CompileOnly=$CompileOnly Quiet=$Quiet"
+
     $buildResult = $null
 
     try {
@@ -189,6 +191,7 @@ function Invoke-Psake {
                 @()
             }
 
+            Write-Debug "Starting compile phase"
             $plan = Compile-BuildPlan -BuildFile $BuildFile -TaskList $effectiveTaskList
 
             if (-not $plan.IsValid) {
@@ -201,6 +204,7 @@ function Invoke-Psake {
                 return
             }
 
+            Write-Debug "Compile phase complete, starting run phase"
             # === RUN PHASE ===
             $invokeBuildPlanSplat = @{
                 Plan           = $plan

@@ -59,6 +59,7 @@ function Include {
         }
 
         foreach ($resolvedPath in $resolvedPaths) {
+            Write-Debug "Including file '$resolvedPath'"
             Assert (Test-Path $resolvedPath -PathType Leaf) ($msgs.error_invalid_include_path -f $resolvedPath)
 
             $psake.Context.Peek().includes.Enqueue($resolvedPath)

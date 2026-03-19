@@ -32,6 +32,7 @@ function Get-PSakeScriptTasks {
         $BuildFile = $psake.ConfigDefault.BuildFileName
     }
 
+    Write-Debug "Get-PSakeScriptTasks: BuildFile='$BuildFile'"
     try {
         Invoke-InBuildFileScope -BuildFile $BuildFile -Module $MyInvocation.MyCommand.Module -ScriptBlock {
             param($CurrentContext)

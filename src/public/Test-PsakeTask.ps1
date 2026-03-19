@@ -48,6 +48,7 @@ function Test-PsakeTask {
         $BuildFile = $psake.ConfigDefault.BuildFileName
     }
 
+    Write-Debug "Test-PsakeTask: BuildFile='$BuildFile' TaskName='$TaskName' Variables=$($Variables.Count)"
     $result = [PsakeTaskResult]::new()
     $result.Name = $TaskName
 

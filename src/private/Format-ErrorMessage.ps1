@@ -26,6 +26,7 @@ function Format-ErrorMessage {
     }
 
     process {
+        Write-Debug "Formatting error message (VerboseError=$($currentConfig.VerboseError))"
         $errorMessage = [System.Text.StringBuilder]::new()
         $date = Get-Date
         if ($currentConfig.VerboseError) {

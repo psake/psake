@@ -12,6 +12,7 @@ function Get-InputHash {
         [PsakeBuildPlan]$Plan
     )
 
+    Write-Debug "Computing input hash for task '$($Task.Name)'"
     $sha256 = [System.Security.Cryptography.SHA256]::Create()
     $hashInput = [System.Text.StringBuilder]::new()
 
@@ -47,5 +48,6 @@ function Get-InputHash {
     $hash = [System.BitConverter]::ToString($sha256.ComputeHash($bytes)).Replace('-', '')
     $sha256.Dispose()
 
+    Write-Debug "Input hash for task '$($Task.Name)': sha256:$hash"
     return "sha256:$hash"
 }

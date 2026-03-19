@@ -186,6 +186,7 @@ function Task {
         [hashtable]$Definition
     )
 
+    Write-Debug "Defining task '$Name' (ParameterSet='$($PSCmdlet.ParameterSetName)')"
     # Handle declarative hashtable syntax: Task 'Build' @{ DependsOn = 'Clean'; Action = { ... } }
     if ($PSCmdlet.ParameterSetName -eq 'Declarative' -and $Definition) {
         $validKeys = @(

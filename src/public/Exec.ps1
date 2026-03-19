@@ -51,6 +51,7 @@ function Execute {
         [string]$WorkingDirectory = $null
     )
 
+    Write-Debug "Exec: running command$(if ($WorkingDirectory) { " in '$WorkingDirectory'" })$(if ($MaxRetries -gt 0) { " (max retries: $MaxRetries)" })"
     $tryCount = 1
 
     do {

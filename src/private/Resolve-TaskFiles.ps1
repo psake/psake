@@ -16,11 +16,13 @@ function Resolve-TaskFiles {
     )
 
     if ($null -eq $FileSpec) {
+        Write-Debug "FileSpec is null, returning empty array"
         return @()
     }
 
     # Scriptblock: evaluate and collect results
     if ($FileSpec -is [scriptblock]) {
+        Write-Debug "Resolving files via scriptblock"
         $results = @(& $FileSpec)
         # Flatten — the scriptblock may return FileInfo objects, strings, or mixed
         return @($results | ForEach-Object {
@@ -35,6 +37,7 @@ function Resolve-TaskFiles {
     }
 
     # String or string array: resolve as glob patterns
+    Write-Debug "Resolving files via glob patterns: $($FileSpec -join ', ')"
     $patterns = @($FileSpec)
     $files = @()
     foreach ($pattern in $patterns) {

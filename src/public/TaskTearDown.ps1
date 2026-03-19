@@ -71,5 +71,6 @@ function TaskTearDown {
         [scriptblock]$TearDown
     )
 
+    Write-Debug "Registering TaskTearDown scriptblock"
     $psake.Context.Peek().taskTearDownScriptBlock = $TearDown
 }

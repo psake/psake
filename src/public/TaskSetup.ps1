@@ -65,5 +65,6 @@ function TaskSetup {
         [scriptblock]$Setup
     )
 
+    Write-Debug "Registering TaskSetup scriptblock"
     $psake.Context.Peek().taskSetupScriptBlock = $Setup
 }

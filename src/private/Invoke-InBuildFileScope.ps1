@@ -33,6 +33,7 @@ function Invoke-InBuildFileScope {
         $ScriptBlock
     )
 
+    Write-Debug "Invoking build file scope for '$BuildFile'"
     # Execute the build file to set up the tasks and defaults
     Assert (Test-Path $BuildFile -PathType Leaf) ($msgs.error_build_file_not_found -f $BuildFile)
 
@@ -70,9 +71,11 @@ function Invoke-InBuildFileScope {
     # Import any modules declared in the build script
     LoadModules
 
+    Write-Debug "Dot-sourcing build file '$($psake.build_script_file.FullName)'"
     . $psake.build_script_file.FullName
 
     $currentContext = $psake.Context.Peek()
+    Write-Debug "Build file loaded: $($currentContext.tasks.Count) tasks registered"
 
     Set-BuildEnvironment
 

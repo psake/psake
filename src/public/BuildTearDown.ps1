@@ -52,5 +52,6 @@ function BuildTearDown {
         [scriptblock]$Setup
     )
 
+    Write-Debug "Registering BuildTearDown scriptblock"
     $psake.Context.Peek().buildTearDownScriptBlock = $Setup
 }

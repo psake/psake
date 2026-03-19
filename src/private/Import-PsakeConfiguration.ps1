@@ -8,11 +8,13 @@ function Import-PsakeConfiguration {
     .PARAMETER ConfigurationDirectory
     The directory to search for the psake-config.ps1 file.
     #>
+    [CmdletBinding()]
     param(
         [string]
         $ConfigurationDirectory = (Split-Path -Path $PSScriptRoot -Parent)
     )
 
+    Write-Debug "Searching for psake-config in '$ConfigurationDirectory'"
     $configFilePath = Join-Path -Path $ConfigurationDirectory -ChildPath $psakeConfigFile
     $defaultConfigFilePath = Join-Path -Path (Split-Path -Path $PSScriptRoot -Parent) -ChildPath $psakeConfigFile
 
@@ -24,6 +26,7 @@ function Import-PsakeConfiguration {
         throw 'Cannot find psake-config.ps1'
     }
 
+    Write-Debug "Loading psake configuration from '$configFileToLoad'"
     try {
         $config = Get-CurrentConfigurationOrDefault
         . $configFileToLoad

@@ -11,7 +11,9 @@ function Clear-TaskCache {
         [string]$TaskName
     )
 
+    Write-Debug "Clearing cache in '$CacheDir'$(if ($TaskName) { " for task '$TaskName'" })"
     if (-not (Test-Path $CacheDir)) {
+        Write-Debug "Cache directory not found, nothing to clear"
         return
     }
 

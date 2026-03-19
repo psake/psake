@@ -33,5 +33,6 @@ function BuildSetup {
         [scriptblock]$Setup
     )
 
+    Write-Debug "Registering BuildSetup scriptblock"
     $psake.Context.Peek().buildSetupScriptBlock = $Setup
 }

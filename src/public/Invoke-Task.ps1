@@ -22,6 +22,7 @@ function Invoke-Task {
         $TaskName
     )
 
+    Write-Debug "Invoke-Task: '$TaskName'"
     Assert $TaskName ($msgs.error_invalid_task_name)
 
     $taskKey = $TaskName.ToLower()

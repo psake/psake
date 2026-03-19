@@ -27,6 +27,10 @@ function Invoke-BuildPlan {
         [scriptblock]$Initialization = {}
     )
 
+    Write-Debug "Executing build plan for '$($Plan.BuildFile)' with $($Plan.ExecutionOrder.Count) tasks"
+    Write-Debug "Execution order: $($Plan.ExecutionOrder -join ' -> ')"
+    Write-Debug "NoCache=$NoCache"
+
     $buildResult = [PsakeBuildResult]::new()
     $buildResult.BuildFile = $Plan.BuildFile
     $buildResult.StartedAt = [datetime]::UtcNow
@@ -75,6 +79,7 @@ function Invoke-BuildPlan {
                 $taskResult = [PsakeTaskResult]::new()
                 $taskResult.Name = $task.Name
 
+                Write-Debug "Processing task '$taskKey'"
                 if ($taskKey -eq 'default') {
                     $taskResult.Status = 'Skipped'
                     $taskResult.Duration = [System.TimeSpan]::Zero
@@ -172,6 +177,7 @@ function Invoke-BuildPlan {
                     }
 
 
+                    Write-Debug "Task '$($task.Name)' completed in $($task.Duration)"
                     $task.Executed = $true
                     if ($taskResult.Status -ne 'Failed') {
                         $taskResult.Status = 'Executed'

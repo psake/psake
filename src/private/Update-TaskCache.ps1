@@ -12,6 +12,7 @@ function Update-TaskCache {
         [PsakeBuildPlan]$Plan
     )
 
+    Write-Debug "Updating cache for task '$($Task.Name)'"
     if ($null -eq $Task.Inputs) {
         return
     }
@@ -37,4 +38,5 @@ function Update-TaskCache {
 
     $cacheFile = Join-Path $Plan.CacheDir "$($Task.Name.ToLower()).json"
     $cacheEntry | ConvertTo-Json -Depth 3 | Set-Content -Path $cacheFile -Encoding UTF8
+    Write-Debug "Cache written to '$cacheFile' with hash '$inputHash'"
 }
