@@ -15,6 +15,7 @@ function Format-ErrorMessage {
     Formats the error message for the first error in the $Error array.
     #>
     [CmdletBinding()]
+    [OutputType([string])]
     param(
         [Parameter(ValueFromPipeline = $true)]
         $ErrorRecord = $Error[0]
@@ -30,26 +31,23 @@ function Format-ErrorMessage {
         $errorMessage = [System.Text.StringBuilder]::new()
         $date = Get-Date
         if ($currentConfig.VerboseError) {
-            $errorMessage.AppendFormat("{0}: An Error Occurred. See Error Details Below:", $date)
-            $errorMessage.AppendLine()
-            $errorMessage.AppendLine($dash)
-            $errorMessage.AppendFormat("Error: {0}", $(Resolve-Error $ErrorRecord -Short))
-            $errorMessage.AppendLine()
-            $errorMessage.AppendLine($dash)
-            $errorMessage.AppendLine($(Resolve-Error $ErrorRecord))
-            $errorMessage.AppendLine($dash)
-            $errorMessage.AppendLine("Script Variables")
-            $errorMessage.AppendLine($dash)
-            $errorMessage.AppendLine($(Get-Variable -Scope script | Format-Table | Out-String))
+            [void]$errorMessage.AppendFormat("{0}: An Error Occurred. See Error Details Below:", $date)
+            [void]$errorMessage.AppendLine()
+            [void]$errorMessage.AppendLine($dash)
+            [void]$errorMessage.AppendFormat("Error: {0}", $(Resolve-Error $ErrorRecord -Short))
+            [void]$errorMessage.AppendLine()
+            [void]$errorMessage.AppendLine($dash)
+            [void]$errorMessage.AppendLine($(Resolve-Error $ErrorRecord))
+            [void]$errorMessage.AppendLine($dash)
+            [void]$errorMessage.AppendLine("Script Variables")
+            [void]$errorMessage.AppendLine($dash)
+            [void]$errorMessage.AppendLine($(Get-Variable -Scope script | Format-Table | Out-String))
         } else {
             # ($_ | Out-String) gets error messages with source information included.
-            $errorMessage.AppendFormat("Error: {0}:", $date)
-            $errorMessage.AppendLine()
-            $errorMessage.AppendLine("{0}" -f (Resolve-Error $ErrorRecord -Short))
+            [void]$errorMessage.AppendFormat("Error: {0}:", $date)
+            [void]$errorMessage.AppendLine()
+            [void]$errorMessage.AppendLine("{0}" -f (Resolve-Error $ErrorRecord -Short))
         }
-    }
-
-    end {
         $errorMessage.ToString()
     }
 }

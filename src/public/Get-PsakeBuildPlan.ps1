@@ -8,6 +8,14 @@ function Get-PsakeBuildPlan {
     validates the dependency graph, and returns a PsakeBuildPlan object that
     can be inspected in tests.
 
+    This function always returns a [PsakeBuildPlan]. If the build file cannot
+    be loaded or the dependency graph is invalid, an invalid plan is returned
+    with IsValid = $false and ValidationErrors populated.
+
+    The returned plan can be piped into Invoke-Psake for execution. Note that
+    when piping, the build file is re-loaded during the execution phase to
+    resolve properties, setup, and teardown blocks.
+
     .PARAMETER BuildFile
     The path to the psake build script. Defaults to 'psakefile.ps1'.
 
@@ -21,6 +29,7 @@ function Get-PsakeBuildPlan {
 
     This example compiles the build file and asserts that there are 4 tasks and
     that the execution order is correct.
+
     .EXAMPLE
     $plan = Get-PsakeBuildPlan
     $plan.TaskMap['build'].DependsOn | Should -Contain 'Clean'
@@ -28,6 +37,12 @@ function Get-PsakeBuildPlan {
 
     This example compiles the default build file and asserts that the 'build'
     task depends on the 'Clean' task and that the plan is valid.
+
+    .EXAMPLE
+    Get-PsakeBuildPlan -BuildFile './psakefile.ps1' | Invoke-Psake
+
+    Compiles the build plan and pipes it into Invoke-Psake for execution.
+    Note: the build file is re-loaded during the execution phase.
     #>
     [CmdletBinding()]
     param(
@@ -43,9 +58,29 @@ function Get-PsakeBuildPlan {
     }
 
     Write-Debug "Get-PsakeBuildPlan: BuildFile='$BuildFile' TaskList='$($TaskList -join ', ')'"
+
     try {
-        $result = Invoke-Psake -BuildFile $BuildFile -TaskList $TaskList -CompileOnly -NoLogo -Quiet
-        return $result
+        Invoke-InBuildFileScope -BuildFile $BuildFile -Module $MyInvocation.MyCommand.Module -ScriptBlock {
+            param($CurrentContext, $Module)
+
+            $effectiveTaskList = if ($TaskList -and $TaskList.Count -gt 0) {
+                $TaskList
+            } elseif ($CurrentContext.tasks.ContainsKey('default')) {
+                @('default')
+            } else {
+                @()
+            }
+
+            $script:compiledPlan = Compile-BuildPlan -BuildFile $BuildFile -TaskList $effectiveTaskList
+        }
+
+        return $script:compiledPlan
+    } catch {
+        $invalidPlan = [PsakeBuildPlan]::new()
+        $invalidPlan.BuildFile = $BuildFile
+        $invalidPlan.IsValid = $false
+        $invalidPlan.ValidationErrors = @($_.ToString())
+        return $invalidPlan
     } finally {
         Restore-Environment
     }

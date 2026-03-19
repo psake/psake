@@ -8,8 +8,6 @@ Task CheckDetailedDocs {
         $origOutputRendering = $PSStyle.OutputRendering
         $PSStyle.OutputRendering = 'PlainText'
     }
-    $psake.ConfigDefault.OutputHandlers.Default = { Param($output) Write-Output $output }
-
     $docArray = @(Invoke-psake .\nested\docs.ps1 -detailedDocs -nologo | Out-String -Stream -Width 120)
     $docString = (($docArray | ForEach-Object Trim) -join $NL).Trim()
 

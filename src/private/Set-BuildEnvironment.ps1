@@ -16,6 +16,27 @@ function Set-BuildEnvironment {
         $versions = $null
         $buildToolsVersions = $null
         switch ($versionPart) {
+            '1.0' {
+                $versions = @('v1.0.3705')
+            }
+            '1.1' {
+                $versions = @('v1.1.4322')
+            }
+            '1.1.0' {
+                $versions = @()
+            }
+            '2.0' {
+                $versions = @('v2.0.50727')
+            }
+            '2.0.0' {
+                $versions = @()
+            }
+            '3.0' {
+                $versions = @('v2.0.50727')
+            }
+            '3.5' {
+                $versions = @('v3.5', 'v2.0.50727')
+            }
             '4.0' {
                 $versions = @('v4.0.30319')
             }
@@ -37,40 +58,61 @@ function Set-BuildEnvironment {
             }
 
             default {
-                throw ($msgs.error_unknown_framework -f $versionPart, $framework)
+                $PSCmdlet.ThrowTerminatingError(
+                    [System.Management.Automation.ErrorRecord]::new(
+                        [System.Exception]::new(($msgs.error_invalid_framework -f $framework)),
+                        "InvalidFramework",
+                        [System.Management.Automation.ErrorCategory]::InvalidArgument,
+                        $framework
+                    )
+                )
             }
         }
 
         $bitness = 'Framework'
         switch ($bitnessPart) {
-                'x86' {
-                    $bitness = 'Framework'
-                    $buildToolsKey = 'MSBuildToolsPath32'
-                }
-                'x64' {
-                    $bitness = 'Framework64'
-                    $buildToolsKey = 'MSBuildToolsPath'
-                }
-                { [string]::IsNullOrEmpty($_) } {
-                    $ptrSize = [System.IntPtr]::Size
-                    switch ($ptrSize) {
-                        4 {
-                            $bitness = 'Framework'
-                            $buildToolsKey = 'MSBuildToolsPath32'
-                        }
-                        8 {
-                            $bitness = 'Framework64'
-                            $buildToolsKey = 'MSBuildToolsPath'
-                        }
-                        default {
-                            throw ($msgs.error_unknown_pointersize -f $ptrSize)
-                        }
+            'x86' {
+                $bitness = 'Framework'
+                $buildToolsKey = 'MSBuildToolsPath32'
+            }
+            'x64' {
+                $bitness = 'Framework64'
+                $buildToolsKey = 'MSBuildToolsPath'
+            }
+            { [string]::IsNullOrEmpty($_) } {
+                $ptrSize = [System.IntPtr]::Size
+                switch ($ptrSize) {
+                    4 {
+                        $bitness = 'Framework'
+                        $buildToolsKey = 'MSBuildToolsPath32'
+                    }
+                    8 {
+                        $bitness = 'Framework64'
+                        $buildToolsKey = 'MSBuildToolsPath'
+                    }
+                    default {
+                        $PSCmdlet.ThrowTerminatingError(
+                            [System.Management.Automation.ErrorRecord]::new(
+                                [System.Exception]::new(($msgs.error_unknown_pointersize -f $ptrSize)),
+                                "UnknownPointerSize",
+                                [System.Management.Automation.ErrorCategory]::NotImplemented,
+                                $ptrSize
+                            )
+                        )
                     }
                 }
-                default {
-                    throw ($msgs.error_unknown_bitnesspart -f $bitnessPart, $framework)
-                }
             }
+            default {
+                $PSCmdlet.ThrowTerminatingError(
+                    [System.Management.Automation.ErrorRecord]::new(
+                        [System.Exception]::new(($msgs.error_unknown_bitnesspart -f $bitnessPart, $framework)),
+                        "UnknownBitnessPart",
+                        [System.Management.Automation.ErrorCategory]::NotImplemented,
+                        $bitnessPart
+                    )
+                )
+            }
+        }
 
         $frameworkDirs = @()
         if ($null -ne $buildToolsVersions) {
@@ -187,7 +229,7 @@ function Set-BuildEnvironment {
         $frameworkDirs = $frameworkDirs + @($versions | ForEach-Object { "$env:windir\Microsoft.NET\$bitness\$_\" })
         for ($i = 0; $i -lt $frameworkDirs.Count; $i++) {
             $dir = $frameworkDirs[$i]
-            if ($dir -Match "\$\(Registry:HKEY_LOCAL_MACHINE(.*?)@(.*)\)") {
+            if ($dir -match "\$\(Registry:HKEY_LOCAL_MACHINE(.*?)@(.*)\)") {
                 $key = "HKLM:" + $matches[1]
                 $name = $matches[2]
                 $dir = (Get-ItemProperty -Path $key -Name $name).$name

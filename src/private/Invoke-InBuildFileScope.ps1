@@ -72,16 +72,16 @@ function Invoke-InBuildFileScope {
     LoadModules
 
     Write-Debug "Dot-sourcing build file '$($psake.build_script_file.FullName)'"
-    . $psake.build_script_file.FullName
+    $null = . $psake.build_script_file.FullName
 
     $currentContext = $psake.Context.Peek()
     Write-Debug "Build file loaded: $($currentContext.tasks.Count) tasks registered"
 
-    Set-BuildEnvironment
+    $null = Set-BuildEnvironment
 
     while ($currentContext.includes.Count -gt 0) {
         $includeFilename = $currentContext.includes.Dequeue()
-        . $includeFilename
+        $null = . $includeFilename
     }
 
     & $ScriptBlock $currentContext $Module

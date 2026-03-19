@@ -12,6 +12,11 @@ function Properties {
     .PARAMETER Properties
     The script block containing all the variable assignment statements
 
+    .PARAMETER Hashtable
+    An alternative to the scriptblock parameter, you can provide a hashtable of
+    key-value pairs that will be converted into variables. This is useful when
+    you want to define properties programmatically or from an external source.
+
     .EXAMPLE
     Properties {
         $build_dir = "c:\build"
@@ -91,8 +96,12 @@ function Properties {
     Write-Debug "Registering Properties block (ParameterSet='$($PSCmdlet.ParameterSetName)')"
     if ($PSCmdlet.ParameterSetName -eq 'Hashtable') {
         # Convert hashtable to a scriptblock that sets each key as a variable
+        # Store the hashtable in $psake so the deferred scriptblock can access it
+        # (closures via GetNewClosure break dot-sourcing into caller's scope)
+        $storageKey = "_propHash_$(Get-Random)"
+        $psake[$storageKey] = $Hashtable.Clone()
         $assignments = foreach ($key in $Hashtable.Keys) {
-            "`$script:$key = `$Hashtable['$key']"
+            "`$$key = `$psake['$storageKey']['$key']"
         }
         $scriptText = $assignments -join "`n"
         $Properties = [scriptblock]::Create($scriptText)

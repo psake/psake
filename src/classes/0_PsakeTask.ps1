@@ -16,6 +16,7 @@ class PsakeTask {
     [string]$ErrorMessage
     [string]$ErrorDetail
     [string]$ErrorFormatted
+    [System.Management.Automation.ErrorRecord[]]$ErrorRecord
     [object]$Inputs        # string[], scriptblock, or single string
     [object]$Outputs       # string[], scriptblock, or single string
     [string]$InputHash
@@ -40,7 +41,8 @@ class PsakeTask {
         [bool]$Success,
         [string]$ErrorMessage,
         [string]$ErrorDetail,
-        [string]$ErrorFormatted
+        [string]$ErrorFormatted,
+        [System.Management.Automation.ErrorRecord[]]$ErrorRecord
     ) {
         $this.Name = $Name
         $this.DependsOn = $DependsOn

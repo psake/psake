@@ -56,7 +56,7 @@ function Invoke-BuildPlan {
         # Execute property blocks
         while ($CurrentContext.properties.Count -gt 0) {
             $propertyBlock = $CurrentContext.properties.Pop()
-            . $propertyBlock
+            $null = . $propertyBlock
         }
 
         # Inject command-line properties (override)
@@ -67,10 +67,10 @@ function Invoke-BuildPlan {
         }
 
         # Run initialization
-        . $Module $Initialization
+        $null = . $Module $Initialization
 
         # Run build setup
-        & $CurrentContext.buildSetupScriptBlock
+        $null = & $CurrentContext.buildSetupScriptBlock
 
         try {
             # Execute tasks in plan order
@@ -129,10 +129,10 @@ function Invoke-BuildPlan {
                         $CurrentContext.currentTaskName = $task.Name
 
                         try {
-                            & $CurrentContext.taskSetupScriptBlock @($task)
+                            $null = & $CurrentContext.taskSetupScriptBlock @($task)
                             try {
                                 if ($task.PreAction) {
-                                    & $task.PreAction
+                                    $null = & $task.PreAction
                                 }
 
                                 if ($CurrentContext.config.taskNameFormat -is [ScriptBlock]) {
@@ -142,10 +142,10 @@ function Invoke-BuildPlan {
                                 }
                                 Write-BuildMessage $taskHeader "heading"
 
-                                & $task.Action
+                                $null = & $task.Action
                             } finally {
                                 if ($task.PostAction) {
-                                    & $task.PostAction
+                                    $null = & $task.PostAction
                                 }
                             }
                         } catch {
@@ -153,9 +153,10 @@ function Invoke-BuildPlan {
                             $task.ErrorMessage = $_
                             $task.ErrorDetail = $_ | Out-String
                             $task.ErrorFormatted = Format-ErrorMessage $_
+                            $task.ErrorRecord = $_
                             throw $_
                         } finally {
-                            & $CurrentContext.taskTearDownScriptBlock $task
+                            $null = & $CurrentContext.taskTearDownScriptBlock $task
                         }
                     } catch {
                         if ($task.ContinueOnError) {
@@ -199,12 +200,13 @@ function Invoke-BuildPlan {
                 $buildResult.Tasks += $taskResult
             }
         } finally {
-            & $CurrentContext.buildTearDownScriptBlock
+            $null = & $CurrentContext.buildTearDownScriptBlock
         }
 
     } catch {
         $buildResult.Success = $false
         $buildResult.ErrorMessage = Format-ErrorMessage $_
+        $buildResult.ErrorRecord = $_
         throw $_
     } finally {
         $stopwatch.Stop()

@@ -40,6 +40,18 @@ function Task {
     An array of task names that this task depends on.
     These tasks will be executed before the current task is executed.
 
+    .PARAMETER Definition
+    A hashtable that can be used to define a task using a single parameter
+    instead of using multiple parameters. This is an alternative to the normal
+    syntax of Task 'TaskName' -Action { ... } -Depends 'OtherTask' and allows
+    for a more declarative style of task definition. The hashtable can contain
+    the following keys:
+    - Action
+    - PreAction
+    - PostAction
+    - PreCondition
+    - PostCondition
+
     .PARAMETER RequiredVariables
     An array of names of variables that must be set to run this task.
 

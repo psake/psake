@@ -13,6 +13,7 @@ class PsakeBuildResult {
     [System.TimeSpan]$Duration
     [PsakeTaskResult[]]$Tasks = @()
     [string]$ErrorMessage
+    [System.Management.Automation.ErrorRecord[]]$ErrorRecord
     [datetime]$StartedAt
     [datetime]$CompletedAt
 }
