@@ -69,18 +69,13 @@ function Task {
     or higher, allowing any module in the 1.x.x series.
 
     .EXAMPLE
-    A sample build script is shown below:
-
     Task default -Depends Test
-
     Task Test -Depends Compile, Clean {
         "This is a test"
     }
-
     Task Compile -Depends Clean {
         "Compile"
     }
-
     Task Clean {
         "Clean"
     }
@@ -122,27 +117,6 @@ function Task {
     Compile 00:00:00.0133268
     Test    00:00:00.0225964
     Total:  00:00:00.0782496
-
-    .LINK
-    Assert
-    .LINK
-    Exec
-    .LINK
-    FormatTaskName
-    .LINK
-    Framework
-    .LINK
-    Get-PSakeScriptTasks
-    .LINK
-    Include
-    .LINK
-    Invoke-psake
-    .LINK
-    Properties
-    .LINK
-    TaskSetup
-    .LINK
-    TaskTearDown
     #>
     [CmdletBinding(DefaultParameterSetName = 'Normal')]
     param(
@@ -214,28 +188,87 @@ function Task {
 
     # Handle declarative hashtable syntax: Task 'Build' @{ DependsOn = 'Clean'; Action = { ... } }
     if ($PSCmdlet.ParameterSetName -eq 'Declarative' -and $Definition) {
-        $validKeys = @('DependsOn', 'Action', 'Inputs', 'Outputs', 'PreAction', 'PostAction',
-                       'PreCondition', 'PostCondition', 'ContinueOnError', 'Description',
-                       'Alias', 'RequiredVariables')
+        $validKeys = @(
+            'DependsOn',
+            'Action',
+            'Inputs',
+            'Outputs',
+            'PreAction',
+            'PostAction',
+            'PreCondition',
+            'PostCondition',
+            'ContinueOnError',
+            'Description',
+            'Alias',
+            'RequiredVariables'
+        )
         foreach ($key in $Definition.Keys) {
             if ($key -notin $validKeys) {
                 throw "Unknown task definition key '$key' for task '$Name'. Valid keys are: $($validKeys -join ', ')"
             }
         }
-        $Action            = if ($Definition.ContainsKey('Action'))            { $Definition.Action }            else { $null }
-        $PreAction         = if ($Definition.ContainsKey('PreAction'))         { $Definition.PreAction }         else { $null }
-        $PostAction        = if ($Definition.ContainsKey('PostAction'))        { $Definition.PostAction }        else { $null }
-        $PreCondition      = if ($Definition.ContainsKey('PreCondition'))      { $Definition.PreCondition }      else { { $true } }
-        $PostCondition     = if ($Definition.ContainsKey('PostCondition'))     { $Definition.PostCondition }     else { { $true } }
-        $ContinueOnError   = if ($Definition.ContainsKey('ContinueOnError'))  { $Definition.ContinueOnError }   else { $false }
-        $Depends           = if ($Definition.ContainsKey('DependsOn'))         { @($Definition.DependsOn) }     else { @() }
-        $RequiredVariables = if ($Definition.ContainsKey('RequiredVariables')) { @($Definition.RequiredVariables) } else { @() }
-        $Description       = if ($Definition.ContainsKey('Description'))      { $Definition.Description }       else { $null }
-        $Alias             = if ($Definition.ContainsKey('Alias'))            { $Definition.Alias }             else { $null }
+        if ($Definition.ContainsKey('Action')) {
+            $Action = $Definition.Action
+        } else {
+            $Action = $null
+        }
+        if ($Definition.ContainsKey('PreAction')) {
+            $PreAction = $Definition.PreAction
+        } else {
+            $PreAction = $null
+        }
+        if ($Definition.ContainsKey('PostAction')) {
+            $PostAction = $Definition.PostAction
+        } else {
+            $PostAction = $null
+        }
+        if ($Definition.ContainsKey('PreCondition')) {
+            $PreCondition = $Definition.PreCondition
+        } else {
+            $PreCondition = { $true }
+        }
+        if ($Definition.ContainsKey('PostCondition')) {
+            $PostCondition = $Definition.PostCondition
+        } else {
+            $PostCondition = { $true }
+        }
+        if ($Definition.ContainsKey('ContinueOnError')) {
+            $ContinueOnError = $Definition.ContinueOnError
+        } else {
+            $ContinueOnError = $false
+        }
+        if ($Definition.ContainsKey('DependsOn')) {
+            $Depends = @($Definition.DependsOn)
+        } else {
+            $Depends = @()
+        }
+        if ($Definition.ContainsKey('RequiredVariables')) {
+            $RequiredVariables = @($Definition.RequiredVariables)
+        } else {
+            $RequiredVariables = @()
+        }
+        if ($Definition.ContainsKey('Description')) {
+            $Description = $Definition.Description
+        } else {
+            $Description = $null
+        }
+        if ($Definition.ContainsKey('Alias')) {
+            $Alias = $Definition.Alias
+        } else {
+            $Alias = $null
+        }
     }
 
-    $Inputs  = if ($Definition -and $Definition.ContainsKey('Inputs'))  { $Definition.Inputs }  else { $null }
-    $Outputs = if ($Definition -and $Definition.ContainsKey('Outputs')) { $Definition.Outputs } else { $null }
+    if ($Definition -and $Definition.ContainsKey('Inputs')) {
+        $Inputs = $Definition.Inputs
+    } else {
+        $Inputs = $null
+    }
+    if ($Definition -and $Definition.ContainsKey('Outputs')) {
+        $Outputs = $Definition.Outputs
+    } else {
+        $Outputs = $null
+    }
 
     $taskSplat = @{
         Name              = $Name

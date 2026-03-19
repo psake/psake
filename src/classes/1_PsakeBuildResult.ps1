@@ -1,6 +1,6 @@
 class PsakeTaskResult {
     [string]$Name
-    [string]$Status        # 'Executed', 'Cached', 'Skipped', 'Failed'
+    [TaskStatus]$Status # 'Executed', 'Cached', 'Skipped', 'Failed'
     [System.TimeSpan]$Duration
     [bool]$Cached
     [string]$ErrorMessage

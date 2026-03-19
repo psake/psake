@@ -15,11 +15,6 @@ function Version {
     Version 5
 
     Declares that this build script requires psake v5.
-
-    .LINK
-    Invoke-psake
-    .LINK
-    Task
     #>
     [CmdletBinding()]
     param(

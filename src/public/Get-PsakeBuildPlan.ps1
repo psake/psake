@@ -19,15 +19,15 @@ function Get-PsakeBuildPlan {
     $plan.Tasks | Should -HaveCount 4
     $plan.ExecutionOrder | Should -Be @('Clean', 'Compile', 'Test', 'Default')
 
+    This example compiles the build file and asserts that there are 4 tasks and
+    that the execution order is correct.
     .EXAMPLE
     $plan = Get-PsakeBuildPlan
     $plan.TaskMap['build'].DependsOn | Should -Contain 'Clean'
     $plan.IsValid | Should -BeTrue
 
-    .LINK
-    Invoke-psake
-    .LINK
-    Test-PsakeTask
+    This example compiles the default build file and asserts that the 'build'
+    task depends on the 'Clean' task and that the plan is valid.
     #>
     [CmdletBinding()]
     param(
@@ -43,7 +43,7 @@ function Get-PsakeBuildPlan {
     }
 
     try {
-        $result = Invoke-psake -BuildFile $BuildFile -TaskList $TaskList -CompileOnly -NoLogo -Quiet
+        $result = Invoke-Psake -BuildFile $BuildFile -TaskList $TaskList -CompileOnly -NoLogo -Quiet
         return $result
     } finally {
         Restore-Environment

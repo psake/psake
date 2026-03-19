@@ -1,58 +1,42 @@
-# TODO: This breaks on Linux. Choose a new name.
-function Exec {
+function Execute {
     <#
-        .SYNOPSIS
-        Helper function for executing command-line programs.
+    .SYNOPSIS
+    Helper function for executing command-line programs.
 
-        .DESCRIPTION
-        This is a helper function that runs a scriptblock and checks the PS variable $lastexitcode to see if an error occcured.
-        If an error is detected then an exception is thrown.
-        This function allows you to run command-line programs without having to explicitly check fthe $lastexitcode variable.
+    .DESCRIPTION
+    This is a helper function that runs a scriptblock and checks the PS variable
+    $lastexitcode to see if an error occured.
 
-        .PARAMETER Cmd
-        The scriptblock to execute. This scriptblock will typically contain the command-line invocation.
+    If an error is detected then an exception is thrown.
+    This function allows you to run command-line programs without having to
+    explicitly check the $lastexitcode variable.
 
-        .PARAMETER ErrorMessage
-        The error message to display if the external command returned a non-zero exit code.
+    .PARAMETER Cmd
+    The scriptblock to execute. This scriptblock will typically contain the
+    command-line invocation.
 
-        .PARAMETER MaxRetries
-        The maximum number of times to retry the command before failing.
+    .PARAMETER ErrorMessage
+    The error message to display if the external command returned a non-zero
+    exit code.
 
-        .PARAMETER RetryTriggerErrorPattern
-        If the external command raises an exception, match the exception against this regex to determine if the command can be retried.
-        If a match is found, the command will be retried provided [MaxRetries] has not been reached.
+    .PARAMETER MaxRetries
+    The maximum number of times to retry the command before failing.
 
-        .PARAMETER WorkingDirectory
-        The working directory to set before running the external command.
+    .PARAMETER RetryTriggerErrorPattern
+    If the external command raises an exception, match the exception against
+    this regex to determine if the command can be retried. If a match is found,
+    the command will be retried provided [MaxRetries] has not been reached.
 
-        .EXAMPLE
-        exec { svn info $repository_trunk } "Error executing SVN. Please verify SVN command-line client is installed"
+    .PARAMETER WorkingDirectory
+    The working directory to set before running the external command.
 
-        This example calls the svn command-line client.
-        .LINK
-        Assert
-        .LINK
-        FormatTaskName
-        .LINK
-        Framework
-        .LINK
-        Get-PSakeScriptTasks
-        .LINK
-        Include
-        .LINK
-        Invoke-psake
-        .LINK
-        Properties
-        .LINK
-        Task
-        .LINK
-        TaskSetup
-        .LINK
-        TaskTearDown
-        .LINK
-        Properties
+    .EXAMPLE
+    Execute { svn info $repository_trunk } "Error executing SVN. Please verify SVN command-line client is installed"
+
+    This example calls the svn command-line client.
     #>
     [CmdletBinding()]
+    [Alias("Exec")]
     param(
         [Parameter(Mandatory = $true)]
         [scriptblock]$Cmd,
@@ -95,8 +79,7 @@ function Exec {
                 }
             }
 
-            "Try $tryCount failed, retrying again in 1 second..."
-
+            Write-PsakeOutput -Output ($msgs.retrying_execute -f $tryCount) -OutputType 'Warning'
             $tryCount++
 
             [System.Threading.Thread]::Sleep([System.TimeSpan]::FromSeconds(1))

@@ -4,7 +4,8 @@ function Invoke-Task {
     Executes another task in the current build script.
 
     .DESCRIPTION
-    This is a function that will allow you to invoke a Task from within another Task in the current build script.
+    This is a function that will allow you to invoke a Task from within another
+    Task in the current build script.
 
     .PARAMETER TaskName
     The name of the task to execute.
@@ -13,29 +14,6 @@ function Invoke-Task {
     Invoke-Task "Compile"
 
     This example calls the "Compile" task.
-
-    .LINK
-    Assert
-    .LINK
-    Exec
-    .LINK
-    FormatTaskName
-    .LINK
-    Framework
-    .LINK
-    Get-PSakeScriptTasks
-    .LINK
-    Include
-    .LINK
-    Invoke-psake
-    .LINK
-    Properties
-    .LINK
-    Task
-    .LINK
-    TaskSetup
-    .LINK
-    TaskTearDown
     #>
     [CmdletBinding()]
     param(
@@ -123,17 +101,15 @@ function Invoke-Task {
                             $task.ErrorDetail = $_ | Out-String
                             $task.ErrorFormatted = Format-ErrorMessage $_
 
-
-
                             throw $_ # pass this up the chain; cleanup is handled higher int he stack
                         } finally {
                             & $currentContext.taskTearDownScriptBlock $task
                         }
                     } catch {
                         if ($task.ContinueOnError) {
-                            "-" * 70
+                            Write-PsakeOutput ("-" * 70) "warning"
                             Write-PsakeOutput ($msgs.continue_on_error -f $TaskName, $_) "warning"
-                            "-" * 70
+                            Write-PsakeOutput ("-" * 70) "warning"
                         } else {
                             throw $_
                         }

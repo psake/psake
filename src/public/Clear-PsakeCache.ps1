@@ -8,7 +8,8 @@ function Clear-PsakeCache {
     This forces all tasks to re-execute on the next build.
 
     .PARAMETER Path
-    The directory containing the .psake/cache/ folder. Defaults to the current directory.
+    The directory containing the .psake/cache/ folder. Defaults to the current
+    directory.
 
     .PARAMETER TaskName
     Optional: clear cache for a specific task only.

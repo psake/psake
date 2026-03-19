@@ -16,20 +16,26 @@ function Invoke-Psake {
     A comma-separated list of task names to execute
 
     .PARAMETER Framework
-    The version of the .NET framework you want to use during build. You can append x86 or x64 to force a specific framework.
-    If not specified, x86 or x64 will be detected based on the bitness of the PowerShell process.
-    Possible values: '4.0', '4.0x86', '4.0x64', '4.5', '4.5x86', '4.5x64', '4.5.1', '4.5.1x86', '4.5.1x64', '4.6', '4.6.1', '4.6.2', '4.7', '4.7.1', '4.7.2', '4.8', '4.8.1'
+
+    The version of the .NET framework you want to use during build. You can
+    append x86 or x64 to force a specific framework. If not specified, x86 or
+    x64 will be detected based on the bitness of the PowerShell process.
+    Possible values: '4.0', '4.0x86', '4.0x64', '4.5', '4.5x86', '4.5x64',
+    '4.5.1', '4.5.1x86', '4.5.1x64', '4.6', '4.6.1', '4.6.2', '4.7', '4.7.1',
+    '4.7.2', '4.8', '4.8.1'
 
     .PARAMETER Docs
     Prints a list of tasks and their descriptions
 
     .PARAMETER Parameters
-    A hashtable containing parameters to be passed into the current build script.
-    These parameters will be processed before the 'Properties' function of the script is processed.
+    A hashtable containing parameters to be passed into the current build
+    script. These parameters will be processed before the 'Properties' function
+    of the script is processed.
 
     .PARAMETER Properties
-    A hashtable containing properties to be passed into the current build script.
-    These properties will override matching properties that are found in the 'Properties' function of the script.
+    A hashtable containing properties to be passed into the current build
+    script. These properties will override matching properties that are found in
+    the 'Properties' function of the script.
 
     .PARAMETER Initialization
     A script block that will be executed before the tasks are executed.
@@ -50,7 +56,8 @@ function Invoke-Psake {
     Bypass task caching. All tasks will execute regardless of cache state.
 
     .PARAMETER CompileOnly
-    Return the build plan without executing any tasks. Useful for tooling and testing.
+    Return the build plan without executing any tasks. Useful for tooling and
+    testing.
 
     .PARAMETER Quiet
     Suppress all console output. The PsakeBuildResult is still returned.
@@ -74,29 +81,6 @@ function Invoke-Psake {
     Invoke-psake -OutputFormat JSON
 
     Runs the build and outputs the result as JSON.
-
-    .LINK
-    Assert
-    .LINK
-    Exec
-    .LINK
-    FormatTaskName
-    .LINK
-    Framework
-    .LINK
-    Get-PSakeScriptTasks
-    .LINK
-    Include
-    .LINK
-    Properties
-    .LINK
-    Task
-    .LINK
-    TaskSetup
-    .LINK
-    TaskTearDown
-    .LINK
-    Properties
     #>
     [CmdletBinding()]
     param(
@@ -162,7 +146,10 @@ function Invoke-Psake {
 
     try {
         if (-not $NoLogo -and -not $Quiet -and $OutputFormat -ne 'JSON') {
-            "psake version {0}$($script:nl)Copyright (c) 2010-2018 James Kovacs & Contributors$($script:nl)" -f $psake.version
+            (
+                ("psake version {0}" -f $psake.version),
+                "Copyright (c) 2010-2026 James Kovacs & Contributors"
+            ) -join $script:nl
         }
         if (!$BuildFile) {
             $BuildFile = Get-DefaultBuildFile
@@ -211,13 +198,16 @@ function Invoke-Psake {
             }
 
             # === RUN PHASE ===
-            $buildResult = Invoke-BuildPlan -Plan $plan `
-                -NoCache:$NoCache `
-                -Module $Module `
-                -CurrentContext $CurrentContext `
-                -Parameters $script:Parameters `
-                -Properties $script:Properties `
-                -Initialization $script:Initialization
+            $invokeBuildPlanSplat = @{
+                Plan           = $plan
+                NoCache        = $NoCache
+                Module         = $Module
+                CurrentContext = $CurrentContext
+                Parameters     = $script:Parameters
+                Properties     = $script:Properties
+                Initialization = $script:Initialization
+            }
+            $buildResult = Invoke-BuildPlan @invokeBuildPlanSplat
 
             $script:buildResultOut = $buildResult
 
@@ -250,6 +240,7 @@ function Invoke-Psake {
         $psake.error_message = Format-ErrorMessage $_
 
         if ($buildResult) {
+            Assert ($buildResult -is [PsakeBuildResult]) "Expected build result to be of type PsakeBuildResult. Is $($buildResult.GetType().FullName)"
             $buildResult.Success = $false
             $buildResult.ErrorMessage = $psake.error_message
         } else {

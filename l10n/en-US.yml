@@ -26,3 +26,4 @@ en-US:
   precondition_was_false: "Precondition was false, not executing task {0}."
   continue_on_error: "Error in task {0}. {1}"
   psake_success: "psake succeeded executing {0}"
+  retrying_execute: "Try {0} failed, retrying again in 1 second..."

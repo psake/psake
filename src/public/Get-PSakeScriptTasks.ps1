@@ -20,9 +20,6 @@ function Get-PSakeScriptTasks {
     {Clean, Compile}       Test
 
     Gets the psake tasks contained in the 'build.ps1' file.
-
-    .LINK
-    Invoke-psake
     #>
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseSingularNouns', '')]
     [CmdletBinding()]

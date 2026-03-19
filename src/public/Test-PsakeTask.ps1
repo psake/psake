@@ -5,8 +5,8 @@ function Test-PsakeTask {
 
     .DESCRIPTION
     Compiles the build file, finds the specified task, and executes only its
-    Action scriptblock with the provided variables. Dependencies are NOT executed.
-    This enables unit-testing individual tasks.
+    Action scriptblock with the provided variables. Dependencies are NOT
+    executed.This enables unit-testing individual tasks.
 
     .PARAMETER BuildFile
     The path to the psake build script. Defaults to 'psakefile.ps1'.
@@ -24,10 +24,13 @@ function Test-PsakeTask {
     }
     $result.Success | Should -BeTrue
 
-    .LINK
-    Get-PsakeBuildPlan
-    .LINK
-    Invoke-psake
+    This example runs the 'Build' task from 'psakefile.ps1' with two variables
+    injected into the task's scope. The result object contains details about the
+    execution, including success status, duration, and any error messages.
+    .NOTES
+    This function is intended for testing purposes and does not execute task
+    dependencies or pre/post actions. It directly invokes the specified task's
+    Action scriptblock in isolation.
     #>
     [CmdletBinding()]
     param(

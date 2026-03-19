@@ -154,9 +154,9 @@ function Invoke-BuildPlan {
                         }
                     } catch {
                         if ($task.ContinueOnError) {
-                            "-" * 70
+                            Write-PsakeOutput ("-" * 70)
                             Write-PsakeOutput ($msgs.continue_on_error -f $task.Name, $_) "warning"
-                            "-" * 70
+                            Write-PsakeOutput ("-" * 70)
                             $taskResult.Status = 'Failed'
                             $taskResult.ErrorMessage = $_.ToString()
                         } else {
@@ -170,6 +170,7 @@ function Invoke-BuildPlan {
                     } finally {
                         $task.Duration = $taskStopwatch.Elapsed
                     }
+
 
                     $task.Executed = $true
                     if ($taskResult.Status -ne 'Failed') {
