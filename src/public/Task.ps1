@@ -234,8 +234,8 @@ function Task {
         $Alias             = if ($Definition.ContainsKey('Alias'))            { $Definition.Alias }             else { $null }
     }
 
-    $Inputs  = if ($Definition -and $Definition.ContainsKey('Inputs'))  { @($Definition.Inputs) }  else { @() }
-    $Outputs = if ($Definition -and $Definition.ContainsKey('Outputs')) { @($Definition.Outputs) } else { @() }
+    $Inputs  = if ($Definition -and $Definition.ContainsKey('Inputs'))  { $Definition.Inputs }  else { $null }
+    $Outputs = if ($Definition -and $Definition.ContainsKey('Outputs')) { $Definition.Outputs } else { $null }
 
     $taskSplat = @{
         Name              = $Name

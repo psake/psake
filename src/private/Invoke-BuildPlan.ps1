@@ -94,7 +94,7 @@ function Invoke-BuildPlan {
                 }
 
                 # Check cache
-                if (-not $NoCache -and $task.Inputs -and $task.Inputs.Count -gt 0) {
+                if (-not $NoCache -and $null -ne $task.Inputs) {
                     if (Test-TaskCache -Task $task -Plan $Plan) {
                         $task.Cached = $true
                         $taskResult.Status = 'Cached'
@@ -178,7 +178,7 @@ function Invoke-BuildPlan {
                     $taskResult.Duration = $task.Duration
 
                     # Update cache after successful execution
-                    if ($task.Inputs -and $task.Inputs.Count -gt 0 -and $task.Success) {
+                    if ($null -ne $task.Inputs -and $task.Success) {
                         Update-TaskCache -Task $task -Plan $Plan
                     }
                 } else {

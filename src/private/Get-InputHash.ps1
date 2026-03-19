@@ -20,21 +20,18 @@ function Get-InputHash {
         $null = $hashInput.AppendLine($Task.Action.ToString())
     }
 
-    # Hash sorted input file contents
-    if ($Task.Inputs -and $Task.Inputs.Count -gt 0) {
-        $inputFiles = @()
-        foreach ($pattern in $Task.Inputs) {
-            $resolved = @(Resolve-Path $pattern -ErrorAction SilentlyContinue)
-            $inputFiles += $resolved | ForEach-Object { $_.Path }
-        }
-        $inputFiles = $inputFiles | Sort-Object
+    # Hash the Inputs spec itself when it's a scriptblock (code changes invalidate cache)
+    if ($Task.Inputs -is [scriptblock]) {
+        $null = $hashInput.AppendLine("inputs-script:$($Task.Inputs.ToString())")
+    }
 
-        foreach ($file in $inputFiles) {
-            if (Test-Path $file -PathType Leaf) {
-                $fileBytes = [System.IO.File]::ReadAllBytes($file)
-                $fileHash = [System.BitConverter]::ToString($sha256.ComputeHash($fileBytes)).Replace('-', '')
-                $null = $hashInput.AppendLine("$file`:$fileHash")
-            }
+    # Hash sorted input file contents
+    $inputFiles = Resolve-TaskFiles -FileSpec $Task.Inputs | Sort-Object
+    foreach ($file in $inputFiles) {
+        if (Test-Path $file -PathType Leaf) {
+            $fileBytes = [System.IO.File]::ReadAllBytes($file)
+            $fileHash = [System.BitConverter]::ToString($sha256.ComputeHash($fileBytes)).Replace('-', '')
+            $null = $hashInput.AppendLine("$file`:$fileHash")
         }
     }
 

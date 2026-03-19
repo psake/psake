@@ -12,7 +12,7 @@ function Test-TaskCache {
         [PsakeBuildPlan]$Plan
     )
 
-    if (-not $Task.Inputs -or $Task.Inputs.Count -eq 0) {
+    if ($null -eq $Task.Inputs) {
         return $false
     }
 
@@ -35,12 +35,10 @@ function Test-TaskCache {
     }
 
     # Verify outputs still exist
-    if ($Task.Outputs -and $Task.Outputs.Count -gt 0) {
-        foreach ($pattern in $Task.Outputs) {
-            $resolved = @(Resolve-Path $pattern -ErrorAction SilentlyContinue)
-            if ($resolved.Count -eq 0) {
-                return $false
-            }
+    if ($null -ne $Task.Outputs) {
+        $outputFiles = Resolve-TaskFiles -FileSpec $Task.Outputs
+        if ($outputFiles.Count -eq 0) {
+            return $false
         }
     }
 

@@ -16,8 +16,8 @@ class PsakeTask {
     [string]$ErrorMessage
     [string]$ErrorDetail
     [string]$ErrorFormatted
-    [string[]]$Inputs
-    [string[]]$Outputs
+    [object]$Inputs        # string[], scriptblock, or single string
+    [object]$Outputs       # string[], scriptblock, or single string
     [string]$InputHash
     [bool]$Cached = $false
     [bool]$Executed = $false

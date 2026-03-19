@@ -12,7 +12,7 @@ function Update-TaskCache {
         [PsakeBuildPlan]$Plan
     )
 
-    if (-not $Task.Inputs -or $Task.Inputs.Count -eq 0) {
+    if ($null -eq $Task.Inputs) {
         return
     }
 
@@ -24,20 +24,8 @@ function Update-TaskCache {
     $inputHash = if ($Task.InputHash) { $Task.InputHash } else { Get-InputHash -Task $Task -Plan $Plan }
     $Plan.InputHashes[$Task.Name.ToLower()] = $inputHash
 
-    # Resolve input/output files for the cache record
-    $inputFiles = @()
-    foreach ($pattern in $Task.Inputs) {
-        $resolved = @(Resolve-Path $pattern -ErrorAction SilentlyContinue)
-        $inputFiles += $resolved | ForEach-Object { $_.Path }
-    }
-
-    $outputFiles = @()
-    if ($Task.Outputs -and $Task.Outputs.Count -gt 0) {
-        foreach ($pattern in $Task.Outputs) {
-            $resolved = @(Resolve-Path $pattern -ErrorAction SilentlyContinue)
-            $outputFiles += $resolved | ForEach-Object { $_.Path }
-        }
-    }
+    $inputFiles = Resolve-TaskFiles -FileSpec $Task.Inputs
+    $outputFiles = Resolve-TaskFiles -FileSpec $Task.Outputs
 
     $cacheEntry = @{
         TaskName    = $Task.Name

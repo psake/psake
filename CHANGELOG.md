@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Hashtable `Properties` syntax: `Properties @{ Config = 'Release' }` as alternative to scriptblock
 - Two-phase compile/run model: dependency graph is validated via topological sort before any task executes; circular dependencies and missing tasks are caught at compile time
 - `-CompileOnly` parameter on `Invoke-psake`: returns the build plan without executing tasks (for tooling/testing)
-- Local file-based caching: tasks with `Inputs`/`Outputs` glob patterns are content-addressed cached in `.psake/cache/`; unchanged tasks are skipped
+- Local file-based caching: tasks with `Inputs`/`Outputs` (glob patterns or scriptblocks) are content-addressed cached in `.psake/cache/`; unchanged tasks are skipped
 - `-NoCache` parameter on `Invoke-psake`: bypass caching for a single run
 - Structured output: `Invoke-psake` returns a `PsakeBuildResult` with per-task `PsakeTaskResult` (status, duration, cached flag)
 - `-OutputFormat JSON` parameter on `Invoke-psake` for CI integration

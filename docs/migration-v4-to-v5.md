@@ -45,6 +45,19 @@ Task 'Build' @{
 
 When the task runs, psake computes a SHA256 hash of all input files plus the Action scriptblock text. On subsequent runs, if the hash matches and output files exist, the task is skipped.
 
+Inputs and Outputs also accept **scriptblocks** for dynamic file resolution:
+
+```powershell
+Task 'Build' @{
+    DependsOn = 'Clean'
+    Inputs    = { Get-ChildItem src -Recurse -Include *.cs | Where-Object { $_.Name -notmatch '\.generated\.' } }
+    Outputs   = { Get-ChildItem bin -Recurse -Include *.dll -ErrorAction SilentlyContinue }
+    Action    = { dotnet build -c $Configuration }
+}
+```
+
+This is useful when file lists depend on configuration, environment, or filtering logic that glob patterns can't express.
+
 Use `Clear-PsakeCache` to force a full rebuild, or `Invoke-psake -NoCache`.
 
 ## Structured Output
