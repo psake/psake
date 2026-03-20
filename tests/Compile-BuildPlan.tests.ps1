@@ -16,7 +16,7 @@ Describe 'Compile-BuildPlan' {
     It 'Should detect circular dependencies' {
         $buildFile = Join-Path $PSScriptRoot '..' 'specs' 'compile_phase_circular_dependency_should_fail.ps1'
         $plan = Get-PsakeBuildPlan -BuildFile $buildFile
-        $plan.Success | Should -BeFalse
+        $plan.IsValid | Should -BeFalse
         $plan.ValidationErrors | Should -Not -BeNullOrEmpty
         ($plan.ValidationErrors -join ' ') | Should -Match 'Circular'
     }

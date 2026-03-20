@@ -30,7 +30,9 @@ function Invoke-InBuildFileScope {
         [psmoduleinfo]
         $Module,
         [scriptblock]
-        $ScriptBlock
+        $ScriptBlock,
+        [switch]
+        $SkipSetEnvironment
     )
 
     Write-Debug "Invoking build file scope for '$BuildFile'"
@@ -77,7 +79,9 @@ function Invoke-InBuildFileScope {
     $currentContext = $psake.Context.Peek()
     Write-Debug "Build file loaded: $($currentContext.tasks.Count) tasks registered"
 
-    $null = Set-BuildEnvironment
+    if (-not $SkipSetEnvironment) {
+        $null = Set-BuildEnvironment
+    }
 
     while ($currentContext.includes.Count -gt 0) {
         $includeFilename = $currentContext.includes.Dequeue()

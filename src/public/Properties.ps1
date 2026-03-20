@@ -95,16 +95,23 @@ function Properties {
 
     Write-Debug "Registering Properties block (ParameterSet='$($PSCmdlet.ParameterSetName)')"
     if ($PSCmdlet.ParameterSetName -eq 'Hashtable') {
-        # Convert hashtable to a scriptblock that sets each key as a variable
-        # Store the hashtable in $psake so the deferred scriptblock can access it
+        # Validate that all keys are legal PowerShell variable names before storing.
+        foreach ($key in $Hashtable.Keys) {
+            if ($key -notmatch '^[A-Za-z_][A-Za-z0-9_]*$') {
+                throw "Properties hashtable key '$key' is not a valid variable name."
+            }
+        }
+        # Store the hashtable in $psake so the deferred scriptblock can access it.
         # (closures via GetNewClosure break dot-sourcing into caller's scope)
+        # Use Set-Variable at execution time instead of string interpolation to
+        # avoid any code-injection risk from key or value content.
         $storageKey = "_propHash_$(Get-Random)"
         $psake[$storageKey] = $Hashtable.Clone()
-        $assignments = foreach ($key in $Hashtable.Keys) {
-            "`$$key = `$psake['$storageKey']['$key']"
-        }
-        $scriptText = $assignments -join "`n"
-        $Properties = [scriptblock]::Create($scriptText)
+        $Properties = [scriptblock]::Create("
+            foreach (`$_key in `$psake['$storageKey'].Keys) {
+                Set-Variable -Name `$_key -Value `$psake['$storageKey'][`$_key]
+            }
+        ")
     }
 
     $psake.Context.Peek().properties.Push($Properties)

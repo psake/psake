@@ -55,6 +55,12 @@ Describe 'PSake specs' {
             throw "Invalid specification syntax. Specs file [$Name] should end with _should_pass or _should_fail."
         }
 
+        # Check if there is a framework defined in the spec file is installed.
+        if (-not (Test-BuildEnvironment -BuildFile $FullName )) {
+            Set-ItResult -Inconclusive -Because "Required framework for this spec is not available. Skipping test."
+            return
+        }
+
         $output = Invoke-Psake @psakeParams -OutputFormat JSON
         $psake.build_success | Should -Be $expectedResult
 

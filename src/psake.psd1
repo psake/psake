@@ -1,20 +1,20 @@
 @{
-    RootModule             = 'psake.psm1'
-    ModuleVersion          = '5.0.0'
-    GUID                   = 'cfb53216-072f-4a46-8975-ff7e6bda05a5'
-    Author                 = 'James Kovacs'
-    CompanyName            = 'psake'
-    Copyright              = 'Copyright (c) 2010-2026 James Kovacs, Damian Hickey, Brandon Olin, and Contributors'
-    Description            = @'
+    RootModule           = 'psake.psm1'
+    ModuleVersion        = '5.0.0'
+    GUID                 = 'cfb53216-072f-4a46-8975-ff7e6bda05a5'
+    Author               = 'James Kovacs'
+    CompanyName          = 'psake'
+    Copyright            = 'Copyright (c) 2010-2026 James Kovacs, Damian Hickey, Brandon Olin, and Contributors'
+    Description          = @'
 psake is a build automation tool written in PowerShell. Define tasks with
 dependencies, pre/post conditions, setup/teardown hooks, and input/output
 caching. Supports a compile-only mode for inspecting build plans in tests,
 structured output for GitHub Actions, and JSON output for tooling integration.
 '@
-    PowerShellVersion      = '5.1'
-    CompatiblePSEditions   = @('Core', 'Desktop')
+    PowerShellVersion    = '5.1'
+    CompatiblePSEditions = @('Core', 'Desktop')
 
-    FunctionsToExport      = @(
+    FunctionsToExport    = @(
         # Execution
         'Invoke-Psake'
         'Invoke-Task'
@@ -23,6 +23,7 @@ structured output for GitHub Actions, and JSON output for tooling integration.
         'Get-PSakeScriptTasks'
         'Get-PsakeBuildPlan'
         'Test-PsakeTask'
+        'Test-BuildEnvironment'
 
         # Build script DSL
         'Task'
@@ -37,15 +38,15 @@ structured output for GitHub Actions, and JSON output for tooling integration.
 
         # Utilities
         'Assert'
-        'Exec'
+        'Execute'
         'Version'
         'Clear-PsakeCache'
     )
-    CmdletsToExport        = @()
-    AliasesToExport        = @()
-    VariablesToExport      = @('psake')
+    CmdletsToExport      = @()
+    AliasesToExport      = @()
+    VariablesToExport    = @('psake')
 
-    PrivateData            = @{
+    PrivateData          = @{
         PSData = @{
             Prerelease   = 'alpha'
             Tags         = @(

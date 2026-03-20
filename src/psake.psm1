@@ -46,7 +46,7 @@ foreach ($import in @($enums + $classes + $public + $private)) {
 # and then we can try to load from a locale folder.
 #region Auto-generated from YAML localization files.
 data msgs {
-ConvertFrom-StringData @'
+    ConvertFrom-StringData @'
     error_task_name_does_not_exist=Task {0} does not exist.
     error_invalid_include_path=Unable to include {0}. File not found.
     error_no_default_task='default' task required.
@@ -105,12 +105,12 @@ $psake.ReferenceTasks = @{}
 # Contains default configuration, can be overridden in psake-config.ps1 in
 # directory with psake.psm1 or in directory with current build script
 $psake.ConfigDefault = [PSCustomObject]@{
-    BuildFileName       = "psakefile.ps1"
-    Framework           = "4.7.2"
-    TaskNameFormat      = "Executing {0}"
-    VerboseError        = $False
-    Modules             = $Null
-    ModuleScope         = ""
+    BuildFileName  = "psakefile.ps1"
+    Framework      = "4.7.2"
+    TaskNameFormat = "Executing {0}"
+    VerboseError   = $False
+    Modules        = $Null
+    ModuleScope    = ""
 }
 #endregion
 

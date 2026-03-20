@@ -40,7 +40,7 @@ function Write-BuildMessage {
         }
 
         # Default console output
-        $useColor = -not $env:NO_COLOR
+        $useColor = Test-Path env:NO_COLOR
         if ($Type -eq 'Debug') {
             Write-Debug $Message
             return
