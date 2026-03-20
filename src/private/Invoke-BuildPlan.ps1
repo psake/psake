@@ -31,6 +31,20 @@ function Invoke-BuildPlan {
     Write-Debug "Execution order: $($Plan.ExecutionOrder -join ' -> ')"
     Write-Debug "NoCache=$NoCache"
 
+    # Build reverse-dependency map: taskKey -> list of taskKeys that directly depend on it
+    $parentMap = @{}
+    foreach ($taskKey in $Plan.ExecutionOrder) {
+        if (-not $parentMap.ContainsKey($taskKey)) { $parentMap[$taskKey] = @() }
+        $task = $Plan.TaskMap[$taskKey]
+        foreach ($dep in $task.DependsOn) {
+            $depKey = $dep.ToLower()
+            if (-not $parentMap.ContainsKey($depKey)) { $parentMap[$depKey] = @() }
+            $parentMap[$depKey] += $taskKey
+        }
+    }
+
+    $failedTasks = @{}
+
     $buildResult = [PsakeBuildResult]::new()
     $buildResult.BuildFile = $Plan.BuildFile
     $buildResult.StartedAt = [datetime]::UtcNow
@@ -80,6 +94,25 @@ function Invoke-BuildPlan {
                 $taskResult.Name = $task.Name
 
                 Write-Debug "Processing task '$taskKey'"
+
+                # Check if any dependency failed
+                $failedDep = $task.DependsOn | Where-Object { $failedTasks.ContainsKey($_.ToLower()) } | Select-Object -First 1
+                if ($failedDep) {
+                    if ($task.ContinueOnError) {
+                        # Failure absorbed — do not propagate to this task's own dependents
+                        Write-BuildMessage ("-" * 70)
+                        Write-BuildMessage ($msgs.continue_on_error -f $task.Name, "dependency '$failedDep' failed") "warning"
+                        Write-BuildMessage ("-" * 70)
+                        $taskResult.Status = 'Skipped'
+                        $taskResult.Duration = [System.TimeSpan]::Zero
+                        $buildResult.Tasks += $taskResult
+                        $CurrentContext.executedTasks.Push($taskKey)
+                        continue
+                    } else {
+                        throw "Task '$($task.Name)' cannot run because dependency '$failedDep' failed."
+                    }
+                }
+
                 if ($taskKey -eq 'default') {
                     $taskResult.Status = 'Skipped'
                     $taskResult.Duration = [System.TimeSpan]::Zero
@@ -160,18 +193,33 @@ function Invoke-BuildPlan {
                         }
                     } catch {
                         if ($task.ContinueOnError) {
+                            # Failure absorbed — do not propagate to this task's own dependents
                             Write-BuildMessage ("-" * 70)
                             Write-BuildMessage ($msgs.continue_on_error -f $task.Name, $_) "warning"
                             Write-BuildMessage ("-" * 70)
                             $taskResult.Status = 'Failed'
                             $taskResult.ErrorMessage = $_.ToString()
                         } else {
-                            $taskResult.Status = 'Failed'
-                            $taskResult.ErrorMessage = $_.ToString()
-                            $task.Duration = $taskStopwatch.Elapsed
-                            $taskResult.Duration = $task.Duration
-                            $buildResult.Tasks += $taskResult
-                            throw $_
+                            # Check if a direct parent has ContinueOnError — if so, this failure
+                            # is absorbed by the parent (matches old recursive execution behaviour)
+                            $absorbingParent = $parentMap[$taskKey] |
+                                Where-Object { $Plan.TaskMap[$_].ContinueOnError } |
+                                Select-Object -First 1
+                            if ($absorbingParent) {
+                                Write-BuildMessage ("-" * 70)
+                                Write-BuildMessage ($msgs.continue_on_error -f $Plan.TaskMap[$absorbingParent].Name, $_) "warning"
+                                Write-BuildMessage ("-" * 70)
+                                $taskResult.Status = 'Failed'
+                                $taskResult.ErrorMessage = $_.ToString()
+                                $failedTasks[$taskKey] = $true
+                            } else {
+                                $taskResult.Status = 'Failed'
+                                $taskResult.ErrorMessage = $_.ToString()
+                                $task.Duration = $taskStopwatch.Elapsed
+                                $taskResult.Duration = $task.Duration
+                                $buildResult.Tasks += $taskResult
+                                throw $_
+                            }
                         }
                     } finally {
                         $task.Duration = $taskStopwatch.Elapsed
