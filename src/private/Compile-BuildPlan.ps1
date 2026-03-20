@@ -13,6 +13,7 @@ function Compile-BuildPlan {
         [string]$BuildFile,
 
         [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
         [string[]]$TaskList
     )
 

@@ -63,6 +63,7 @@ function Get-PsakeBuildPlan {
         Invoke-InBuildFileScope -BuildFile $BuildFile -Module $MyInvocation.MyCommand.Module -ScriptBlock {
             param($CurrentContext, $Module)
 
+            Write-Debug "Compiling build plan for file [$BuildFile] with tasks [$($TaskList -join ', ')]"
             $effectiveTaskList = if ($TaskList -and $TaskList.Count -gt 0) {
                 $TaskList
             } elseif ($CurrentContext.tasks.ContainsKey('default')) {
