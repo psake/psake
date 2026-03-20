@@ -32,12 +32,14 @@ Describe 'PSake specs' {
             }
         }
 
-        $oldPSPath = $env:PSModulePath
-        $env:PSModulePath += "$([IO.Path]::PathSeparator)$PSScriptRoot/../../specs/SharedTaskModules"
+        $script:oldPSPath = $env:PSModulePath
+        $paths = $env:PSModulePath -split [IO.Path]::PathSeparator
+        $paths += (Resolve-Path "$PSScriptRoot/../../specs/SharedTaskModules").Path
+        $env:PSModulePath = ($paths -join [IO.Path]::PathSeparator)
     }
 
     AfterAll {
-        $env:PSModulePath = $oldPSPath
+        $env:PSModulePath = $script:oldPSPath
     }
 
     It '<Name>' -TestCases $script:testCases {
