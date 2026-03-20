@@ -50,7 +50,7 @@ function Get-PsakeBuildPlan {
         [string]$BuildFile,
 
         [Parameter(Position = 1)]
-        [string[]]$TaskList = @()
+        [string[]]$TaskList = @('default')
     )
 
     if (-not $BuildFile) {

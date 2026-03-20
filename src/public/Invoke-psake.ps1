@@ -105,7 +105,7 @@ function Invoke-Psake {
         [string]$BuildFile,
 
         [Parameter(Position = 1, Mandatory = $false)]
-        [string[]]$TaskList = @(),
+        [string[]]$TaskList = @('default'),
 
         [Parameter(Position = 2, Mandatory = $false)]
         [string]$Framework,

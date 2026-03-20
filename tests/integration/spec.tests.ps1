@@ -1,15 +1,14 @@
-Describe 'PSake specs' {
-    BeforeDiscovery {
-        $buildFiles = Get-ChildItem $PSScriptRoot/../../specs/*.ps1
-        $script:testCases = $buildFiles | ForEach-Object {
-            @{
-                Name     = $_.Name
-                FullName = $_.FullName
-            }
+BeforeDiscovery {
+    $buildFiles = Get-ChildItem $PSScriptRoot/../../specs/*.ps1
+    $script:testCases = $buildFiles | ForEach-Object {
+        @{
+            Name     = $_.Name
+            FullName = $_.FullName
         }
-        Import-Module $PSScriptRoot/../../output/psake
     }
-
+    Import-Module $PSScriptRoot/../../output/psake
+}
+Describe 'PSake specs' {
     BeforeAll {
         $psake.run_by_psake_build_tester = $true
 
