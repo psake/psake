@@ -36,6 +36,7 @@ function Compile-BuildPlan {
 
     # Build TaskMap from context
     foreach ($key in $currentContext.tasks.Keys) {
+        Write-Debug "Adding task '$key' to build plan from context."
         $plan.TaskMap[$key] = $currentContext.tasks[$key]
     }
 
@@ -127,6 +128,16 @@ function Compile-BuildPlan {
     }
 
     $plan.ExecutionOrder = $order.ToArray()
+
+    # Filter TaskMap and Tasks to only include tasks in the execution order
+    $reachableKeys = [System.Collections.Generic.HashSet[string]]::new($plan.ExecutionOrder)
+    foreach ($key in @($plan.TaskMap.Keys)) {
+        if (-not $reachableKeys.Contains($key)) {
+            $plan.TaskMap.Remove($key)
+        }
+    }
+    $plan.Tasks = @($plan.TaskMap.Values)
+
     $plan.IsValid = $true
 
     Write-Debug "Build plan compiled: $($plan.ExecutionOrder.Count) tasks in execution order: $($plan.ExecutionOrder -join ' -> ')"

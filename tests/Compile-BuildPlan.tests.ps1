@@ -41,6 +41,24 @@ Describe 'Compile-BuildPlan' {
         $compileIdx | Should -BeLessThan $testIdx
     }
 
+    It 'Should exclude unreachable tasks from TaskMap' {
+        $buildFile = Join-Path $PSScriptRoot '..' 'specs' 'unreachable_task_excluded_should_pass.ps1'
+        $plan = Get-PsakeBuildPlan -BuildFile $buildFile
+        $plan.IsValid | Should -BeTrue
+        $plan.TaskMap.ContainsKey('deploy') | Should -BeFalse
+        $plan.Tasks | Where-Object { $_.Name -eq 'deploy' } | Should -BeNullOrEmpty
+    }
+
+    It 'Should include only reachable tasks in TaskMap' {
+        $buildFile = Join-Path $PSScriptRoot '..' 'specs' 'unreachable_task_excluded_should_pass.ps1'
+        $plan = Get-PsakeBuildPlan -BuildFile $buildFile
+        $plan.IsValid | Should -BeTrue
+        $plan.TaskMap.Keys | Should -HaveCount $plan.ExecutionOrder.Count
+        foreach ($key in $plan.TaskMap.Keys) {
+            $plan.ExecutionOrder | Should -Contain $key
+        }
+    }
+
     It 'Should include TaskMap with all tasks' {
         $buildFile = Join-Path $PSScriptRoot '..' 'specs' 'declarative_task_syntax_should_pass.ps1'
         $plan = Get-PsakeBuildPlan -BuildFile $buildFile
