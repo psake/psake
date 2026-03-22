@@ -4,7 +4,8 @@ function Invoke-Task {
     Executes another task in the current build script.
 
     .DESCRIPTION
-    This is a function that will allow you to invoke a Task from within another Task in the current build script.
+    This is a function that will allow you to invoke a Task from within another
+    Task in the current build script.
 
     .PARAMETER TaskName
     The name of the task to execute.
@@ -13,29 +14,6 @@ function Invoke-Task {
     Invoke-Task "Compile"
 
     This example calls the "Compile" task.
-
-    .LINK
-    Assert
-    .LINK
-    Exec
-    .LINK
-    FormatTaskName
-    .LINK
-    Framework
-    .LINK
-    Get-PSakeScriptTasks
-    .LINK
-    Include
-    .LINK
-    Invoke-psake
-    .LINK
-    Properties
-    .LINK
-    Task
-    .LINK
-    TaskSetup
-    .LINK
-    TaskTearDown
     #>
     [CmdletBinding()]
     param(
@@ -44,6 +22,7 @@ function Invoke-Task {
         $TaskName
     )
 
+    Write-Debug "Invoke-Task: '$TaskName'"
     Assert $TaskName ($msgs.error_invalid_task_name)
 
     $taskKey = $TaskName.ToLower()
@@ -70,7 +49,7 @@ function Invoke-Task {
         $precondition_is_valid = & $task.Precondition
 
         if (!$precondition_is_valid) {
-            Write-PsakeOutput ($msgs.precondition_was_false -f $TaskName) "heading"
+            Write-BuildMessage ($msgs.precondition_was_false -f $TaskName) "heading"
         } else {
             if ($taskKey -ne 'default') {
 
@@ -106,7 +85,7 @@ function Invoke-Task {
                                 } else {
                                     $taskHeader = $currentContext.config.taskNameFormat -f $TaskName
                                 }
-                                Write-PsakeOutput $taskHeader "heading"
+                                Write-BuildMessage $taskHeader "heading"
 
                                 & $task.Action
                             } finally {
@@ -123,17 +102,15 @@ function Invoke-Task {
                             $task.ErrorDetail = $_ | Out-String
                             $task.ErrorFormatted = Format-ErrorMessage $_
 
-
-
                             throw $_ # pass this up the chain; cleanup is handled higher int he stack
                         } finally {
                             & $currentContext.taskTearDownScriptBlock $task
                         }
                     } catch {
                         if ($task.ContinueOnError) {
-                            "-" * 70
-                            Write-PsakeOutput ($msgs.continue_on_error -f $TaskName, $_) "warning"
-                            "-" * 70
+                            Write-BuildMessage ("-" * 70) "warning"
+                            Write-BuildMessage ($msgs.continue_on_error -f $TaskName, $_) "warning"
+                            Write-BuildMessage ("-" * 70) "warning"
                         } else {
                             throw $_
                         }

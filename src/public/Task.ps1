@@ -40,6 +40,18 @@ function Task {
     An array of task names that this task depends on.
     These tasks will be executed before the current task is executed.
 
+    .PARAMETER Definition
+    A hashtable that can be used to define a task using a single parameter
+    instead of using multiple parameters. This is an alternative to the normal
+    syntax of Task 'TaskName' -Action { ... } -Depends 'OtherTask' and allows
+    for a more declarative style of task definition. The hashtable can contain
+    the following keys:
+    - Action
+    - PreAction
+    - PostAction
+    - PreCondition
+    - PostCondition
+
     .PARAMETER RequiredVariables
     An array of names of variables that must be set to run this task.
 
@@ -69,18 +81,13 @@ function Task {
     or higher, allowing any module in the 1.x.x series.
 
     .EXAMPLE
-    A sample build script is shown below:
-
     Task default -Depends Test
-
     Task Test -Depends Compile, Clean {
         "This is a test"
     }
-
     Task Compile -Depends Clean {
         "Compile"
     }
-
     Task Clean {
         "Clean"
     }
@@ -122,82 +129,159 @@ function Task {
     Compile 00:00:00.0133268
     Test    00:00:00.0225964
     Total:  00:00:00.0782496
-
-    .LINK
-    Assert
-    .LINK
-    Exec
-    .LINK
-    FormatTaskName
-    .LINK
-    Framework
-    .LINK
-    Get-PSakeScriptTasks
-    .LINK
-    Include
-    .LINK
-    Invoke-psake
-    .LINK
-    Properties
-    .LINK
-    TaskSetup
-    .LINK
-    TaskTearDown
     #>
     [CmdletBinding(DefaultParameterSetName = 'Normal')]
     param(
         [Parameter(Mandatory = $true, Position = 0)]
         [string]$Name,
 
-        [Parameter(Position = 1)]
+        [Parameter(Position = 1, ParameterSetName = 'Normal')]
+        [Parameter(Position = 1, ParameterSetName = 'SharedTask')]
         [scriptblock]$Action = $null,
 
-        [Parameter(Position = 2)]
+        [Parameter(ParameterSetName = 'Normal')]
+        [Parameter(ParameterSetName = 'SharedTask')]
         [scriptblock]$PreAction = $null,
 
-        [Parameter(Position = 3)]
+        [Parameter(ParameterSetName = 'Normal')]
+        [Parameter(ParameterSetName = 'SharedTask')]
         [scriptblock]$PostAction = $null,
 
-        [Parameter(Position = 4)]
+        [Parameter(ParameterSetName = 'Normal')]
+        [Parameter(ParameterSetName = 'SharedTask')]
         [scriptblock]$PreCondition = { $true },
 
-        [Parameter(Position = 5)]
+        [Parameter(ParameterSetName = 'Normal')]
+        [Parameter(ParameterSetName = 'SharedTask')]
         [scriptblock]$PostCondition = { $true },
 
-        [Parameter(Position = 6)]
+        [Parameter(ParameterSetName = 'Normal')]
+        [Parameter(ParameterSetName = 'SharedTask')]
         [switch]$ContinueOnError,
 
         [ValidateNotNull()]
-        [Parameter(Position = 7)]
+        [Parameter(ParameterSetName = 'Normal')]
+        [Parameter(ParameterSetName = 'SharedTask')]
         [string[]]$Depends = @(),
 
         [ValidateNotNull()]
-        [Parameter(Position = 8)]
+        [Parameter(ParameterSetName = 'Normal')]
+        [Parameter(ParameterSetName = 'SharedTask')]
         [string[]]$RequiredVariables = @(),
 
-        [Parameter(Position = 9)]
+        [Parameter(ParameterSetName = 'Normal')]
+        [Parameter(ParameterSetName = 'SharedTask')]
         [string]$Description = $null,
 
-        [Parameter(Position = 10)]
+        [Parameter(ParameterSetName = 'Normal')]
+        [Parameter(ParameterSetName = 'SharedTask')]
         [string]$Alias = $null,
 
-        [parameter(Mandatory = $true, ParameterSetName = 'SharedTask', Position = 11)]
+        [parameter(Mandatory = $true, ParameterSetName = 'SharedTask')]
         [ValidateNotNullOrEmpty()]
         [string]$FromModule,
 
         [Alias('Version')]
-        [parameter(ParameterSetName = 'SharedTask', Position = 12)]
+        [parameter(ParameterSetName = 'SharedTask')]
         [string]$RequiredVersion,
 
-        [parameter(ParameterSetName = 'SharedTask', Position = 13)]
+        [parameter(ParameterSetName = 'SharedTask')]
         [string]$MinimumVersion,
 
-        [parameter(ParameterSetName = 'SharedTask', Position = 14)]
+        [parameter(ParameterSetName = 'SharedTask')]
         [string]$MaximumVersion,
 
-        [parameter(ParameterSetName = 'SharedTask', Position = 15)]
-        [string]$LessThanVersion
+        [parameter(ParameterSetName = 'SharedTask')]
+        [string]$LessThanVersion,
+
+        [Parameter(Position = 1, ParameterSetName = 'Declarative')]
+        [hashtable]$Definition
     )
+
+    Write-Debug "Defining task '$Name' (ParameterSet='$($PSCmdlet.ParameterSetName)')"
+    # Handle declarative hashtable syntax: Task 'Build' @{ DependsOn = 'Clean'; Action = { ... } }
+    if ($PSCmdlet.ParameterSetName -eq 'Declarative' -and $Definition) {
+        $validKeys = @(
+            'DependsOn',
+            'Action',
+            'Inputs',
+            'Outputs',
+            'PreAction',
+            'PostAction',
+            'PreCondition',
+            'PostCondition',
+            'ContinueOnError',
+            'Description',
+            'Alias',
+            'RequiredVariables'
+        )
+        foreach ($key in $Definition.Keys) {
+            if ($key -notin $validKeys) {
+                throw "Unknown task definition key '$key' for task '$Name'. Valid keys are: $($validKeys -join ', ')"
+            }
+        }
+        if ($Definition.ContainsKey('Action')) {
+            $Action = $Definition.Action
+        } else {
+            $Action = $null
+        }
+        if ($Definition.ContainsKey('PreAction')) {
+            $PreAction = $Definition.PreAction
+        } else {
+            $PreAction = $null
+        }
+        if ($Definition.ContainsKey('PostAction')) {
+            $PostAction = $Definition.PostAction
+        } else {
+            $PostAction = $null
+        }
+        if ($Definition.ContainsKey('PreCondition')) {
+            $PreCondition = $Definition.PreCondition
+        } else {
+            $PreCondition = { $true }
+        }
+        if ($Definition.ContainsKey('PostCondition')) {
+            $PostCondition = $Definition.PostCondition
+        } else {
+            $PostCondition = { $true }
+        }
+        if ($Definition.ContainsKey('ContinueOnError')) {
+            $ContinueOnError = $Definition.ContinueOnError
+        } else {
+            $ContinueOnError = $false
+        }
+        if ($Definition.ContainsKey('DependsOn')) {
+            $Depends = @($Definition.DependsOn)
+        } else {
+            $Depends = @()
+        }
+        if ($Definition.ContainsKey('RequiredVariables')) {
+            $RequiredVariables = @($Definition.RequiredVariables)
+        } else {
+            $RequiredVariables = @()
+        }
+        if ($Definition.ContainsKey('Description')) {
+            $Description = $Definition.Description
+        } else {
+            $Description = $null
+        }
+        if ($Definition.ContainsKey('Alias')) {
+            $Alias = $Definition.Alias
+        } else {
+            $Alias = $null
+        }
+    }
+
+    if ($Definition -and $Definition.ContainsKey('Inputs')) {
+        $Inputs = $Definition.Inputs
+    } else {
+        $Inputs = $null
+    }
+    if ($Definition -and $Definition.ContainsKey('Outputs')) {
+        $Outputs = $Definition.Outputs
+    } else {
+        $Outputs = $null
+    }
 
     $taskSplat = @{
         Name              = $Name
@@ -212,6 +296,8 @@ function Task {
         Duration          = [System.TimeSpan]::Zero
         RequiredVariables = $RequiredVariables
         Alias             = $Alias
+        Inputs            = $Inputs
+        Outputs           = $Outputs
         Success           = $true # let's be optimistic
         ErrorMessage      = $null
         ErrorDetail       = $null
@@ -277,7 +363,7 @@ function Task {
         Assert ($null -ne $taskModule) ($msgs.error_unknown_module -f $FromModule)
         $psakeFilePath = Join-Path -Path $taskModule.ModuleBase -ChildPath 'psakeFile.ps1'
         if (-not $psake.LoadedTaskModules.ContainsKey($psakeFilePath)) {
-            Write-PsakeOutput "Loading tasks from task module [$psakeFilePath]" "debug"
+            Write-BuildMessage ($msgs.loading_task_module -f $psakeFilePath) "debug"
             . $psakeFilePath
             $psake.LoadedTaskModules.Add($psakeFilePath, $null)
         }
@@ -335,7 +421,7 @@ function Task {
 
         # Add the task to the context
         Assert (-not $currentContext.tasks.ContainsKey($taskKey)) ($msgs.error_duplicate_task_name -f $taskKey)
-        Write-PsakeOutput "Adding task [$taskKey)]" "debug"
+        Write-BuildMessage ($msgs.adding_task -f $taskKey) "debug"
         $currentContext.tasks[$taskKey] = $newTask
 
         if ($Alias) {

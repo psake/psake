@@ -30,9 +30,12 @@ function Invoke-InBuildFileScope {
         [psmoduleinfo]
         $Module,
         [scriptblock]
-        $ScriptBlock
+        $ScriptBlock,
+        [switch]
+        $SkipSetEnvironment
     )
 
+    Write-Debug "Invoking build file scope for '$BuildFile'"
     # Execute the build file to set up the tasks and defaults
     Assert (Test-Path $BuildFile -PathType Leaf) ($msgs.error_build_file_not_found -f $BuildFile)
 
@@ -57,6 +60,7 @@ function Invoke-InBuildFileScope {
             "aliases"                       = @{}
             "properties"                    = New-Object System.Collections.Stack
             "includes"                      = New-Object System.Collections.Queue
+            "requiredVersion"               = $null
             "config"                        = New-ConfigurationForNewContext -Build $BuildFile -Framework $script:Framework
         }
     )
@@ -69,22 +73,19 @@ function Invoke-InBuildFileScope {
     # Import any modules declared in the build script
     LoadModules
 
-    $frameworkOldValue = $script:Framework
-
-    . $psake.build_script_file.FullName
+    Write-Debug "Dot-sourcing build file '$($psake.build_script_file.FullName)'"
+    $null = . $psake.build_script_file.FullName
 
     $currentContext = $psake.Context.Peek()
+    Write-Debug "Build file loaded: $($currentContext.tasks.Count) tasks registered"
 
-    if ($script:Framework -ne $frameworkOldValue) {
-        Write-PsakeOutput $msgs.warning_deprecated_framework_variable "warning"
-        $currentContext.config.framework = $script:Framework
+    if (-not $SkipSetEnvironment) {
+        $null = Set-BuildEnvironment
     }
-
-    Set-BuildEnvironment
 
     while ($currentContext.includes.Count -gt 0) {
         $includeFilename = $currentContext.includes.Dequeue()
-        . $includeFilename
+        $null = . $includeFilename
     }
 
     & $ScriptBlock $currentContext $Module

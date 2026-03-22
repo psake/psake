@@ -12,13 +12,13 @@ function Write-TaskTimeSummary {
 
     $currentContext = $psake.Context.Peek()
     if ($currentContext.config.taskNameFormat -is [ScriptBlock]) {
-        & $currentContext.config.taskNameFormat "Build Time Report"
+        & $currentContext.config.taskNameFormat $msgs.build_time_report
     } elseif ($currentContext.config.taskNameFormat -ne "Executing {0}") {
-        $currentContext.config.taskNameFormat -f "Build Time Report"
+        $currentContext.config.taskNameFormat -f $msgs.build_time_report
     } else {
-        Write-PsakeOutput ("-" * 70)
-        Write-PsakeOutput "Build Time Report"
-        Write-PsakeOutput ("-" * 70)
+        Write-BuildMessage ("-" * 70)
+        Write-BuildMessage $msgs.build_time_report
+        Write-BuildMessage ("-" * 70)
     }
 
     $list = @()
@@ -28,16 +28,18 @@ function Write-TaskTimeSummary {
         if ($taskKey -eq "default") {
             continue
         }
-        $list += New-Object PSObject -Property @{
+        $list += [PSCustomObject]@{
             Name     = $task.Name
             Duration = $task.Duration.ToString("hh\:mm\:ss\.fff")
+            Cached   = $task.Cached
         }
     }
     [Array]::Reverse($list)
-    $list += New-Object PSObject -Property @{
+    $list += [PSCustomObject]@{
         Name     = "Total:"
         Duration = $invokePsakeDuration.ToString("hh\:mm\:ss\.fff")
+        Cached   = $false
     }
     # using "out-string | where-object" to filter out the blank line that format-table prepends
-    $list | Format-Table -AutoSize -Property Name, Duration | Out-String -Stream | Where-Object { $_ } | Write-PsakeOutput
+    $list | Format-Table -AutoSize -Property Name, Duration, Cached | Out-String -Stream | Where-Object { $_ } | Write-BuildMessage
 }

@@ -25,8 +25,8 @@ function Write-Documentation {
         }
 
     if ($ShowDetailed) {
-        $docs | Sort-Object 'Name' | Format-List -Property Name, Alias, Description, @{Label = "Depends On"; Expression = { $_.DependsOn -join ', ' } }, Default | Write-PsakeOutput
+        $docs | Sort-Object 'Name' | Format-List -Property Name, Alias, Description, @{Label = "Depends On"; Expression = { $_.DependsOn -join ', ' } }, Default
     } else {
-        $docs | Sort-Object 'Name' | Format-Table -AutoSize -Wrap -Property Name, Alias, @{Label = "Depends On"; Expression = { $_.DependsOn -join ', ' } }, Default, Description | Write-PsakeOutput
+        $docs | Sort-Object 'Name' | Format-Table -AutoSize -Wrap -Property Name, Alias, @{Label = "Depends On"; Expression = { $_.DependsOn -join ', ' } }, Default, Description
     }
 }

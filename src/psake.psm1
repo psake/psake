@@ -18,14 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-# TODO: Remove this when we drop support for PowerShell 2.0
-#Requires -Version 2.0
-
-if ($PSVersionTable.PSVersion.Major -ge 3) {
-    $script:IgnoreError = 'Ignore'
-} else {
-    $script:IgnoreError = 'SilentlyContinue'
-}
+$script:IgnoreError = 'Ignore'
 
 $script:nl = [System.Environment]::NewLine
 
@@ -44,7 +37,8 @@ foreach ($import in @($enums + $classes + $public + $private)) {
     try {
         . $import.FullName
     } catch {
-        throw "Unable to dot source [$($import.FullName)]"
+        Write-Error "Unable to dot source [$($import.FullName)]"
+        throw $_
     }
 }
 
@@ -53,33 +47,40 @@ foreach ($import in @($enums + $classes + $public + $private)) {
 #region Auto-generated from YAML localization files.
 data msgs {
 ConvertFrom-StringData @'
-    error_task_name_does_not_exist=Task {0} does not exist.
-    error_invalid_include_path=Unable to include {0}. File not found.
-    error_no_default_task='default' task required.
-    error_no_framework_install_dir_found=No .NET Framework installation directory found at {0}.
-    error_unknown_pointersize=Unknown pointer size ({0}) returned from System.IntPtr.
-    psake_success=psake succeeded executing {0}
-    error_missing_action_parameter=Action parameter must be specified when using PreAction or PostAction parameters for task {0}.
-    warning_missing_vsssetup_module=Warning: Cannot find build tools version {0} without the module VSSetup. You can install this module with the command: Install-Module VSSetup -Scope CurrentUser
-    error_invalid_task_name=Task name should not be null or empty string.
-    error_corrupt_callstack=Call stack was corrupt. Expected {0}, but got {1}.
-    error_circular_reference=Circular reference found for task {0}.
-    warning_deprecated_framework_variable=Warning: Using global variable $framework to set .NET framework version used is deprecated. Instead use Framework function or configuration file psake-config.ps1.
-    error_loading_module=Error loading module {0}.
-    postcondition_failed=PostCondition failed for task {0}.
-    required_variable_not_set=Variable {0} must be set to run task {1}.
-    error_shared_task_cannot_have_action='{0} references a shared task from module {1} and cannot have an action.
+    adding_task=Adding task [{0}]
+    build_time_report=Build Time Report
     continue_on_error=Error in task {0}. {1}
     error_bad_command=Error executing command {0}.
     error_build_file_not_found=Could not find the build file {0}.
-    error_duplicate_task_name=Task {0} has already been defined.
-    error_unknown_module=Unable to find module [{0}].
-    error_invalid_framework=Invalid .NET Framework version, {0} specified.
-    precondition_was_false=Precondition was false, not executing task {0}.
+    error_circular_reference=Circular reference found for task {0}.
+    error_corrupt_callstack=Call stack was corrupt. Expected {0}, but got {1}.
     error_default_task_cannot_have_action='default' task cannot specify an action.
     error_duplicate_alias_name=Alias {0} has already been defined.
+    error_duplicate_task_name=Task {0} has already been defined.
+    error_invalid_framework=Invalid .NET Framework version, {0} specified.
+    error_invalid_include_path=Unable to include {0}. File not found.
+    error_invalid_task_name=Task name should not be null or empty string.
+    error_loading_module=Error loading module {0}.
+    error_missing_action_parameter=Action parameter must be specified when using PreAction or PostAction parameters for task {0}.
+    error_no_default_task='default' task required.
+    error_no_framework_install_dir_found=No .NET Framework installation directory found at {0}.
+    error_shared_task_cannot_have_action='{0} references a shared task from module {1} and cannot have an action.
+    error_task_name_does_not_exist=Task {0} does not exist.
     error_unknown_bitnesspart=Unknown .NET Framework bitness, {0}, specified in {1}.
     error_unknown_framework=Unknown .NET Framework version, {0} specified in {1}.
+    error_unknown_module=Unable to find module [{0}].
+    error_unknown_pointersize=Unknown pointer size ({0}) returned from System.IntPtr.
+    exec_standard_error=Standard Error: {0}
+    exec_standard_output=Standard Output: {0}
+    loading_task_module=Loading tasks from task module [{0}]
+    postcondition_failed=PostCondition failed for task {0}.
+    precondition_was_false=Precondition was false, not executing task {0}.
+    psake_success=psake succeeded executing {0}
+    required_variable_not_set=Variable {0} must be set to run task {1}.
+    retrying_execute=Try {0} failed, retrying again in 1 second...
+    task_cached=Skipping task '{0}' (cached)
+    warning_deprecated_framework_variable=Warning: Using global variable $framework to set .NET framework version used is deprecated. Instead use Framework function or configuration file psake-config.ps1.
+    warning_missing_vsssetup_module=Warning: Cannot find build tools version {0} without the module VSSetup. You can install this module with the command: Install-Module VSSetup -Scope CurrentUser
 '@
 }
 #endregion Auto-generated from YAML localization files.
@@ -107,67 +108,16 @@ $psake.run_by_psake_build_tester = $false # indicates that build is being run by
 $psake.LoadedTaskModules = @{}
 $psake.ReferenceTasks = @{}
 
-# TODO: Replace New-Object with [PSCustomObject] when dropping support for PowerShell 2.0
 #region Default Psake Configuration
 # Contains default configuration, can be overridden in psake-config.ps1 in
 # directory with psake.psm1 or in directory with current build script
-$psake.ConfigDefault = New-Object 'PSObject' -Property @{
-    BuildFileName       = "psakefile.ps1"
-    LegacyBuildFileName = "default.ps1"
-    Framework           = "4.0"
-    TaskNameFormat      = "Executing {0}"
-    VerboseError        = $False
-    ColoredOutput       = $True
-    Modules             = $Null
-    ModuleScope         = ""
-    OutputHandler       = {
-        [CmdLetBinding()]
-        param (
-            [Parameter(Position = 0)]
-            [object]$Output,
-            [Parameter(Position = 1)]
-            [string]$OutputType = 'Default'
-        )
-
-        process {
-            if ($psake.Context.peek().config.OutputHandlers.$OutputType -is [scriptblock]) {
-                & $psake.Context.peek().config.OutputHandlers.$OutputType $Output
-            } elseif ($OutputType -ne "default") {
-                Write-Warning "No OutputHandler has been defined for $OutputType output. The default OutputHandler will be used."
-                Write-PsakeOutput -Output $Output -OutputType 'default'
-            } else {
-                Write-Warning "The default OutputHandler is invalid. Write-Host will be used."
-                # We use Write-Host because this should not output something that is captured by a variable
-                Write-Host $Output
-            }
-        }
-    }
-    OutputHandlers      = @{
-        Heading = {
-            param($Output)
-            Write-ColoredOutput -Message $Output -ForegroundColor 'Cyan'
-        }
-        Default = {
-            param($Output)
-            Write-Output $Output
-        }
-        Debug   = {
-            param($Output)
-            Write-Debug $Output
-        }
-        Warning = {
-            param($Output)
-            Write-ColoredOutput -Message $Output -ForegroundColor 'Yellow'
-        }
-        Error   = {
-            param($Output)
-            Write-ColoredOutput -Message $Output -ForegroundColor 'Red'
-        }
-        Success = {
-            param($Output)
-            Write-ColoredOutput -Message $Output -ForegroundColor 'Green'
-        }
-    }
+$psake.ConfigDefault = [PSCustomObject]@{
+    BuildFileName  = "psakefile.ps1"
+    Framework      = "4.7.2"
+    TaskNameFormat = "Executing {0}"
+    VerboseError   = $False
+    Modules        = $Null
+    ModuleScope    = ""
 }
 #endregion
 

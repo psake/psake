@@ -5,9 +5,19 @@ on:
       - main
     paths:
       - 'src/**'
+      - 'tests/**'
+      - 'specs/**'
+      - 'build.ps1'
+      - 'psakefile.ps1'
+      - 'requirements.psd1'
   pull_request:
     paths:
       - 'src/**'
+      - 'tests/**'
+      - 'specs/**'
+      - 'build.ps1'
+      - 'psakefile.ps1'
+      - 'requirements.psd1'
   workflow_dispatch:
 jobs:
   test:

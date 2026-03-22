@@ -1,14 +1,26 @@
-Describe 'PSake specs' {
-    BeforeDiscovery {
-        $buildFiles = Get-ChildItem $PSScriptRoot/../../specs/*.ps1
-        $script:testCases = $buildFiles | ForEach-Object {
-            @{
-                Name     = $_.Name
-                FullName = $_.FullName
-            }
+BeforeDiscovery {
+    $buildFiles = Get-ChildItem $PSScriptRoot/../../specs/*.ps1
+    $script:testCases = $buildFiles | ForEach-Object {
+        @{
+            Name     = $_.Name
+            FullName = $_.FullName
         }
     }
+    if ($null -eq $env:BHProjectName) {
+        .\build.ps1 -Task Build
+    }
+    $manifest = Import-PowerShellDataFile -Path $env:BHPSModuleManifest
+    $outputDir = Join-Path -Path $env:BHProjectPath -ChildPath 'output'
+    $outputModDir = Join-Path -Path $outputDir -ChildPath $env:BHProjectName
+    $outputModVerDir = Join-Path -Path $outputModDir -ChildPath $manifest.ModuleVersion
+    $outputModVerManifest = Join-Path -Path $outputModVerDir -ChildPath "$($env:BHProjectName).psd1"
 
+    # Get module commands
+    # Remove all versions of the module from the session. Pester can't handle multiple versions.
+    Get-Module $env:BHProjectName | Remove-Module -Force -ErrorAction Ignore
+    Import-Module -Name $outputModVerManifest -Verbose:$false -ErrorAction Stop
+}
+Describe 'PSake specs' {
     BeforeAll {
         $psake.run_by_psake_build_tester = $true
 
@@ -32,12 +44,14 @@ Describe 'PSake specs' {
             }
         }
 
-        $oldPSPath = $env:PSModulePath
-        $env:PSModulePath += "$([IO.Path]::PathSeparator)$PSScriptRoot/../../specs/SharedTaskModules"
+        $script:oldPSPath = $env:PSModulePath
+        $paths = $env:PSModulePath -split [IO.Path]::PathSeparator
+        $paths += (Resolve-Path "$PSScriptRoot/../../specs/SharedTaskModules").Path
+        $env:PSModulePath = ($paths -join [IO.Path]::PathSeparator)
     }
 
     AfterAll {
-        $env:PSModulePath = $oldPSPath
+        $env:PSModulePath = $script:oldPSPath
     }
 
     It '<Name>' -TestCases $script:testCases {
@@ -53,9 +67,13 @@ Describe 'PSake specs' {
             throw "Invalid specification syntax. Specs file [$Name] should end with _should_pass or _should_fail."
         }
 
-        $output = Invoke-psake @psakeParams
-        Write-Debug "build_success=$($psake.build_success), expectedResult=$expectedResult"
-        Write-Debug "output=$output"
+        # Check if there is a framework defined in the spec file is installed.
+        if (-not (Test-BuildEnvironment -BuildFile $FullName )) {
+            Set-ItResult -Inconclusive -Because "Required framework for this spec is not available. Skipping test."
+            return
+        }
+
+        $output = Invoke-Psake @psakeParams -OutputFormat JSON
         $psake.build_success | Should -Be $expectedResult
 
         if ($shouldHaveError) {

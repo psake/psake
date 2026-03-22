@@ -8,5 +8,7 @@
     "output/": true
   },
   "powershell.codeFormatting.preset": "OTBS",
-  "powershell.codeFormatting.alignPropertyValuePairs": true
+  "powershell.codeFormatting.alignPropertyValuePairs": true,
+  "pester.runTestsInNewProcess": true,
+  "pester.autoDebugOnSave": false
 }

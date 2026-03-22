@@ -1,0 +1,117 @@
+function Compile-BuildPlan {
+    <#
+    .SYNOPSIS
+    Compiles a build plan from the current psake context.
+
+    .DESCRIPTION
+    Takes the registered tasks from the current context and produces a
+    PsakeBuildPlan with validated dependency graph and execution order.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$BuildFile,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string[]]$TaskList
+    )
+
+    Write-Debug "Compiling build plan for '$BuildFile' with tasks: $($TaskList -join ', ')"
+    $currentContext = $psake.Context.Peek()
+
+    # Validate Version declaration if present
+    if ($currentContext.ContainsKey('requiredVersion') -and $currentContext.requiredVersion) {
+        $psakeMajor = [int]($psake.version.Split('.')[0])
+        if ($currentContext.requiredVersion -ne $psakeMajor) {
+            throw "Build script requires psake version $($currentContext.requiredVersion) but running version $($psake.version)."
+        }
+    }
+
+    $plan = [PsakeBuildPlan]::new()
+    $plan.BuildFile = $BuildFile
+    $plan.CompiledAt = [datetime]::UtcNow
+    $buildPath = Split-Path $BuildFile -Parent
+    $psakeDir = Join-Path $buildPath '.psake'
+    $plan.CacheDir = Join-Path $psakeDir 'cache'
+    $plan.ValidationErrors = @()
+
+    # Build TaskMap from context
+    foreach ($key in $currentContext.tasks.Keys) {
+        Write-Debug "Adding task '$key' to build plan from context."
+        $plan.TaskMap[$key] = $currentContext.tasks[$key]
+    }
+
+    # Resolve aliases
+    foreach ($key in $currentContext.aliases.Keys) {
+        if (-not $plan.TaskMap.ContainsKey($key)) {
+            $plan.TaskMap[$key] = $currentContext.aliases[$key]
+        }
+    }
+
+    $plan.Tasks = @($plan.TaskMap.Values)
+
+    # Resolve the starting tasks
+    $startTasks = @()
+    if ($TaskList -and $TaskList.Count -gt 0) {
+        foreach ($taskName in $TaskList) {
+            $taskKey = $taskName.ToLower()
+            # Check aliases
+            if ($currentContext.aliases.ContainsKey($taskKey)) {
+                $taskKey = $currentContext.aliases[$taskKey].Name.ToLower()
+            }
+            if (-not $plan.TaskMap.ContainsKey($taskKey)) {
+                $plan.ValidationErrors += "Task '$taskName' does not exist."
+            } else {
+                $startTasks += $taskKey
+            }
+        }
+    } elseif ($plan.TaskMap.ContainsKey('default')) {
+        $startTasks = @('default')
+    } else {
+        $plan.ValidationErrors += "'default' task required."
+    }
+
+    if ($plan.ValidationErrors.Count -gt 0) {
+        $plan.IsValid = $false
+        return $plan
+    }
+
+    # Topological sort with cycle detection
+    $resolveSplat = @{
+        TaskKey = $startTasks
+        TaskMap = $plan.TaskMap
+        Aliases = $currentContext.aliases
+    }
+    $resolved = Resolve-TaskDependencies  @resolveSplat
+    $errors = $resolved.ValidationErrors
+    $order = $resolved.Order
+    if ($errors) {
+        $plan.ValidationErrors += $errors
+    }
+
+    if ($plan.ValidationErrors.Count -gt 0) {
+        $plan.IsValid = $false
+        return $plan
+    }
+
+    if ($order.Count -eq 0) {
+        $plan.ExecutionOrder = @()
+    } else {
+        $plan.ExecutionOrder = $order
+    }
+
+    # Filter TaskMap and Tasks to only include tasks in the execution order
+    $reachableKeys = [System.Collections.Generic.HashSet[string]]::new($plan.ExecutionOrder)
+    foreach ($key in @($plan.TaskMap.Keys)) {
+        if (-not $reachableKeys.Contains($key)) {
+            $plan.TaskMap.Remove($key)
+        }
+    }
+    $plan.Tasks = @($plan.TaskMap.Values)
+
+    $plan.IsValid = $true
+
+    Write-Debug "Build plan compiled: $($plan.ExecutionOrder.Count) tasks in execution order: $($plan.ExecutionOrder -join ' -> ')"
+    return $plan
+}

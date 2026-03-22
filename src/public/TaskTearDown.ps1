@@ -1,101 +1,69 @@
 
 function TaskTearDown {
     <#
-        .SYNOPSIS
-        Adds a scriptblock to the build that will be executed after each task
+    .SYNOPSIS
+    Adds a scriptblock to the build that will be executed after each task
 
-        .DESCRIPTION
-        This function will accept a scriptblock that will be executed after each task in the build script.
+    .DESCRIPTION
+    This function will accept a scriptblock that will be executed after each
+    task in the build script.
 
-        The scriptblock accepts an optional parameter which describes the Task being torn down.
+    The scriptblock accepts an optional parameter which describes the Task being
+    torn down.
 
-        .PARAMETER TearDown
-        A scriptblock to execute
+    .PARAMETER TearDown
+    A scriptblock to execute
 
-        .EXAMPLE
-        A sample build script is shown below:
+    .EXAMPLE
+    Task default -Depends Test
+    Task Test -Depends Compile, Clean {
+    }
+    Task Compile -Depends Clean {
+    }
+    Task Clean {
+    }
+    TaskTearDown {
+        "Running 'TaskTearDown' for task $context.Peek().currentTaskName"
+    }
+    The script above produces the following output:
 
-        Task default -Depends Test
+    Executing task, Clean...
+    Running 'TaskTearDown' for task Clean
+    Executing task, Compile...
+    Running 'TaskTearDown' for task Compile
+    Executing task, Test...
+    Running 'TaskTearDown' for task Test
 
-        Task Test -Depends Compile, Clean {
+    Build Succeeded
+
+    .EXAMPLE
+    Task default -Depends Test
+    Task Test -Depends Compile, Clean {
+    }
+    Task Compile -Depends Clean {
+    }
+    Task Clean {
+    }
+    TaskTearDown {
+        param($task)
+
+        if ($task.Success) {
+            "Running 'TaskTearDown' for task $($task.Name) - success!"
+        } else {
+            "Running 'TaskTearDown' for task $($task.Name) - failed: $($task.ErrorMessage)"
         }
+    }
 
-        Task Compile -Depends Clean {
-        }
+    The script above produces the following output:
 
-        Task Clean {
-        }
+    Executing task, Clean...
+    Running 'TaskTearDown' for task Clean - success!
+    Executing task, Compile...
+    Running 'TaskTearDown' for task Compile - success!
+    Executing task, Test...
+    Running 'TaskTearDown' for task Test - success!
 
-        TaskTearDown {
-            "Running 'TaskTearDown' for task $context.Peek().currentTaskName"
-        }
-
-        The script above produces the following output:
-
-        Executing task, Clean...
-        Running 'TaskTearDown' for task Clean
-        Executing task, Compile...
-        Running 'TaskTearDown' for task Compile
-        Executing task, Test...
-        Running 'TaskTearDown' for task Test
-
-        Build Succeeded
-
-        .EXAMPLE
-        A sample build script demonstrating access to the task context is shown below:
-
-        Task default -Depends Test
-
-        Task Test -Depends Compile, Clean {
-        }
-
-        Task Compile -Depends Clean {
-        }
-
-        Task Clean {
-        }
-
-        TaskTearDown {
-            param($task)
-
-            if ($task.Success) {
-                "Running 'TaskTearDown' for task $($task.Name) - success!"
-            } else {
-                "Running 'TaskTearDown' for task $($task.Name) - failed: $($task.ErrorMessage)"
-            }
-        }
-
-        The script above produces the following output:
-
-        Executing task, Clean...
-        Running 'TaskTearDown' for task Clean - success!
-        Executing task, Compile...
-        Running 'TaskTearDown' for task Compile - success!
-        Executing task, Test...
-        Running 'TaskTearDown' for task Test - success!
-
-        Build Succeeded
-
-        .LINK
-        Assert
-        .LINK
-        Exec
-        .LINK
-        FormatTaskName
-        .LINK
-        Framework
-        .LINK
-        Get-PSakeScriptTasks
-        .LINK
-        Include
-        .LINK
-        Invoke-psake
-        .LINK
-        Properties
-        .LINK
-        Task
-        .LINK
-        TaskSetup
+    Build Succeeded
     #>
     [CmdletBinding()]
     param(
@@ -103,5 +71,6 @@ function TaskTearDown {
         [scriptblock]$TearDown
     )
 
+    Write-Debug "Registering TaskTearDown scriptblock"
     $psake.Context.Peek().taskTearDownScriptBlock = $TearDown
 }

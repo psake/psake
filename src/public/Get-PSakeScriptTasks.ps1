@@ -20,9 +20,6 @@ function Get-PSakeScriptTasks {
     {Clean, Compile}       Test
 
     Gets the psake tasks contained in the 'build.ps1' file.
-
-    .LINK
-    Invoke-psake
     #>
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseSingularNouns', '')]
     [CmdletBinding()]
@@ -35,6 +32,7 @@ function Get-PSakeScriptTasks {
         $BuildFile = $psake.ConfigDefault.BuildFileName
     }
 
+    Write-Debug "Get-PSakeScriptTasks: BuildFile='$BuildFile'"
     try {
         Invoke-InBuildFileScope -BuildFile $BuildFile -Module $MyInvocation.MyCommand.Module -ScriptBlock {
             param($CurrentContext)

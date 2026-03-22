@@ -1,18 +1,18 @@
 
-properties {
+Properties {
     $x = 42
 }
 
-task default -depends 'TaskAFromModuleA'
+Task default -Depends 'TaskAFromModuleA'
 
-task 'TaskAFromModuleA' -FromModule TaskModuleA -depends TaskAFromModuleB
+Task 'TaskAFromModuleA' -FromModule TaskModuleA -Depends TaskAFromModuleB
 
-task 'TaskAFromModuleB' -Frommodule TaskModuleB -minimumVersion 0.2.0 -depends xxx -continueOnError
+Task 'TaskAFromModuleB' -FromModule TaskModuleB -MinimumVersion 0.2.0 -Depends xxx -ContinueOnError
 
-task xxx {
+Task xxx {
     throw 'oops'
 }
 
-task 'TaskbFromModuleA' -FromModule TaskModuleA -minimumVersion 0.0.1 -maximumVersion 0.2.0
+Task 'TaskbFromModuleA' -FromModule TaskModuleA -MinimumVersion 0.0.1 -MaximumVersion 0.2.0
 
-task 'TaskbFromModuleB' -Frommodule TaskModuleB -minimumVersion 0.2.0 -maximumVersion 0.3.0
+Task 'TaskbFromModuleB' -FromModule TaskModuleB -MinimumVersion 0.2.0 -MaximumVersion 0.3.0
