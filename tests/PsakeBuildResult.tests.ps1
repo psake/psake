@@ -14,8 +14,11 @@ BeforeDiscovery {
     Import-Module -Name $outputModVerManifest -Verbose:$false -ErrorAction Stop
 }
 Describe 'PsakeBuildResult' {
+    BeforeAll {
+        $script:specFolder = Join-Path -Path (Join-Path -Path $PSScriptRoot -ChildPath '..') -ChildPath 'specs'
+    }
     It 'Should return a PsakeBuildResult from Invoke-psake' {
-        $buildFile = Join-Path $PSScriptRoot '..' 'specs' 'simple_properties_and_tasks_should_pass.ps1'
+        $buildFile = Join-Path $script:specFolder 'simple_properties_and_tasks_should_pass.ps1'
         $result = Invoke-Psake -BuildFile $buildFile -NoLogo -Quiet
         $result | Should -Not -BeNullOrEmpty
         $result.Success | Should -BeTrue
@@ -26,14 +29,14 @@ Describe 'PsakeBuildResult' {
     }
 
     It 'Should include task results with correct status' {
-        $buildFile = Join-Path $PSScriptRoot '..' 'specs' 'simple_properties_and_tasks_should_pass.ps1'
+        $buildFile = Join-Path $script:specFolder 'simple_properties_and_tasks_should_pass.ps1'
         $result = Invoke-Psake -BuildFile $buildFile -NoLogo -Quiet
         $executedTasks = $result.Tasks | Where-Object { $_.Status -eq 'Executed' }
         $executedTasks.Count | Should -BeGreaterThan 0
     }
 
     It 'Should produce JSON output when requested' {
-        $buildFile = Join-Path $PSScriptRoot '..' 'specs' 'simple_properties_and_tasks_should_pass.ps1'
+        $buildFile = Join-Path $script:specFolder 'simple_properties_and_tasks_should_pass.ps1'
         $output = Invoke-Psake -BuildFile $buildFile -NoLogo -OutputFormat JSON
         # The output should include JSON text
         $jsonText = ($output | Where-Object { $_ -is [string] }) -join ''
@@ -43,7 +46,7 @@ Describe 'PsakeBuildResult' {
     }
 
     It 'Should return failed result for bad builds' {
-        $buildFile = Join-Path $PSScriptRoot '..' 'specs' 'unknown_task_key_should_fail.ps1'
+        $buildFile = Join-Path $script:specFolder 'unknown_task_key_should_fail.ps1'
         $result = Invoke-Psake -BuildFile $buildFile -NoLogo -Quiet
         $result | Should -Not -BeNullOrEmpty
         $result.Success | Should -BeFalse

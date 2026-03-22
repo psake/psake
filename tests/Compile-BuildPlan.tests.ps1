@@ -14,8 +14,11 @@ BeforeDiscovery {
     Import-Module -Name $outputModVerManifest -Verbose:$false -ErrorAction Stop
 }
 Describe 'Compile-BuildPlan' {
+    BeforeAll {
+        $script:specFolder = Join-Path -Path (Join-Path -Path $PSScriptRoot -ChildPath '..') -ChildPath 'specs'
+    }
     It 'Should compile a valid build plan' {
-        $buildFile = Join-Path $PSScriptRoot '..' 'specs' 'simple_properties_and_tasks_should_pass.ps1'
+        $buildFile = Join-Path $script:specFolder 'simple_properties_and_tasks_should_pass.ps1'
         $plan = Get-PsakeBuildPlan -BuildFile $buildFile
         $plan | Should -Not -BeNullOrEmpty
         $plan.IsValid | Should -BeTrue
@@ -24,7 +27,7 @@ Describe 'Compile-BuildPlan' {
     }
 
     It 'Should detect circular dependencies' {
-        $buildFile = Join-Path $PSScriptRoot '..' 'specs' 'compile_phase_circular_dependency_should_fail.ps1'
+        $buildFile = Join-Path $script:specFolder 'compile_phase_circular_dependency_should_fail.ps1'
         $plan = Get-PsakeBuildPlan -BuildFile $buildFile
         $plan.IsValid | Should -BeFalse
         $plan.ValidationErrors | Should -Not -BeNullOrEmpty
@@ -32,7 +35,7 @@ Describe 'Compile-BuildPlan' {
     }
 
     It 'Should detect missing task references' {
-        $buildFile = Join-Path $PSScriptRoot '..' 'specs' 'compile_phase_missing_task_should_fail.ps1'
+        $buildFile = Join-Path $script:specFolder 'compile_phase_missing_task_should_fail.ps1'
         $plan = Get-PsakeBuildPlan -BuildFile $buildFile
         $plan.IsValid | Should -BeFalse
         $plan.ValidationErrors | Should -Not -BeNullOrEmpty
@@ -40,7 +43,7 @@ Describe 'Compile-BuildPlan' {
     }
 
     It 'Should resolve execution order correctly' {
-        $buildFile = Join-Path $PSScriptRoot '..' 'specs' 'simple_properties_and_tasks_should_pass.ps1'
+        $buildFile = Join-Path $script:specFolder 'simple_properties_and_tasks_should_pass.ps1'
         $plan = Get-PsakeBuildPlan -BuildFile $buildFile
         $plan.IsValid | Should -BeTrue
         # Clean should come before Compile, Compile before Test
@@ -52,7 +55,7 @@ Describe 'Compile-BuildPlan' {
     }
 
     It 'Should exclude unreachable tasks from TaskMap' {
-        $buildFile = Join-Path $PSScriptRoot '..' 'specs' 'unreachable_task_excluded_should_pass.ps1'
+        $buildFile = Join-Path $script:specFolder 'unreachable_task_excluded_should_pass.ps1'
         $plan = Get-PsakeBuildPlan -BuildFile $buildFile
         $plan.IsValid | Should -BeTrue
         $plan.TaskMap.ContainsKey('deploy') | Should -BeFalse
@@ -60,7 +63,7 @@ Describe 'Compile-BuildPlan' {
     }
 
     It 'Should include only reachable tasks in TaskMap' {
-        $buildFile = Join-Path $PSScriptRoot '..' 'specs' 'unreachable_task_excluded_should_pass.ps1'
+        $buildFile = Join-Path $script:specFolder 'unreachable_task_excluded_should_pass.ps1'
         $plan = Get-PsakeBuildPlan -BuildFile $buildFile
         $plan.IsValid | Should -BeTrue
         $plan.TaskMap.Keys | Should -HaveCount $plan.ExecutionOrder.Count
@@ -70,7 +73,7 @@ Describe 'Compile-BuildPlan' {
     }
 
     It 'Should include TaskMap with all tasks' {
-        $buildFile = Join-Path $PSScriptRoot '..' 'specs' 'declarative_task_syntax_should_pass.ps1'
+        $buildFile = Join-Path $script:specFolder 'declarative_task_syntax_should_pass.ps1'
         $plan = Get-PsakeBuildPlan -BuildFile $buildFile
         $plan.TaskMap | Should -Not -BeNullOrEmpty
         $plan.TaskMap.ContainsKey('clean') | Should -BeTrue
