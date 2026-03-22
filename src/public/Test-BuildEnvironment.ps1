@@ -69,13 +69,17 @@ function Test-BuildEnvironment {
         [string]$Framework,
 
         [Parameter(Mandatory = $true, ParameterSetName = 'BuildFile')]
-        [ValidateScript(
-            { Test-Path $_ -PathType Leaf },
-            ErrorMessage = "Build file not found."
-        )]
         [ValidateNotNullOrEmpty()]
         [string]$BuildFile
     )
+
+    # Not in ValidateScript because we want to allow the parameter to be
+    # supplied but the file to be missing, and handle that gracefully with a
+    # $false return value.
+    if ( -not (Test-Path $BuildFile -PathType Leaf)) {
+        Write-BuildOutput "Build file not found." "Error"
+        return $false
+    }
 
     # Resolve framework string from the most specific source available.
     if (-not $Framework) {

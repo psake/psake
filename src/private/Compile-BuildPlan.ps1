@@ -31,7 +31,9 @@ function Compile-BuildPlan {
     $plan = [PsakeBuildPlan]::new()
     $plan.BuildFile = $BuildFile
     $plan.CompiledAt = [datetime]::UtcNow
-    $plan.CacheDir = Join-Path (Split-Path $BuildFile -Parent) '.psake' 'cache'
+    $buildPath = Split-Path $BuildFile -Parent
+    $psakeDir = Join-Path $buildPath '.psake'
+    $plan.CacheDir = Join-Path $psakeDir 'cache'
     $plan.ValidationErrors = @()
 
     # Build TaskMap from context
@@ -81,11 +83,11 @@ function Compile-BuildPlan {
     $order = [System.Collections.Generic.List[string]]::new()
 
     $resolveSplat = @{
-        TaskMap  = $plan.TaskMap
-        Aliases  = $currentContext.aliases
-        InStack  = $inStack
-        Visited  = $visited
-        Order    = $order
+        TaskMap = $plan.TaskMap
+        Aliases = $currentContext.aliases
+        InStack = $inStack
+        Visited = $visited
+        Order   = $order
     }
     foreach ($startTask in $startTasks) {
         $errors = Resolve-TaskDependencies -TaskKey $startTask @resolveSplat
