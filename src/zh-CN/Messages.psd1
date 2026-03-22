@@ -1,7 +1,5 @@
 # This file is auto-generated from YAML localization files. Do not edit manually.
 ConvertFrom-StringData @'
-    adding_task=Adding task [{0}]
-    build_time_report=Build Time Report
     continue_on_error=Error in task {0}. {1}
     error_bad_command=Error executing command {0}.
     error_build_file_not_found=Could not find the build file {0}.
@@ -23,15 +21,10 @@ ConvertFrom-StringData @'
     error_unknown_framework=Unknown .NET Framework version, {0} specified in {1}.
     error_unknown_module=Unable to find module [{0}].
     error_unknown_pointersize=Unknown pointer size ({0}) returned from System.IntPtr.
-    exec_standard_error=Standard Error: {0}
-    exec_standard_output=Standard Output: {0}
-    loading_task_module=Loading tasks from task module [{0}]
     postcondition_failed=PostCondition failed for task {0}.
     precondition_was_false=Precondition was false, not executing task {0}.
     psake_success=psake succeeded executing {0}
     required_variable_not_set=Variable {0} must be set to run task {1}.
-    retrying_execute=Try {0} failed, retrying again in 1 second...
-    task_cached=Skipping task '{0}' (cached)
     warning_deprecated_framework_variable=Warning: Using global variable $framework to set .NET framework version used is deprecated. Instead use Framework function or configuration file psake-config.ps1.
     warning_missing_vsssetup_module=Warning: Cannot find build tools version {0} without the module VSSetup. You can install this module with the command: Install-Module VSSetup -Scope CurrentUser
 '@

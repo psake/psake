@@ -12,12 +12,12 @@ function Write-TaskTimeSummary {
 
     $currentContext = $psake.Context.Peek()
     if ($currentContext.config.taskNameFormat -is [ScriptBlock]) {
-        & $currentContext.config.taskNameFormat "Build Time Report"
+        & $currentContext.config.taskNameFormat $msgs.build_time_report
     } elseif ($currentContext.config.taskNameFormat -ne "Executing {0}") {
-        $currentContext.config.taskNameFormat -f "Build Time Report"
+        $currentContext.config.taskNameFormat -f $msgs.build_time_report
     } else {
         Write-BuildMessage ("-" * 70)
-        Write-BuildMessage "Build Time Report"
+        Write-BuildMessage $msgs.build_time_report
         Write-BuildMessage ("-" * 70)
     }
 

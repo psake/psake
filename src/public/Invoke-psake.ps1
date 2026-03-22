@@ -198,7 +198,7 @@ function Invoke-Psake {
                 Write-BuildMessage ((
                         ("psake version {0}" -f $psake.version),
                         "Copyright (c) 2010-2026 James Kovacs & Contributors"
-                    ) -join $script:nl)
+                    ) -join $script:nl) "Heading"
             }
 
             $psake.error_message = $null

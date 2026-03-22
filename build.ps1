@@ -343,7 +343,8 @@ function ConvertFromLocalizationYaml {
 
             [void]$content.AppendLine($warningMessage)
             [void]$content.AppendLine("ConvertFrom-StringData @'")
-            foreach ($key in $yaml[$locale].Keys) {
+            $sortedKeys = $yaml[$locale].Keys | Sort-Object
+            foreach ($key in $sortedKeys) {
                 Write-Verbose "Processing key: $key"
                 # We don't need to worry about escaping here, as the keys are simple strings
                 # and the values are already escaped by ConvertFrom-Yaml

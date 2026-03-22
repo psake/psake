@@ -101,11 +101,11 @@ function Execute {
                     throw "Exec: $ErrorMessage (timeout)"
                 }
                 if ($process.ExitCode -ne 0) {
-                    Write-BuildMessage "Standard Output: $($process.StandardOutput.ReadToEnd())" "Default"
-                    Write-BuildMessage "Standard Error: $($process.StandardError.ReadToEnd())" "Error"
+                    Write-BuildMessage ($msgs.exec_standard_output -f $process.StandardOutput.ReadToEnd()) "Default"
+                    Write-BuildMessage ($msgs.exec_standard_error -f $process.StandardError.ReadToEnd()) "Error"
                     throw "Exec: $ErrorMessage (exit code: $($process.ExitCode))"
                 }
-                Write-BuildMessage "Standard Output: $($process.StandardOutput.ReadToEnd())" "Default"
+                Write-BuildMessage ($msgs.exec_standard_output -f $process.StandardOutput.ReadToEnd()) "Default"
             } else {
                 & $Cmd
             }

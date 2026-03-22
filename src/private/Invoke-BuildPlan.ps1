@@ -143,7 +143,7 @@ function Invoke-BuildPlan {
                         $taskResult.InputHash = $task.InputHash
                         $buildResult.Tasks += $taskResult
                         $CurrentContext.executedTasks.Push($taskKey)
-                        Write-BuildMessage "Skipping task '$($task.Name)' (cached)" "heading"
+                        Write-BuildMessage ($msgs.task_cached -f $task.Name) "heading"
                         continue
                     }
                 }
