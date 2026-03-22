@@ -2,6 +2,7 @@ BeforeDiscovery {
     if ($null -eq $env:BHProjectName) {
         .\build.ps1 -Task Build
     }
+    $manifest = Import-PowerShellDataFile -Path $env:BHPSModuleManifest
     $outputDir = Join-Path -Path $env:BHProjectPath -ChildPath 'Output'
     $outputModDir = Join-Path -Path $outputDir -ChildPath $env:BHProjectName
     $outputModVerDir = Join-Path -Path $outputModDir -ChildPath $manifest.ModuleVersion
