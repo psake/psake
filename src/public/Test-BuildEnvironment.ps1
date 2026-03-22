@@ -97,7 +97,7 @@ function Test-BuildEnvironment {
                 }
                 $Framework = Invoke-InBuildFileScope @invokeInBuildFileScopeSplat
             } catch {
-                Write-Verbose "Could not load build file '$BuildFile': $_"
+                Write-Verbose ("Could not load build file '{0}': {1}" -f $BuildFile, $_)
                 return $false
             } finally {
                 Restore-Environment
@@ -113,21 +113,21 @@ function Test-BuildEnvironment {
 
     # On non-Windows there is no .NET Framework toolchain to validate.
     if ((Test-Path Variable:\IsWindows) -and -not $IsWindows) {
-        Write-Verbose "Non-Windows platform — framework check skipped"
+        Write-Verbose "Non-Windows platform - framework check skipped"
         return $true
     }
 
     try {
         $dirs = Resolve-FrameworkDirectories -Framework $Framework
     } catch {
-        Write-Verbose "Framework '$Framework' could not be resolved: $_"
+        Write-Verbose ("Framework '{0}' could not be resolved: {1}" -f $Framework, $_)
         return $false
     }
 
     $allExist = $true
-    foreach ($dir in $dirs) {
-        if (-not (Test-Path $dir -PathType Container)) {
-            Write-Verbose "Required directory not found: $dir"
+    foreach ($directory in $dirs) {
+        if (-not (Test-Path $directory -PathType Container)) {
+            Write-Verbose ("Required directory not found: {0}" -f $directory)
             $allExist = $false
         }
     }
