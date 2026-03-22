@@ -24,7 +24,7 @@ param(
 $sut = Join-Path -Path $PSScriptRoot -ChildPath 'src'
 $manifestPath = Join-Path -Path $sut -ChildPath 'psake.psd1'
 $version = (Import-PowerShellDataFile -Path $manifestPath).ModuleVersion
-$outputDir = Join-Path -Path $PSScriptRoot -ChildPath 'Output'
+$outputDir = Join-Path -Path $PSScriptRoot -ChildPath 'output'
 $outputNugetDir = Join-Path -Path $outputDir -ChildPath 'nuget'
 $outputModDir = Join-Path -Path $outputDir -ChildPath 'psake'
 $outputModVerDir = Join-Path -Path $outputModDir -ChildPath $version
