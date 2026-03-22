@@ -13,56 +13,78 @@ function Resolve-TaskDependencies {
     #>
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory)]
-        [string]$TaskKey,
+        [Parameter(Mandatory = $true)]
+        [string[]]$TaskKey,
 
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory = $true)]
         [hashtable]$TaskMap,
 
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory = $true)]
         [hashtable]$Aliases,
 
-        [Parameter(Mandatory)]
-        [hashtable]$InStack,
+        [Parameter(Mandatory = $False)]
+        [hashtable]$InStack = @{},
 
-        [Parameter(Mandatory)]
-        [hashtable]$Visited,
+        [Parameter(Mandatory = $False)]
+        [hashtable]$Visited = @{},
 
-        [Parameter(Mandatory)]
-        [System.Collections.Generic.List[string]]$Order
+        [Parameter(Mandatory = $False)]
+        [System.Collections.Generic.List[string]]
+        $Order = [System.Collections.Generic.List[string]]::new()
     )
-
-    if ($InStack.ContainsKey($TaskKey)) {
-        Write-Output "Circular reference found for task '$TaskKey'."
-        return
+    begin {
+        Write-Debug "Resolving dependencies for task(s): $($TaskKey -join ', ')"
+        Write-Debug "Current stack: $($InStack.Keys -join ' -> ')"
+        $ValidationErrors = @()
     }
-    if ($Visited.ContainsKey($TaskKey)) {
-        return
-    }
+    process {
+        foreach ($key in $TaskKey) {
+            if ($InStack.ContainsKey($key)) {
+                $ValidationErrors += "Circular reference found for task '$key'."
+                return
+            }
+            if ($Visited.ContainsKey($key)) {
+                return
+            }
+            Write-Debug "Visited tasks: $($Visited.Keys -join ', ')"
 
-    $InStack[$TaskKey] = $true
 
-    $task = $TaskMap[$TaskKey]
-    if ($null -eq $task) {
-        Write-Output "Task '$TaskKey' does not exist."
-        $InStack.Remove($TaskKey)
-        return
-    }
+            $InStack[$key] = $true
 
-    foreach ($dep in $task.DependsOn) {
-        $depKey = $dep.ToLower()
-        # Resolve alias
-        if ($Aliases.ContainsKey($depKey)) {
-            $depKey = $Aliases[$depKey].Name.ToLower()
+            $task = $TaskMap[$key]
+            if ($null -eq $task) {
+                $ValidationErrors += "Task '$key' does not exist."
+                $InStack.Remove($key)
+                return
+            }
+
+            foreach ($dep in $task.DependsOn) {
+                $depKey = $dep.ToLower()
+                # Resolve alias
+                if ($Aliases.ContainsKey($depKey)) {
+                    $depKey = $Aliases[$depKey].Name.ToLower()
+                }
+                if (-not $TaskMap.ContainsKey($depKey)) {
+                    $ValidationErrors += "Task '$dep' (dependency of '$key') does not exist."
+                    continue
+                }
+                $resolved = Resolve-TaskDependencies -TaskKey $depKey -TaskMap $TaskMap -Aliases $Aliases -InStack $InStack -Visited $Visited -Order $Order
+                $ValidationErrors += $resolved.ValidationErrors
+            }
+
+            $InStack.Remove($key)
+            $Visited[$key] = $true
+            $Order.Add($key)
         }
-        if (-not $TaskMap.ContainsKey($depKey)) {
-            Write-Output "Task '$dep' (dependency of '$TaskKey') does not exist."
-            continue
-        }
-        Resolve-TaskDependencies -TaskKey $depKey -TaskMap $TaskMap -Aliases $Aliases -InStack $InStack -Visited $Visited -Order $Order
     }
 
-    $InStack.Remove($TaskKey)
-    $Visited[$TaskKey] = $true
-    $Order.Add($TaskKey)
+    end {
+        Write-Debug "Finished resolving dependencies for task(s): $($TaskKey -join ', ')"
+        return @{
+            'Order'            = $Order
+            'Visited'          = $Visited
+            'InStack'          = $InStack
+            'ValidationErrors' = $ValidationErrors
+        }
+    }
 }

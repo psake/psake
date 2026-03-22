@@ -78,22 +78,16 @@ function Compile-BuildPlan {
     }
 
     # Topological sort with cycle detection
-    $visited = @{}
-    $inStack = @{}
-    $order = [System.Collections.Generic.List[string]]::new()
-
     $resolveSplat = @{
+        TaskKey = $startTasks
         TaskMap = $plan.TaskMap
         Aliases = $currentContext.aliases
-        InStack = $inStack
-        Visited = $visited
-        Order   = $order
     }
-    foreach ($startTask in $startTasks) {
-        $errors = Resolve-TaskDependencies -TaskKey $startTask @resolveSplat
-        if ($errors) {
-            $plan.ValidationErrors += $errors
-        }
+    $resolved = Resolve-TaskDependencies  @resolveSplat
+    $errors = $resolved.ValidationErrors
+    $order = $resolved.Order
+    if ($errors) {
+        $plan.ValidationErrors += $errors
     }
 
     if ($plan.ValidationErrors.Count -gt 0) {
@@ -101,7 +95,11 @@ function Compile-BuildPlan {
         return $plan
     }
 
-    $plan.ExecutionOrder = $order.ToArray()
+    if ($order.Count -eq 0) {
+        $plan.ExecutionOrder = @()
+    } else {
+        $plan.ExecutionOrder = $order
+    }
 
     # Filter TaskMap and Tasks to only include tasks in the execution order
     $reachableKeys = [System.Collections.Generic.HashSet[string]]::new($plan.ExecutionOrder)

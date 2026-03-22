@@ -1,4 +1,7 @@
 BeforeAll {
+    if ($null -eq $env:BHProjectName) {
+        .\build.ps1 -Task Build
+    }
 
     Set-StrictMode -Version latest
 
