@@ -36,7 +36,12 @@ function Clear-PsakeCache {
         [string]$TaskName
     )
 
-    $cacheDir = Join-Path (Resolve-Path $Path) '.psake' 'cache'
-    Write-Debug "Clear-PsakeCache: path='$cacheDir'$(if ($TaskName) { " task='$TaskName'" })"
+    Write-Debug "Clear-PsakeCache: task='$TaskName'"
+    Write-Debug "Clear-PsakeCache: path='$resolvedPath'"
+    $resolvedPath = Resolve-Path $Path
+    Write-Debug "Clear-PsakeCache: resolvedPath='$resolvedPath'"
+    $psakeDir = Join-Path $resolvedPath '.psake'
+    $cacheDir = Join-Path $psakeDir 'cache'
+    Write-Debug "Clear-PsakeCache: cacheDir='$cacheDir'"
     Clear-TaskCache -CacheDir $cacheDir -TaskName $TaskName
 }

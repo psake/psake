@@ -69,6 +69,11 @@ function Test-BuildEnvironment {
         [string]$Framework,
 
         [Parameter(Mandatory = $true, ParameterSetName = 'BuildFile')]
+        [ValidateScript(
+            { Test-Path $_ -PathType Leaf },
+            ErrorMessage = "Build file not found."
+        )]
+        [ValidateNotNullOrEmpty()]
         [string]$BuildFile
     )
 
@@ -77,13 +82,16 @@ function Test-BuildEnvironment {
         if ($PSCmdlet.ParameterSetName -eq 'BuildFile') {
             Write-Verbose "Test-BuildEnvironment: reading framework from '$BuildFile'"
             try {
-                $Framework = Invoke-InBuildFileScope -BuildFile $BuildFile `
-                    -Module $MyInvocation.MyCommand.Module `
-                    -SkipSetEnvironment `
-                    -ScriptBlock {
+                $invokeInBuildFileScopeSplat = @{
+                    BuildFile          = $BuildFile
+                    Module             = $MyInvocation.MyCommand.Module
+                    SkipSetEnvironment = $true
+                    ScriptBlock        = {
                         param($CurrentContext)
                         return $CurrentContext.config.framework
                     }
+                }
+                $Framework = Invoke-InBuildFileScope @invokeInBuildFileScopeSplat
             } catch {
                 Write-Verbose "Could not load build file '$BuildFile': $_"
                 return $false

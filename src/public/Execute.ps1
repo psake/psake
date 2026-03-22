@@ -30,6 +30,14 @@ function Execute {
     .PARAMETER WorkingDirectory
     The working directory to set before running the external command.
 
+    .PARAMETER NewProcess
+    If set, the command will be executed in a new process. This can be used to
+    isolate the command's environment from the current process.
+
+    .PARAMETER TimeoutSeconds
+    If set, the command will be terminated if it runs longer than this number of
+    seconds. Defaults to 300 seconds (5 minutes).
+
     .EXAMPLE
     Execute { svn info $repository_trunk } "Error executing SVN. Please verify SVN command-line client is installed"
 
@@ -48,7 +56,11 @@ function Execute {
         [string]$RetryTriggerErrorPattern = $null,
 
         [Alias("wd")]
-        [string]$WorkingDirectory = $null
+        [string]$WorkingDirectory = $null,
+
+        [switch]$NewProcess,
+
+        [int]$TimeoutSeconds = 300
     )
 
     Write-Debug "Exec: running command$(if ($WorkingDirectory) { " in '$WorkingDirectory'" })$(if ($MaxRetries -gt 0) { " (max retries: $MaxRetries)" })"
@@ -62,7 +74,41 @@ function Execute {
             }
 
             $global:lastexitcode = 0
-            & $Cmd
+            if ($NewProcess.IsPresent) {
+                # Determine which PowerShell executable to use based on the
+                # current edition (Desktop vs Core)
+                if ($PSVersionTable.PSEdition -eq 'Core') {
+                    $psExe = 'pwsh'
+                } else {
+                    $psExe = 'powershell'
+                }
+                # Convert the scriptblock to a string and execute it in a new
+                # process. This is necessary because ProcessStartInfo does not
+                # support scriptblocks directly. GetNewClosure() is used to
+                # capture the current variable scope and make those variables
+                # available in the new process.
+                $startInfo = New-Object System.Diagnostics.ProcessStartInfo
+                $startInfo.FileName = $psExe
+                $startInfo.Arguments = "-Command & { {0} }" -f $Cmd.GetNewClosure().ToString()
+                $startInfo.RedirectStandardOutput = $true
+                $startInfo.RedirectStandardError = $true
+                $startInfo.UseShellExecute = $false
+                $process = New-Object System.Diagnostics.Process
+                $process.StartInfo = $startInfo
+                $process.Start() | Out-Null
+                if (-not $process.WaitForExit($TimeoutSeconds * 1000)) {
+                    $process.Kill()
+                    throw "Exec: $ErrorMessage (timeout)"
+                }
+                if ($process.ExitCode -ne 0) {
+                    Write-BuildMessage "Standard Output: $($process.StandardOutput.ReadToEnd())" "Default"
+                    Write-BuildMessage "Standard Error: $($process.StandardError.ReadToEnd())" "Error"
+                    throw "Exec: $ErrorMessage (exit code: $($process.ExitCode))"
+                }
+                Write-BuildMessage "Standard Output: $($process.StandardOutput.ReadToEnd())" "Default"
+            } else {
+                & $Cmd
+            }
             if ($global:lastexitcode -ne 0) {
                 throw "Exec: $ErrorMessage"
             }

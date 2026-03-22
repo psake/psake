@@ -80,46 +80,18 @@ function Compile-BuildPlan {
     $inStack = @{}
     $order = [System.Collections.Generic.List[string]]::new()
 
-    function Resolve-TaskDependencies {
-        param([string]$TaskKey)
-
-        if ($inStack.ContainsKey($TaskKey)) {
-            $plan.ValidationErrors += "Circular reference found for task '$TaskKey'."
-            return
-        }
-        if ($visited.ContainsKey($TaskKey)) {
-            return
-        }
-
-        $inStack[$TaskKey] = $true
-
-        $task = $plan.TaskMap[$TaskKey]
-        if ($null -eq $task) {
-            $plan.ValidationErrors += "Task '$TaskKey' does not exist."
-            $inStack.Remove($TaskKey)
-            return
-        }
-
-        foreach ($dep in $task.DependsOn) {
-            $depKey = $dep.ToLower()
-            # Resolve alias
-            if ($currentContext.aliases.ContainsKey($depKey)) {
-                $depKey = $currentContext.aliases[$depKey].Name.ToLower()
-            }
-            if (-not $plan.TaskMap.ContainsKey($depKey)) {
-                $plan.ValidationErrors += "Task '$dep' (dependency of '$TaskKey') does not exist."
-                continue
-            }
-            Resolve-TaskDependencies -TaskKey $depKey
-        }
-
-        $inStack.Remove($TaskKey)
-        $visited[$TaskKey] = $true
-        $order.Add($TaskKey)
+    $resolveSplat = @{
+        TaskMap  = $plan.TaskMap
+        Aliases  = $currentContext.aliases
+        InStack  = $inStack
+        Visited  = $visited
+        Order    = $order
     }
-
     foreach ($startTask in $startTasks) {
-        Resolve-TaskDependencies -TaskKey $startTask
+        $errors = Resolve-TaskDependencies -TaskKey $startTask @resolveSplat
+        if ($errors) {
+            $plan.ValidationErrors += $errors
+        }
     }
 
     if ($plan.ValidationErrors.Count -gt 0) {

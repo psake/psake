@@ -131,7 +131,9 @@ function Invoke-BuildPlan {
                     continue
                 }
 
-                # Check cache
+                # Check cache for tasks with inputs (cache miss does not
+                # necessarily mean the task will be executed, as preconditions
+                # may still prevent execution)
                 if (-not $NoCache -and $null -ne $task.Inputs) {
                     if (Test-TaskCache -Task $task -Plan $Plan) {
                         $task.Cached = $true
