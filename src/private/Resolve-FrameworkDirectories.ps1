@@ -94,7 +94,7 @@ function Resolve-FrameworkDirectories {
             if ($ver -eq "15.0") {
                 if ($null -eq (Get-Module -Name VSSetup)) {
                     if ($null -eq (Get-Module -Name VSSetup -ListAvailable)) {
-                        Write-BuildMessage ($msgs.warning_missing_vsssetup_module -f $ver) "warning"
+                        Write-BuildMessage ($msgs.warning_missing_vsssetup_module -f $ver) "verbose"
                         continue
                     }
                     Import-Module VSSetup
@@ -133,7 +133,7 @@ function Resolve-FrameworkDirectories {
             } elseif ($ver -eq "16.0") {
                 if ($null -eq (Get-Module -Name VSSetup)) {
                     if ($null -eq (Get-Module -Name VSSetup -ListAvailable)) {
-                        Write-BuildMessage ($msgs.warning_missing_vsssetup_module -f $ver) "warning"
+                        Write-BuildMessage ($msgs.warning_missing_vsssetup_module -f $ver) "verbose"
                         continue
                     }
                     Import-Module VSSetup
@@ -156,7 +156,7 @@ function Resolve-FrameworkDirectories {
             } elseif ($ver -eq "17.0") {
                 if ($null -eq (Get-Module -Name VSSetup)) {
                     if ($null -eq (Get-Module -Name VSSetup -ListAvailable)) {
-                        Write-BuildMessage ($msgs.warning_missing_vsssetup_module -f $ver) "Warning"
+                        Write-BuildMessage ($msgs.warning_missing_vsssetup_module -f $ver) "verbose"
                         continue
                     }
                     Import-Module VSSetup
