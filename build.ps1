@@ -23,11 +23,14 @@ param(
 
 $sut = Join-Path -Path $PSScriptRoot -ChildPath 'src'
 $manifestPath = Join-Path -Path $sut -ChildPath 'psake.psd1'
-$version = (Import-PowerShellDataFile -Path $manifestPath).ModuleVersion
+$manifestData = Import-PowerShellDataFile -Path $manifestPath
+$moduleVersion = $manifestData.ModuleVersion
+$prerelease = $manifestData.PrivateData.PSData.Prerelease
+$version = if ($prerelease) { "$moduleVersion-$prerelease" } else { $moduleVersion }
 $outputDir = Join-Path -Path $PSScriptRoot -ChildPath 'output'
 $outputNugetDir = Join-Path -Path $outputDir -ChildPath 'nuget'
 $outputModDir = Join-Path -Path $outputDir -ChildPath 'psake'
-$outputModVerDir = Join-Path -Path $outputModDir -ChildPath $version
+$outputModVerDir = Join-Path -Path $outputModDir -ChildPath $moduleVersion
 $outputManifest = Join-Path -Path $outputModVerDir -ChildPath 'psake.psd1'
 
 $PSDefaultParameterValues = @{
