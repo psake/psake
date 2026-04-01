@@ -2,19 +2,26 @@
 [CmdletBinding()]
 param(
     # Build task(s) to execute
-    [ValidateSet(
-        'Test',
-        'Analyze',
-        'Pester',
-        'Clean',
-        'Build',
-        'ConvertFromLocalizationYaml',
-        'CreateMarkdownHelp',
-        'BuildNuget',
-        'PublishChocolatey',
-        'PublishNuget',
-        'PublishPSGallery'
-    )]
+    [ArgumentCompleter({
+        param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
+        $scriptPath = $commandAst.CommandElements[0].Extent.Text
+        $resolvedPath = Resolve-Path -Path $scriptPath -ErrorAction SilentlyContinue
+        if (-not $resolvedPath) { return }
+        $tokens = $null
+        $errors = $null
+        $ast = [System.Management.Automation.Language.Parser]::ParseFile(
+            $resolvedPath.Path, [ref]$tokens, [ref]$errors
+        )
+        $ast.FindAll(
+            { param($node) $node -is [System.Management.Automation.Language.FunctionDefinitionAst] }, $false
+        ) |
+            Where-Object { $_.Name -ne 'Invoke-Step' } |
+            ForEach-Object { $_.Name } |
+            Where-Object { $_ -like "$wordToComplete*" } |
+            ForEach-Object {
+                [System.Management.Automation.CompletionResult]::new($_, $_, 'ParameterValue', $_)
+            }
+    })]
     [string]$Task = 'Test',
 
     # Bootstrap dependencies
@@ -23,11 +30,14 @@ param(
 
 $sut = Join-Path -Path $PSScriptRoot -ChildPath 'src'
 $manifestPath = Join-Path -Path $sut -ChildPath 'psake.psd1'
-$version = (Import-PowerShellDataFile -Path $manifestPath).ModuleVersion
+$manifestData = Import-PowerShellDataFile -Path $manifestPath
+$moduleVersion = $manifestData.ModuleVersion
+$prerelease = $manifestData.PrivateData.PSData.Prerelease
+$version = if ($prerelease) { "$moduleVersion-$prerelease" } else { $moduleVersion }
 $outputDir = Join-Path -Path $PSScriptRoot -ChildPath 'output'
 $outputNugetDir = Join-Path -Path $outputDir -ChildPath 'nuget'
 $outputModDir = Join-Path -Path $outputDir -ChildPath 'psake'
-$outputModVerDir = Join-Path -Path $outputModDir -ChildPath $version
+$outputModVerDir = Join-Path -Path $outputModDir -ChildPath $moduleVersion
 $outputManifest = Join-Path -Path $outputModVerDir -ChildPath 'psake.psd1'
 
 $PSDefaultParameterValues = @{
