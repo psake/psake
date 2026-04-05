@@ -13,7 +13,7 @@
     <copyright>Copyright (c) 2010-18 James Kovacs, Damian Hickey, Brandon Olin, and Contributors</copyright>
     <projectUrl>https://github.com/psake/psake</projectUrl>
     <licenseUrl>https://raw.githubusercontent.com/psake/psake/main/LICENSE</licenseUrl>
-    <iconUrl>https://raw.githubusercontent.com/psake/graphics/main/png/psake-single-icon-teal-bg-256x256.png</iconUrl>
+    <icon>icon.png</icon>
     <releaseNotes>https://raw.githubusercontent.com/psake/psake/main/CHANGELOG.md</releaseNotes>
     <language>en-US</language>
     <tags>build powershell</tags>
