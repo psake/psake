@@ -52,4 +52,22 @@ Describe 'PsakeBuildResult' {
         $result.Success | Should -BeFalse
         $result.ErrorMessage | Should -Not -BeNullOrEmpty
     }
+
+    It 'Should include ErrorRecord on build-level result for fatal failures' {
+        $buildFile = Join-Path $script:specFolder 'using_exec_and_nonzero_lastexitcode_should_fail.ps1'
+        $result = Invoke-Psake -BuildFile $buildFile -NoLogo -Quiet
+        $result.Success | Should -BeFalse
+        $result.ErrorRecord | Should -Not -BeNullOrEmpty
+    }
+
+    It 'Should include ErrorRecord on ContinueOnError task results' {
+        $buildFile = Join-Path $script:specFolder 'invoketask_with_continueonerror_should_pass.ps1'
+        $result = Invoke-Psake -BuildFile $buildFile -NoLogo -Quiet
+        $result.Success | Should -BeTrue
+        $failedTasks = $result.Tasks | Where-Object { $_.Status -eq 'Failed' }
+        $failedTasks.Count | Should -BeGreaterThan 0
+        $failedTasks | ForEach-Object {
+            $_.ErrorRecord | Should -Not -BeNullOrEmpty
+        }
+    }
 }
