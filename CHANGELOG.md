@@ -30,6 +30,23 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
   `ErrorRecord` (including stderr from `Exec` calls) on failed tasks
 - Migration guide at `docs/migration-v4-to-v5.md`
 
+### Fixed
+
+- `Exec` now captures and displays full command output (stdout
+  and stderr) on failure — many CLI tools like Chocolatey write
+  errors to stdout, which was previously invisible
+- `Exec` uses `$PSCmdlet.ThrowTerminatingError()` with chained
+  `RuntimeException` for cleaner error display (no more unhelpful
+  `At Execute.ps1:line char:col` noise)
+- `Exec` default error message no longer fails on scriptblock
+  parameters (`.ToString().Trim()` instead of `.Trim()`)
+- `Write-BuildMessage` now handles `Verbose` type (was falling
+  through to `Write-Host`, making VSSetup warnings visible even
+  after the alpha2 downgrade)
+- `Test-BuildEnvironment` no longer resolves framework when the
+  build file does not declare `Framework`, avoiding spurious
+  VSSetup warnings and incorrect inconclusive test results
+
 ### Changed
 
 - Minimum PowerShell version raised to 5.1 (was 3.0)

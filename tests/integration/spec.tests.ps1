@@ -25,15 +25,15 @@ Describe 'PSake specs' {
         $psake.run_by_psake_build_tester = $true
 
         $script:psakeParams = @{
-            Parameters     = @{
+            Parameters        = @{
                 p1 = 'v1'
                 p2 = 'v2'
             }
-            Properties     = @{
+            Properties        = @{
                 x = '1'
                 y = '2'
             }
-            Initialization = {
+            Initialization    = {
                 if (-not $container) {
                     $container = @{}
                 }
@@ -42,6 +42,11 @@ Describe 'PSake specs' {
                 $bar = 2
                 $baz = 3
             }
+            NoLogo            = $true
+            ErrorAction       = 'SilentlyContinue'
+            WarningAction     = 'SilentlyContinue'
+            InformationAction = 'SilentlyContinue'
+
         }
 
         $script:oldPSPath = $env:PSModulePath
@@ -73,13 +78,21 @@ Describe 'PSake specs' {
             return
         }
 
-        $output = Invoke-Psake @psakeParams -OutputFormat JSON
-        $psake.build_success | Should -Be $expectedResult
+        # Run the build and toss out all the output. We just want to check the success/failure and error message properties.
+        $output = Invoke-Psake @psakeParams 6> $null
+        # Check $psake var for legacy uses
+        # and $output for the new returned types.
+        $psake.build_success | Should -Be $expectedResult -Because "Expected build_success to be $expectedResult for spec file [$Name]."
+        $output.Success | Should -Be $expectedResult -Because "Expected Success property to be $expectedResult in output object for spec file [$Name]."
 
         if ($shouldHaveError) {
-            $psake.error_message | Should -Not -BeNullOrEmpty
+            $psake.error_message | Should -Not -BeNullOrEmpty -Because 'Expected an error message on $psake when build fails.'
+            $output.ErrorMessage | Should -Not -BeNullOrEmpty -Because 'Expected an error message on output object when build fails.'
+            $output.ErrorRecord | Should -Not -BeNullOrEmpty -Because 'Expected an error record on output object when build fails.'
         } else {
-            $psake.error_message | Should -BeNullOrEmpty
+            $psake.error_message | Should -BeNullOrEmpty -Because 'Did not expect an error message on $psake when build succeeds.'
+            $output.ErrorMessage | Should -BeNullOrEmpty -Because 'Did not expect an error message on output object when build succeeds.'
+            $output.ErrorRecord | Should -BeNullOrEmpty -Because 'Did not expect an error record on output object when build succeeds.'
         }
     }
 }

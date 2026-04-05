@@ -49,7 +49,7 @@ function Execute {
         [Parameter(Mandatory = $true)]
         [scriptblock]$Cmd,
 
-        [string]$ErrorMessage = ($msgs.error_bad_command -f $Cmd),
+        [string]$ErrorMessage = ($msgs.error_bad_command -f $Cmd.ToString().Trim()),
 
         [int]$MaxRetries = 0,
 
@@ -107,10 +107,44 @@ function Execute {
                 }
                 Write-BuildMessage ($msgs.exec_standard_output -f $process.StandardOutput.ReadToEnd()) "Default"
             } else {
-                & $Cmd
-            }
-            if ($global:lastexitcode -ne 0) {
-                throw "Exec: $ErrorMessage"
+                $cmdOutput = & $Cmd 2>&1
+                $stdErr = @($cmdOutput | Where-Object { $_ -is [System.Management.Automation.ErrorRecord] })
+                $stdOut = @($cmdOutput | Where-Object { $_ -isnot [System.Management.Automation.ErrorRecord] })
+                if ($global:lastexitcode -ne 0) {
+                    $errMsg = "Exec: $($ErrorMessage.Trim()) (exit code: $global:lastexitcode)"
+                    # Include all command output — many tools write
+                    # errors to stdout rather than stderr
+                    $combinedOutput = @()
+                    if ($stdOut.Count -gt 0) {
+                        $combinedOutput += ($stdOut | ForEach-Object { $_.ToString() }) -join [Environment]::NewLine
+                    }
+                    if ($stdErr.Count -gt 0) {
+                        $combinedOutput += ($stdErr | ForEach-Object { $_.ToString() }) -join [Environment]::NewLine
+                    }
+                    if ($combinedOutput.Count -gt 0) {
+                        $outputText = $combinedOutput -join [Environment]::NewLine
+                        Write-BuildMessage ($msgs.exec_standard_error -f $outputText) "Error"
+                        $errMsg += "`n$outputText"
+                    }
+                    $innerException = $null
+                    $innerRecord = $null
+                    if ($stdErr.Count -gt 0) {
+                        $innerRecord = $stdErr[0]
+                        $innerException = $innerRecord.Exception
+                    }
+                    $exception = [System.Management.Automation.RuntimeException]::new(
+                        $errMsg, $innerException, $innerRecord
+                    )
+                    $errorRecord = [System.Management.Automation.ErrorRecord]::new(
+                        $exception,
+                        'ExecCommandFailed',
+                        [System.Management.Automation.ErrorCategory]::InvalidResult,
+                        $Cmd
+                    )
+                    $PSCmdlet.ThrowTerminatingError($errorRecord)
+                }
+                # Command succeeded — pass stdout through
+                if ($stdOut.Count -gt 0) { $stdOut }
             }
             break
         } catch [Exception] {

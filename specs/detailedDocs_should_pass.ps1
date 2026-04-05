@@ -1,5 +1,5 @@
 
-Task default -depends CheckDetailedDocs
+Task default -Depends CheckDetailedDocs
 
 Task CheckDetailedDocs {
     $NL = [System.Environment]::NewLine
@@ -8,7 +8,7 @@ Task CheckDetailedDocs {
         $origOutputRendering = $PSStyle.OutputRendering
         $PSStyle.OutputRendering = 'PlainText'
     }
-    $docArray = @(Invoke-psake .\nested\docs.ps1 -detailedDocs -nologo | Out-String -Stream -Width 120)
+    $docArray = @(Invoke-Psake .\nested\docs.ps1 -DetailedDocs -NoLogo | Out-String -Stream -Width 120)
     $docString = (($docArray | ForEach-Object Trim) -join $NL).Trim()
 
     $expectedDoc = @"
@@ -51,7 +51,7 @@ Default     :
 
     $expectedDocString = (($expectedDoc | ForEach-Object Trim) -join $NL).Trim()
 
-    if ($origOutputRendering) {
+    if ($null -ne $origOutputRendering) {
         $PSStyle.OutputRendering = $origOutputRendering
     }
 

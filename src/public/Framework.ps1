@@ -32,6 +32,7 @@ function Framework {
 
     Write-Debug "Setting framework to '$Framework'"
     $psake.Context.Peek().config.framework = $Framework
+    $psake.Context.Peek().config.frameworkIsExplicit = $true
 
     Set-BuildEnvironment
 }
