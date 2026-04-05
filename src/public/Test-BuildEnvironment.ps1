@@ -92,10 +92,15 @@ function Test-BuildEnvironment {
                     SkipSetEnvironment = $true
                     ScriptBlock        = {
                         param($CurrentContext)
-                        return $CurrentContext.config.framework
+                        return $CurrentContext.config
                     }
                 }
-                $Framework = Invoke-InBuildFileScope @invokeInBuildFileScopeSplat
+                $buildConfig = Invoke-InBuildFileScope @invokeInBuildFileScopeSplat
+                if (-not $buildConfig.frameworkIsExplicit) {
+                    Write-Verbose "Test-BuildEnvironment: no Framework declared in build file, skipping check"
+                    return $true
+                }
+                $Framework = $buildConfig.framework
             } catch {
                 Write-Verbose ("Could not load build file '{0}': {1}" -f $BuildFile, $_)
                 return $false

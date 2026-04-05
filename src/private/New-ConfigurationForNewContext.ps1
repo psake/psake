@@ -9,16 +9,18 @@ function New-ConfigurationForNewContext {
     $previousConfig = Get-CurrentConfigurationOrDefault
 
     $config = New-Object -TypeName 'PSObject' -Property @{
-        buildFileName  = $previousConfig.buildFileName
-        framework      = $previousConfig.framework
-        taskNameFormat = $previousConfig.taskNameFormat
-        verboseError   = $previousConfig.verboseError
-        modules        = $previousConfig.modules
-        moduleScope    = $previousConfig.moduleScope
+        buildFileName        = $previousConfig.buildFileName
+        framework            = $previousConfig.framework
+        frameworkIsExplicit  = $false
+        taskNameFormat       = $previousConfig.taskNameFormat
+        verboseError         = $previousConfig.verboseError
+        modules              = $previousConfig.modules
+        moduleScope          = $previousConfig.moduleScope
     }
 
     if ($Framework) {
         $config.framework = $Framework
+        $config.frameworkIsExplicit = $true
     }
 
     if ($BuildFile) {

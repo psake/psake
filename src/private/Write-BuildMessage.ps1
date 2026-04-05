@@ -46,6 +46,11 @@ function Write-BuildMessage {
             return
         }
 
+        if ($Type -eq 'Verbose') {
+            Write-Verbose $Message
+            return
+        }
+
         if ($useColor) {
             switch ($Type) {
                 'Heading' { Write-Host $Message -ForegroundColor Cyan }
