@@ -4,6 +4,7 @@ class PsakeTaskResult {
     [System.TimeSpan]$Duration
     [bool]$Cached
     [string]$ErrorMessage
+    [System.Management.Automation.ErrorRecord[]]$ErrorRecord
     [string]$InputHash
 }
 

@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - `-CompileOnly` parameter on `Invoke-psake`: returns the build plan without executing tasks (for tooling/testing)
 - Local file-based caching: tasks with `Inputs`/`Outputs` (glob patterns or scriptblocks) are content-addressed cached in `.psake/cache/`; unchanged tasks are skipped
 - `-NoCache` parameter on `Invoke-psake`: bypass caching for a single run
-- Structured output: `Invoke-psake` returns a `PsakeBuildResult` with per-task `PsakeTaskResult` (status, duration, cached flag)
+- Structured output: `Invoke-psake` returns a `PsakeBuildResult` with per-task `PsakeTaskResult` (status, duration, cached flag, error record)
 - `-OutputFormat JSON|GitHubActions` parameter on `Invoke-psake` for CI integration; GitHubActions emits `::error::`, `::warning::`, `::debug::` workflow annotations
 - `-Quiet` parameter on `Invoke-psake`: suppress all console output while still returning structured results
 - `Get-PsakeBuildPlan` function: testability API to compile a build file and inspect the plan without executing
@@ -26,6 +26,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - `Inputs`, `Outputs`, `InputHash`, `Cached`, `Executed` properties on `PsakeTask` class
 - `PsakeBuildPlan` class for compile-phase build plan representation
 - `PsakeBuildResult` and `PsakeTaskResult` classes for structured output
+- `ErrorRecord` property on `PsakeTaskResult` capturing the full
+  `ErrorRecord` (including stderr from `Exec` calls) on failed tasks
 - Migration guide at `docs/migration-v4-to-v5.md`
 
 ### Changed

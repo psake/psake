@@ -201,6 +201,7 @@ function Invoke-BuildPlan {
                             Write-BuildMessage ("-" * 70)
                             $taskResult.Status = 'Failed'
                             $taskResult.ErrorMessage = $_.ToString()
+                            $taskResult.ErrorRecord = $_
                         } else {
                             # Check if a direct parent has ContinueOnError — if so, this failure
                             # is absorbed by the parent (matches old recursive execution behaviour)
@@ -213,10 +214,12 @@ function Invoke-BuildPlan {
                                 Write-BuildMessage ("-" * 70)
                                 $taskResult.Status = 'Failed'
                                 $taskResult.ErrorMessage = $_.ToString()
+                                $taskResult.ErrorRecord = $_
                                 $failedTasks[$taskKey] = $true
                             } else {
                                 $taskResult.Status = 'Failed'
                                 $taskResult.ErrorMessage = $_.ToString()
+                                $taskResult.ErrorRecord = $_
                                 $task.Duration = $taskStopwatch.Elapsed
                                 $taskResult.Duration = $task.Duration
                                 $buildResult.Tasks += $taskResult
