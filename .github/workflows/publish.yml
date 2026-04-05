@@ -6,6 +6,8 @@ on:
   push:
     branches:
       - main
+    paths:
+      - src
 
 jobs:
   publish_module:
