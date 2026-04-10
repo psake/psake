@@ -39,7 +39,7 @@ function Write-BuildMessage {
             return
         }
 
-        # Default console output
+        # Default console output (also used as the human-readable layer for Annotated mode)
         $useColor = -not (Test-Path env:NO_COLOR)
         if ($Type -eq 'Debug') {
             Write-Debug $Message
@@ -61,6 +61,18 @@ function Write-BuildMessage {
             }
         } else {
             Write-Host $Message
+        }
+
+        # Annotated mode: also emit a bare annotation line for errors and warnings
+        # so secondary matchers can pick them up. Informational types (Heading,
+        # Success, etc.) are intentionally skipped — only failures belong in the
+        # Problems panel. Positioned annotations with file/line are emitted
+        # separately by Invoke-BuildPlan when an error record is available.
+        if ($script:CurrentOutputFormat -eq 'Annotated') {
+            switch ($Type) {
+                'Error'   { Write-BuildAnnotation -Severity 'error'   -Message $Message }
+                'Warning' { Write-BuildAnnotation -Severity 'warning' -Message $Message }
+            }
         }
     }
 }
