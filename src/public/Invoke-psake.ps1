@@ -55,7 +55,9 @@ function Invoke-Psake {
 
     .PARAMETER OutputFormat
     The output format. 'Default' for console output, 'JSON' for JSON to stdout,
-    'GitHubActions' for GitHub Actions workflow annotations (::error::, ::warning::, ::debug::).
+    'GitHubActions' for GitHub Actions workflow annotations (::error::, ::warning::, ::debug::),
+    'Annotated' for colored console output plus annotation lines for errors/warnings (VS Code problem matcher).
+    If not specified, the PSAKE_OUTPUT_FORMAT environment variable is checked as a fallback.
 
     .PARAMETER NoCache
     Bypass task caching. All tasks will execute regardless of cache state.
@@ -134,7 +136,7 @@ function Invoke-Psake {
         [switch]$NoTimeReport,
 
         [Parameter(Mandatory = $false)]
-        [ValidateSet('Default', 'JSON', 'GitHubActions')]
+        [ValidateSet('Default', 'JSON', 'GitHubActions', 'Annotated')]
         [string]$OutputFormat = 'Default',
 
         [Parameter(Mandatory = $false)]
@@ -162,6 +164,14 @@ function Invoke-Psake {
         $script:Parameters = $Parameters
         $script:NoTimeReport = $NoTimeReport
         #endregion Store Script Variables
+
+        # Apply env-var fallback when -OutputFormat was not explicitly passed
+        if (-not $PSBoundParameters.ContainsKey('OutputFormat')) {
+            $validFormats = @('Default', 'JSON', 'GitHubActions', 'Annotated')
+            if ($env:PSAKE_OUTPUT_FORMAT -in $validFormats) {
+                $OutputFormat = $env:PSAKE_OUTPUT_FORMAT
+            }
+        }
 
         # Set output format for Write-BuildMessage
         $script:CurrentOutputFormat = if ($Quiet) { 'Quiet' } else { $OutputFormat }
