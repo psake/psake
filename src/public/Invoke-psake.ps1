@@ -167,8 +167,10 @@ function Invoke-Psake {
 
         # Apply env-var fallback when -OutputFormat was not explicitly passed
         if (-not $PSBoundParameters.ContainsKey('OutputFormat')) {
-            $validFormats = @('Default', 'JSON', 'GitHubActions', 'Annotated')
-            if ($env:PSAKE_OUTPUT_FORMAT -in $validFormats) {
+            $validateSet = $MyInvocation.MyCommand.Parameters['OutputFormat'].Attributes |
+                Where-Object { $_ -is [System.Management.Automation.ValidateSetAttribute] } |
+                Select-Object -First 1
+            if ($validateSet -and $env:PSAKE_OUTPUT_FORMAT -in $validateSet.ValidValues) {
                 $OutputFormat = $env:PSAKE_OUTPUT_FORMAT
             }
         }

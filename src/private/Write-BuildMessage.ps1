@@ -5,8 +5,10 @@ function Write-BuildMessage {
 
     .DESCRIPTION
     Replaces the old Write-PsakeOutput/OutputHandler system with direct output.
-    Respects $env:NO_COLOR, supports Default/GitHubActions output formats,
-    and suppresses output in JSON/Quiet modes.
+    Respects $env:NO_COLOR, supports Default/GitHubActions/Annotated output
+    formats, and suppresses output in JSON/Quiet modes. Annotated mode emits
+    colored console output (same as Default) plus bare annotation lines for
+    errors and warnings via Write-BuildAnnotation.
     #>
     [System.Diagnostics.CodeAnalysis.SuppressMessage(
         "PSAvoidUsingWriteHost",

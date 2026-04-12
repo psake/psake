@@ -33,6 +33,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- `Write-BuildAnnotation` now escapes all property values (file,
+  title) per the GitHub Actions `escapeProperty` spec — colons,
+  commas, newlines, and carriage returns are percent-encoded in
+  all property fields, not just title
 - `Exec` now captures and displays full command output (stdout
   and stderr) on failure — many CLI tools like Chocolatey write
   errors to stdout, which was previously invisible

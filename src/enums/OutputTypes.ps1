@@ -12,4 +12,5 @@ enum OutputFormat {
     JSON
     Quiet
     GitHubActions
+    Annotated
 }
