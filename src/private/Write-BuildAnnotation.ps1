@@ -13,12 +13,19 @@ function Write-BuildAnnotation {
     Fields are omitted when empty or zero. Field ordering is fixed (file, line,
     col, title) because the VS Code problem matcher regex depends on it.
 
-    Escaping follows the GitHub Actions specification:
+    Escaping follows the GitHub Actions workflow command specification:
+
+    Property values (file, title, etc.):
         %  -> %25  (encoded first to avoid double-encoding)
         \r -> %0D
         \n -> %0A
-        ,  -> %2C  (title only)
-        :  -> %3A  (title only)
+        :  -> %3A
+        ,  -> %2C
+
+    Message (data) value:
+        %  -> %25
+        \r -> %0D
+        \n -> %0A
     #>
     [System.Diagnostics.CodeAnalysis.SuppressMessage(
         "PSAvoidUsingWriteHost",
@@ -44,15 +51,15 @@ function Write-BuildAnnotation {
         return
     }
 
-    # Escape per GitHub Actions spec — percent first to avoid double-encoding
+    # Escape per GitHub Actions spec — percent first to avoid double-encoding.
+    # Property values need all five escapes; the message (data) needs only three.
     $escapedMessage = $Message -replace '%', '%25' -replace "`r", '%0D' -replace "`n", '%0A'
-    $escapedTitle   = $Title   -replace '%', '%25' -replace ',', '%2C' -replace ':', '%3A'
 
     # Build optional fields in the fixed order required by the VS Code regex:
     # file, line, col, title
     $fields = [System.Collections.Generic.List[string]]::new()
     if (-not [string]::IsNullOrEmpty($File)) {
-        $escapedFile = $File -replace '%', '%25'
+        $escapedFile = $File -replace '%', '%25' -replace "`r", '%0D' -replace "`n", '%0A' -replace ':', '%3A' -replace ',', '%2C'
         $fields.Add("file=$escapedFile")
     }
     if ($Line -gt 0) {
@@ -62,6 +69,7 @@ function Write-BuildAnnotation {
         $fields.Add("col=$Column")
     }
     if (-not [string]::IsNullOrEmpty($Title)) {
+        $escapedTitle = $Title -replace '%', '%25' -replace "`r", '%0D' -replace "`n", '%0A' -replace ':', '%3A' -replace ',', '%2C'
         $fields.Add("title=$escapedTitle")
     }
 

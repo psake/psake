@@ -199,16 +199,22 @@ function Invoke-BuildPlan {
                         # This fires for all task failure paths (absorbed or rethrown).
                         $annotationRecord = $_
                         if ($annotationRecord.InvocationInfo) {
-                            Write-BuildAnnotation -Severity 'error' `
-                                -File    $annotationRecord.InvocationInfo.ScriptName `
-                                -Line    $annotationRecord.InvocationInfo.ScriptLineNumber `
-                                -Column  $annotationRecord.InvocationInfo.OffsetInLine `
-                                -Title   $task.Name `
-                                -Message $annotationRecord.Exception.Message
+                            $writeBuildAnnotationSplat = @{
+                                Severity = 'error'
+                                File     = $annotationRecord.InvocationInfo.ScriptName
+                                Line     = $annotationRecord.InvocationInfo.ScriptLineNumber
+                                Column   = $annotationRecord.InvocationInfo.OffsetInLine
+                                Title    = $task.Name
+                                Message  = $annotationRecord.Exception.Message
+                            }
+                            Write-BuildAnnotation @writeBuildAnnotationSplat
                         } else {
-                            Write-BuildAnnotation -Severity 'error' `
-                                -Title   $task.Name `
-                                -Message $annotationRecord.Exception.Message
+                            $writeBuildAnnotationSplat = @{
+                                Severity = 'error'
+                                Title    = $task.Name
+                                Message  = $annotationRecord.Exception.Message
+                            }
+                            Write-BuildAnnotation @writeBuildAnnotationSplat
                         }
 
                         if ($task.ContinueOnError) {
