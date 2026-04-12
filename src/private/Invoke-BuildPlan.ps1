@@ -194,6 +194,29 @@ function Invoke-BuildPlan {
                             $null = & $CurrentContext.taskTearDownScriptBlock $task
                         }
                     } catch {
+                        # Emit a positioned annotation so VS Code's problem matcher can
+                        # populate the Problems panel with a clickable file:line entry.
+                        # This fires for all task failure paths (absorbed or rethrown).
+                        $annotationRecord = $_
+                        if ($annotationRecord.InvocationInfo) {
+                            $writeBuildAnnotationSplat = @{
+                                Severity = 'error'
+                                File     = $annotationRecord.InvocationInfo.ScriptName
+                                Line     = $annotationRecord.InvocationInfo.ScriptLineNumber
+                                Column   = $annotationRecord.InvocationInfo.OffsetInLine
+                                Title    = $task.Name
+                                Message  = $annotationRecord.Exception.Message
+                            }
+                            Write-BuildAnnotation @writeBuildAnnotationSplat
+                        } else {
+                            $writeBuildAnnotationSplat = @{
+                                Severity = 'error'
+                                Title    = $task.Name
+                                Message  = $annotationRecord.Exception.Message
+                            }
+                            Write-BuildAnnotation @writeBuildAnnotationSplat
+                        }
+
                         if ($task.ContinueOnError) {
                             # Failure absorbed — do not propagate to this task's own dependents
                             Write-BuildMessage ("-" * 70)

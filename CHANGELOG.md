@@ -17,7 +17,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Local file-based caching: tasks with `Inputs`/`Outputs` (glob patterns or scriptblocks) are content-addressed cached in `.psake/cache/`; unchanged tasks are skipped
 - `-NoCache` parameter on `Invoke-psake`: bypass caching for a single run
 - Structured output: `Invoke-psake` returns a `PsakeBuildResult` with per-task `PsakeTaskResult` (status, duration, cached flag, error record)
-- `-OutputFormat JSON|GitHubActions` parameter on `Invoke-psake` for CI integration; GitHubActions emits `::error::`, `::warning::`, `::debug::` workflow annotations
+- `-OutputFormat JSON|GitHubActions|Annotated` parameter on `Invoke-psake` for CI and editor integration; GitHubActions emits `::error::`, `::warning::`, `::debug::` workflow annotations; Annotated emits colored human output **plus** positioned `::error file=<path>,line=<n>,col=<n>,title=<task>::<message>` annotation lines for VS Code problem matcher integration
+- `PSAKE_OUTPUT_FORMAT` environment variable fallback: when `-OutputFormat` is not passed explicitly, psake reads this env var; allows wrapper scripts (e.g. `build.ps1`) to inherit the format from the VS Code extension without source changes
 - `-Quiet` parameter on `Invoke-psake`: suppress all console output while still returning structured results
 - `Get-PsakeBuildPlan` function: testability API to compile a build file and inspect the plan without executing
 - `Test-PsakeTask` function: testability API to execute a single task in isolation without triggering dependencies
@@ -32,6 +33,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- `Write-BuildAnnotation` now escapes all property values (file,
+  title) per the GitHub Actions `escapeProperty` spec — colons,
+  commas, newlines, and carriage returns are percent-encoded in
+  all property fields, not just title
 - `Exec` now captures and displays full command output (stdout
   and stderr) on failure — many CLI tools like Chocolatey write
   errors to stdout, which was previously invisible
