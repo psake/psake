@@ -13,19 +13,19 @@ function Write-BuildAnnotation {
     Fields are omitted when empty or zero. Field ordering is fixed (file, line,
     col, title) because the VS Code problem matcher regex depends on it.
 
-    Escaping follows the GitHub Actions workflow command specification:
+    Escaping varies by output format because the consumers differ:
 
-    Property values (file, title, etc.):
-        %  -> %25  (encoded first to avoid double-encoding)
-        \r -> %0D
-        \n -> %0A
-        :  -> %3A
-        ,  -> %2C
+    GitHubActions mode — GitHub's runner decodes escapes before use.
+    Full escapeProperty spec from actions/toolkit:
+        Property values:  %->%25  \r->%0D  \n->%0A  :->%3A  ,->%2C
+        Message (data):   %->%25  \r->%0D  \n->%0A
 
-    Message (data) value:
-        %  -> %25
-        \r -> %0D
-        \n -> %0A
+    Annotated mode — VS Code problem matchers are pure regex; they do
+    NOT unescape percent-encoded values. Escaping : and , in file
+    paths would produce literal C%3A\build\test.ps1 which VS Code
+    cannot resolve. Only structural escapes are applied:
+        Property values:  %->%25  \r->%0D  \n->%0A
+        Message (data):   %->%25  \r->%0D  \n->%0A
     #>
     [System.Diagnostics.CodeAnalysis.SuppressMessage(
         "PSAvoidUsingWriteHost",
@@ -51,15 +51,19 @@ function Write-BuildAnnotation {
         return
     }
 
-    # Escape per GitHub Actions spec — percent first to avoid double-encoding.
-    # Property values need all five escapes; the message (data) needs only three.
+    # Escape percent first to avoid double-encoding, then structural chars.
     $escapedMessage = $Message -replace '%', '%25' -replace "`r", '%0D' -replace "`n", '%0A'
+
+    # GitHubActions: full escapeProperty spec (runner decodes before use)
+    # Annotated:     skip : and , (VS Code regex uses the raw string)
+    $fullEscape = $script:CurrentOutputFormat -eq 'GitHubActions'
 
     # Build optional fields in the fixed order required by the VS Code regex:
     # file, line, col, title
     $fields = [System.Collections.Generic.List[string]]::new()
     if (-not [string]::IsNullOrEmpty($File)) {
-        $escapedFile = $File -replace '%', '%25' -replace "`r", '%0D' -replace "`n", '%0A' -replace ':', '%3A' -replace ',', '%2C'
+        $escapedFile = $File -replace '%', '%25' -replace "`r", '%0D' -replace "`n", '%0A'
+        if ($fullEscape) { $escapedFile = $escapedFile -replace ':', '%3A' -replace ',', '%2C' }
         $fields.Add("file=$escapedFile")
     }
     if ($Line -gt 0) {
@@ -69,7 +73,8 @@ function Write-BuildAnnotation {
         $fields.Add("col=$Column")
     }
     if (-not [string]::IsNullOrEmpty($Title)) {
-        $escapedTitle = $Title -replace '%', '%25' -replace "`r", '%0D' -replace "`n", '%0A' -replace ':', '%3A' -replace ',', '%2C'
+        $escapedTitle = $Title -replace '%', '%25' -replace "`r", '%0D' -replace "`n", '%0A'
+        if ($fullEscape) { $escapedTitle = $escapedTitle -replace ':', '%3A' -replace ',', '%2C' }
         $fields.Add("title=$escapedTitle")
     }
 
