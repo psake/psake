@@ -48,7 +48,7 @@ structured output for GitHub Actions, and JSON output for tooling integration.
 
     PrivateData          = @{
         PSData = @{
-            Prerelease   = 'beta2'
+            Prerelease   = 'beta3'
             Tags         = @(
                 'Build'
                 'Task'
