@@ -98,11 +98,15 @@ function Execute {
                 $process.Start() | Out-Null
                 if (-not $process.WaitForExit($TimeoutSeconds * 1000)) {
                     $process.Kill()
+                    # Plain throw (not ThrowTerminatingError): the surrounding
+                    # catch runs the retry loop — a terminating error would
+                    # short-circuit -MaxRetries.
                     throw "Exec: $ErrorMessage (timeout)"
                 }
                 if ($process.ExitCode -ne 0) {
                     Write-BuildMessage ($msgs.exec_standard_output -f $process.StandardOutput.ReadToEnd()) "Default"
                     Write-BuildMessage ($msgs.exec_standard_error -f $process.StandardError.ReadToEnd()) "Error"
+                    # Plain throw: feeds the retry loop (see above).
                     throw "Exec: $ErrorMessage (exit code: $($process.ExitCode))"
                 }
                 Write-BuildMessage ($msgs.exec_standard_output -f $process.StandardOutput.ReadToEnd()) "Default"
@@ -149,6 +153,8 @@ function Execute {
             break
         } catch [Exception] {
             if ($tryCount -gt $MaxRetries) {
+                # Blanket rethrow after retries are exhausted: preserve the
+                # original ErrorRecord from the command that actually failed.
                 throw $_
             }
 
@@ -156,6 +162,8 @@ function Execute {
                 $isMatch = [regex]::IsMatch($_.Exception.Message, $RetryTriggerErrorPattern)
 
                 if ($isMatch -eq $false) {
+                    # Blanket rethrow: error didn't match the retry pattern, so
+                    # surface the original failure unmodified.
                     throw $_
                 }
             }

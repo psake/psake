@@ -86,6 +86,8 @@ function Test-PsakeTask {
                 } catch {
                     $result.Status = 'Failed'
                     $result.ErrorMessage = $_.ToString()
+                    # Blanket rethrow: preserve the task's original ErrorRecord
+                    # for the caller after recording the failure on $result.
                     throw $_
                 } finally {
                     $stopwatch.Stop()

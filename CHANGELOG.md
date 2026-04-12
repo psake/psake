@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [5.0.0] - Unreleased
+## [5.0.0] - 2026-04-12
 
 ### Added
 
@@ -33,34 +33,20 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
-- `Write-BuildAnnotation` escaping is now mode-aware. In
-  `GitHubActions` mode, property values follow the full
-  `escapeProperty` spec (%, \r, \n, :, ,). In `Annotated` mode
-  (VS Code problem matchers), `:` and `,` are preserved in
-  property values because VS Code's regex-based matcher does
-  not unescape them — escaping them would produce unresolvable
-  file paths like `C%3A\build\test.ps1`.
 - `Exec` now captures and displays full command output (stdout
-  and stderr) on failure — many CLI tools like Chocolatey write
+  and stderr) on failure — many CLI tools (e.g. Chocolatey) write
   errors to stdout, which was previously invisible
-- `Exec` uses `$PSCmdlet.ThrowTerminatingError()` with chained
-  `RuntimeException` for cleaner error display (no more unhelpful
-  `At Execute.ps1:line char:col` noise)
-- `Exec` default error message no longer fails on scriptblock
-  parameters (`.ToString().Trim()` instead of `.Trim()`)
-- `Write-BuildMessage` now handles `Verbose` type (was falling
-  through to `Write-Host`, making VSSetup warnings visible even
-  after the alpha2 downgrade)
-- `Test-BuildEnvironment` no longer resolves framework when the
-  build file does not declare `Framework`, avoiding spurious
-  VSSetup warnings and incorrect inconclusive test results
+- `Exec`, `Invoke-Psake`, `Properties`, and `Task` raise
+  terminating errors via `$PSCmdlet.ThrowTerminatingError()` with
+  proper `ErrorRecord` categories and IDs. Error output is
+  cleaner (no more `At <file>:line char:col` noise) and
+  `-ErrorAction` behaves correctly at the cmdlet boundary.
 
 ### Changed
 
 - Minimum PowerShell version raised to 5.1 (was 3.0)
 - Default .NET Framework version changed from `4.0` to `4.7.2`
 - `Invoke-psake` now returns a `PsakeBuildResult` object (previously returned nothing); `$psake.build_success` is retained for backward compatibility
-- `New-Object PSObject` replaced with `[PSCustomObject]` in module internals
 - Console output uses `Write-BuildMessage` with `$env:NO_COLOR` support; colored output is disabled automatically when `NO_COLOR` is set
 
 ### Removed

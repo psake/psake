@@ -217,7 +217,13 @@ function Task {
         )
         foreach ($key in $Definition.Keys) {
             if ($key -notin $validKeys) {
-                throw "Unknown task definition key '$key' for task '$Name'. Valid keys are: $($validKeys -join ', ')"
+                $errorRecord = [System.Management.Automation.ErrorRecord]::new(
+                    [ArgumentException]::new("Unknown task definition key '$key' for task '$Name'. Valid keys are: $($validKeys -join ', ')", 'Definition'),
+                    'UnknownTaskDefinitionKey',
+                    [System.Management.Automation.ErrorCategory]::InvalidArgument,
+                    $key
+                )
+                $PSCmdlet.ThrowTerminatingError($errorRecord)
             }
         }
         if ($Definition.ContainsKey('Action')) {

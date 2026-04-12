@@ -182,6 +182,11 @@ function Invoke-Psake {
     }
 
     process {
+        # Capture $PSCmdlet so scriptblocks invoked via Invoke-InBuildFileScope
+        # can surface terminating errors attributed to Invoke-Psake rather than
+        # the intermediate cmdlet.
+        $outerCmdlet = $PSCmdlet
+
         # === COMPILE-ONLY: delegate to Get-PsakeBuildPlan ===
         # This is the inversion point: Invoke-Psake calls Get-PsakeBuildPlan,
         # not the other way around. Early return avoids the try/finally below
@@ -292,7 +297,13 @@ function Invoke-Psake {
                     $plan = Compile-BuildPlan -BuildFile $BuildFile -TaskList $effectiveTaskList
 
                     if (-not $plan.IsValid) {
-                        throw ($plan.ValidationErrors -join "`n")
+                        $errorRecord = [System.Management.Automation.ErrorRecord]::new(
+                            [System.Management.Automation.RuntimeException]::new($plan.ValidationErrors -join "`n"),
+                            'BuildPlanValidationFailed',
+                            [System.Management.Automation.ErrorCategory]::InvalidData,
+                            $plan
+                        )
+                        $outerCmdlet.ThrowTerminatingError($errorRecord)
                     }
 
                     Write-Debug "Compile phase complete, starting run phase"
@@ -356,6 +367,8 @@ function Invoke-Psake {
 
             $inNestedScope = ($psake.Context.count -gt 1)
             if ( $inNestedScope ) {
+                # Blanket rethrow: preserve the original ErrorRecord so the
+                # outer psake invocation sees the untouched failure.
                 throw $_
             } else {
                 if (!$psake.run_by_psake_build_tester) {

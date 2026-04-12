@@ -98,7 +98,13 @@ function Properties {
         # Validate that all keys are legal PowerShell variable names before storing.
         foreach ($key in $Hashtable.Keys) {
             if ($key -notmatch '^[A-Za-z_][A-Za-z0-9_]*$') {
-                throw "Properties hashtable key '$key' is not a valid variable name."
+                $errorRecord = [System.Management.Automation.ErrorRecord]::new(
+                    [ArgumentException]::new("Properties hashtable key '$key' is not a valid variable name.", 'Hashtable'),
+                    'InvalidPropertyKey',
+                    [System.Management.Automation.ErrorCategory]::InvalidArgument,
+                    $key
+                )
+                $PSCmdlet.ThrowTerminatingError($errorRecord)
             }
         }
         # Store the hashtable in $psake so the deferred scriptblock can access it.
