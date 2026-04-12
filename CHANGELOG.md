@@ -36,11 +36,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - `Exec` now captures and displays full command output (stdout
   and stderr) on failure — many CLI tools (e.g. Chocolatey) write
   errors to stdout, which was previously invisible
-- `Exec`, `Invoke-Psake`, `Properties`, and `Task` raise
-  terminating errors via `$PSCmdlet.ThrowTerminatingError()` with
-  proper `ErrorRecord` categories and IDs. Error output is
-  cleaner (no more `At <file>:line char:col` noise) and
-  `-ErrorAction` behaves correctly at the cmdlet boundary.
+- `Exec`, `Properties`, and `Task` raise terminating errors via
+  `$PSCmdlet.ThrowTerminatingError()` with proper `ErrorRecord`
+  categories and IDs. Error output is cleaner (no more
+  `At <file>:line char:col` noise) and `-ErrorAction` behaves
+  correctly at the cmdlet boundary.
 
 ### Changed
 
