@@ -33,10 +33,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
-- `Write-BuildAnnotation` now escapes all property values (file,
-  title) per the GitHub Actions `escapeProperty` spec — colons,
-  commas, newlines, and carriage returns are percent-encoded in
-  all property fields, not just title
+- `Write-BuildAnnotation` escaping is now mode-aware. In
+  `GitHubActions` mode, property values follow the full
+  `escapeProperty` spec (%, \r, \n, :, ,). In `Annotated` mode
+  (VS Code problem matchers), `:` and `,` are preserved in
+  property values because VS Code's regex-based matcher does
+  not unescape them — escaping them would produce unresolvable
+  file paths like `C%3A\build\test.ps1`.
 - `Exec` now captures and displays full command output (stdout
   and stderr) on failure — many CLI tools like Chocolatey write
   errors to stdout, which was previously invisible

@@ -24,10 +24,10 @@ Describe 'Write-BuildAnnotation' {
                     -File 'C:\build\test.ps1' -Line 42 -Column 5 `
                     -Title 'MyTask' -Message 'Something failed'
             }
-            # Colon in C:\ is escaped to %3A per GitHub Actions escapeProperty spec
+            # Annotated mode preserves colons for VS Code path resolution
             Should -Invoke -CommandName Write-Host -ModuleName psake -Times 1 -Exactly `
                 -ParameterFilter {
-                    $Object -eq '::error file=C%3A\build\test.ps1,line=42,col=5,title=MyTask::Something failed'
+                    $Object -eq '::error file=C:\build\test.ps1,line=42,col=5,title=MyTask::Something failed'
                 }
         }
 
@@ -55,7 +55,7 @@ Describe 'Write-BuildAnnotation' {
                 }
         }
 
-        It 'File path with colon escapes it to %3A' {
+        It 'Annotated mode preserves colons and commas in file paths for VS Code' {
             Mock -CommandName Write-Host -ModuleName psake
             InModuleScope psake {
                 $script:CurrentOutputFormat = 'Annotated'
@@ -63,23 +63,47 @@ Describe 'Write-BuildAnnotation' {
             }
             Should -Invoke -CommandName Write-Host -ModuleName psake -Times 1 -Exactly `
                 -ParameterFilter {
-                    $Object -match 'file=D%3A\\src\\app\.ps1' -and $Object -notmatch 'file=D:\\src'
+                    $Object -match 'file=D:\\src\\app\.ps1'
                 }
         }
 
-        It 'File path with comma escapes it to %2C' {
+        It 'Annotated mode preserves colons and commas in title' {
             Mock -CommandName Write-Host -ModuleName psake
             InModuleScope psake {
                 $script:CurrentOutputFormat = 'Annotated'
-                Write-BuildAnnotation -Severity 'error' -File 'path,with,commas.ps1' -Message 'test'
+                Write-BuildAnnotation -Severity 'error' -Title 'Build:Release,Deploy' -Message 'test'
             }
             Should -Invoke -CommandName Write-Host -ModuleName psake -Times 1 -Exactly `
                 -ParameterFilter {
-                    $Object -match 'file=path%2Cwith%2Ccommas' -and $Object -notmatch 'file=path,with'
+                    $Object -match 'title=Build:Release,Deploy'
                 }
         }
 
-        It 'Title with newlines escapes them to %0A and %0D' {
+        It 'GitHubActions mode escapes colons to %3A in file paths' {
+            Mock -CommandName Write-Host -ModuleName psake
+            InModuleScope psake {
+                $script:CurrentOutputFormat = 'GitHubActions'
+                Write-BuildAnnotation -Severity 'error' -File 'D:\src\app.ps1' -Message 'test'
+            }
+            Should -Invoke -CommandName Write-Host -ModuleName psake -Times 1 -Exactly `
+                -ParameterFilter {
+                    $Object -match 'file=D%3A\\src\\app\.ps1'
+                }
+        }
+
+        It 'GitHubActions mode escapes commas and colons in title' {
+            Mock -CommandName Write-Host -ModuleName psake
+            InModuleScope psake {
+                $script:CurrentOutputFormat = 'GitHubActions'
+                Write-BuildAnnotation -Severity 'error' -Title 'Build:Release,Deploy' -Message 'test'
+            }
+            Should -Invoke -CommandName Write-Host -ModuleName psake -Times 1 -Exactly `
+                -ParameterFilter {
+                    $Object -match 'title=Build%3ARelease%2CDeploy'
+                }
+        }
+
+        It 'Title with newlines escapes them to %0A and %0D in both modes' {
             Mock -CommandName Write-Host -ModuleName psake
             InModuleScope psake {
                 $script:CurrentOutputFormat = 'Annotated'
@@ -88,30 +112,6 @@ Describe 'Write-BuildAnnotation' {
             Should -Invoke -CommandName Write-Host -ModuleName psake -Times 1 -Exactly `
                 -ParameterFilter {
                     $Object -match '%0D%0A' -and $Object -notmatch "title=line1`r`nline2"
-                }
-        }
-
-        It 'Title with comma escapes it to %2C' {
-            Mock -CommandName Write-Host -ModuleName psake
-            InModuleScope psake {
-                $script:CurrentOutputFormat = 'Annotated'
-                Write-BuildAnnotation -Severity 'error' -Title 'Build,Deploy' -Message 'test'
-            }
-            Should -Invoke -CommandName Write-Host -ModuleName psake -Times 1 -Exactly `
-                -ParameterFilter {
-                    $Object -match '%2C' -and $Object -notmatch 'title=Build,Deploy'
-                }
-        }
-
-        It 'Title with colon escapes it to %3A' {
-            Mock -CommandName Write-Host -ModuleName psake
-            InModuleScope psake {
-                $script:CurrentOutputFormat = 'Annotated'
-                Write-BuildAnnotation -Severity 'error' -Title 'Build:Release' -Message 'test'
-            }
-            Should -Invoke -CommandName Write-Host -ModuleName psake -Times 1 -Exactly `
-                -ParameterFilter {
-                    $Object -match '%3A'
                 }
         }
 
