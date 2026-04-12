@@ -7,7 +7,7 @@ on:
     branches:
       - main
     paths:
-      - src
+      - src/**
 
 jobs:
   publish_module:
