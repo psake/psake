@@ -112,6 +112,9 @@ function Invoke-Task {
                             Write-BuildMessage ($msgs.continue_on_error -f $TaskName, $_) "warning"
                             Write-BuildMessage ("-" * 70) "warning"
                         } else {
+                            # Blanket rethrow: propagate the original ErrorRecord to
+                            # Invoke-Psake's outer catch. Not a ThrowTerminatingError
+                            # because we want the inner task failure preserved intact.
                             throw $_
                         }
                     } finally {
@@ -132,6 +135,8 @@ function Invoke-Task {
             Assert (& $task.PostCondition) ($msgs.postcondition_failed -f $TaskName)
         }
     } catch {
+        # Blanket rethrow: the finally block below still pops the callstack,
+        # and the preserved ErrorRecord bubbles up to Invoke-Psake.
         throw $_
     } finally {
         $poppedTaskKey = $currentContext.callStack.Pop()

@@ -292,6 +292,11 @@ function Invoke-Psake {
                     $plan = Compile-BuildPlan -BuildFile $BuildFile -TaskList $effectiveTaskList
 
                     if (-not $plan.IsValid) {
+                        # Plain throw (not ThrowTerminatingError): the outer
+                        # try/catch in Invoke-Psake populates $psake.error_message
+                        # and returns a failed PsakeBuildResult. Calling
+                        # ThrowTerminatingError on a captured outer $PSCmdlet
+                        # from within this scriptblock bypasses that catch.
                         throw ($plan.ValidationErrors -join "`n")
                     }
 
@@ -356,6 +361,8 @@ function Invoke-Psake {
 
             $inNestedScope = ($psake.Context.count -gt 1)
             if ( $inNestedScope ) {
+                # Blanket rethrow: preserve the original ErrorRecord so the
+                # outer psake invocation sees the untouched failure.
                 throw $_
             } else {
                 if (!$psake.run_by_psake_build_tester) {
