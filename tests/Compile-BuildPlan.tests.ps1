@@ -80,4 +80,20 @@ Describe 'Compile-BuildPlan' {
         $plan.TaskMap.ContainsKey('build') | Should -BeTrue
         $plan.TaskMap['build'].DependsOn | Should -Contain 'Clean'
     }
+
+    It 'Should not crash when BuildFile has no directory component (bare filename)' {
+        # Regression: Split-Path 'psakefile.ps1' -Parent returns '' and
+        # Join-Path then throws "Cannot bind argument to parameter 'Path'
+        # because it is an empty string." (issue #368)
+        $buildFile = Join-Path $script:specFolder 'simple_properties_and_tasks_should_pass.ps1'
+        $bareFileName = Split-Path $buildFile -Leaf
+        Push-Location (Split-Path $buildFile -Parent)
+        try {
+            $plan = Get-PsakeBuildPlan -BuildFile $bareFileName
+            $plan.IsValid | Should -BeTrue
+            $plan.CacheDir | Should -Not -BeNullOrEmpty
+        } finally {
+            Pop-Location
+        }
+    }
 }
