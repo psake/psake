@@ -1,3 +1,4 @@
+# Requires: Windows
 # Regression test for issue #368.
 # Users invoke psake via psake.cmd passing a task name as the first positional
 # argument (e.g. "psake.cmd CI 1.0.0"). Invoke-psake detects that the argument
