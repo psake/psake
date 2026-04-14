@@ -271,6 +271,19 @@ function PublishChocolatey {
     [CmdletBinding()]
     param()
 
+    # Chocolatey CLI rejects <icon> (CHCU0002); rewrite the staged nuspec to use <iconUrl>.
+    $specPath = "$outputNugetDir\psake.nuspec"
+    $spec = [xml](Get-Content -Raw $specPath)
+    $metadata = $spec.package.metadata
+    $iconNode = $metadata.SelectSingleNode('*[local-name()="icon"]')
+    if ($iconNode) { [void]$metadata.RemoveChild($iconNode) }
+    if (-not $metadata.SelectSingleNode('*[local-name()="iconUrl"]')) {
+        $iconUrl = $spec.CreateElement('iconUrl', $spec.DocumentElement.NamespaceURI)
+        $iconUrl.InnerText = 'https://raw.githubusercontent.com/psake/graphics/main/png/psake-single-icon-teal-bg-256x256.png'
+        [void]$metadata.AppendChild($iconUrl)
+    }
+    $spec.Save($specPath)
+
     try {
         Push-Location $outputNugetDir
         choco pack
@@ -289,22 +302,15 @@ function PublishNuget {
     param()
 
     "Building nuget package version [$version]"
-    $nugetInPath = Get-Command 'nuget' -ErrorAction 'SilentlyContinue'
-    if (-not $nugetInPath) {
-        Write-Warning "Nuget not detected in path. Using local copy..."
-        $nugetBin = Resolve-Path "$PSScriptRoot\build\nuget\NuGet.exe"
-    } else {
-        $nugetBin = $nugetInPath.Source
-    }
-    Write-Verbose "Using nuget at $nugetBin"
     try {
         Push-Location $outputNugetDir
+        $nugetBin = Resolve-Path "$PSScriptRoot\build\nuget\NuGet.exe"
         & $nugetBin pack "./psake.nuspec" -Verbosity quiet -Version $version -Properties NoWarn='NU5111,NU5125'
         $nupkg = (Get-ChildItem "psake*.nupkg").Name
         if ($null -eq $ENV:NUGET_API_KEY) {
             throw 'Nuget API is not set! Not publishing.'
         }
-        & $nugetBin push $nupkg --api-key $ENV:NUGET_API_KEY --source https://api.nuget.org/v3/index.json
+        dotnet nuget push $nupkg --api-key $ENV:NUGET_API_KEY --source https://api.nuget.org/v3/index.json
     } finally {
         Pop-Location
     }
