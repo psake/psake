@@ -16,6 +16,8 @@ BeforeDiscovery {
 Describe 'Compile-BuildPlan' {
     BeforeAll {
         $script:specFolder = Join-Path -Path (Join-Path -Path $PSScriptRoot -ChildPath '..') -ChildPath 'specs'
+        # PS 5.1 on Windows has no $IsWindows variable; its absence implies Windows.
+        $script:isWindowsPlatform = !(Test-Path Variable:\IsWindows) -or $IsWindows
     }
     It 'Should compile a valid build plan' {
         $buildFile = Join-Path $script:specFolder 'simple_properties_and_tasks_should_pass.ps1'
@@ -79,5 +81,21 @@ Describe 'Compile-BuildPlan' {
         $plan.TaskMap.ContainsKey('clean') | Should -BeTrue
         $plan.TaskMap.ContainsKey('build') | Should -BeTrue
         $plan.TaskMap['build'].DependsOn | Should -Contain 'Clean'
+    }
+
+    It 'Should not crash when BuildFile has no directory component (bare filename)' -Skip:(-not $script:isWindowsPlatform) {
+        # Regression: Split-Path 'psakefile.ps1' -Parent returns '' and
+        # Join-Path then throws "Cannot bind argument to parameter 'Path'
+        # because it is an empty string." (issue #368)
+        $buildFile = Join-Path $script:specFolder 'simple_properties_and_tasks_should_pass.ps1'
+        $bareFileName = Split-Path $buildFile -Leaf
+        Push-Location (Split-Path $buildFile -Parent)
+        try {
+            $plan = Get-PsakeBuildPlan -BuildFile $bareFileName
+            $plan.IsValid | Should -BeTrue
+            $plan.CacheDir | Should -Not -BeNullOrEmpty
+        } finally {
+            Pop-Location
+        }
     }
 }

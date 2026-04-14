@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [5.0.1] - 2026-04-14
+
+### Fixed
+
+- Crash when `Invoke-psake` or `Get-PsakeBuildPlan` is called with a
+  bare build-file name (no directory component), e.g. `psake.cmd
+  TaskName` resolving `psakefile.ps1`. `Split-Path` returned an empty
+  string, causing `Join-Path` to throw. Now falls back to the current
+  working directory. (issue #368)
+
 ## [5.0.0] - 2026-04-12
 
 ### Added

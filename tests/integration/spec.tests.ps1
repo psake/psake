@@ -72,6 +72,15 @@ Describe 'PSake specs' {
             throw "Invalid specification syntax. Specs file [$Name] should end with _should_pass or _should_fail."
         }
 
+        # Check if spec requires Windows and skip on non-Windows platforms.
+        # PS 5.1 on Windows has no $IsWindows variable; its absence implies Windows.
+        $isWindowsPlatform = !(Test-Path Variable:\IsWindows) -or $IsWindows
+        $firstLine = Get-Content $FullName -TotalCount 1
+        if ($firstLine -match '# Requires: Windows' -and -not $isWindowsPlatform) {
+            Set-ItResult -Inconclusive -Because "Windows-only spec, skipping on non-Windows."
+            return
+        }
+
         # Check if there is a framework defined in the spec file is installed.
         if (-not (Test-BuildEnvironment -BuildFile $FullName )) {
             Set-ItResult -Inconclusive -Because "Required framework for this spec is not available. Skipping test."

@@ -32,6 +32,7 @@ function Compile-BuildPlan {
     $plan.BuildFile = $BuildFile
     $plan.CompiledAt = [datetime]::UtcNow
     $buildPath = Split-Path $BuildFile -Parent
+    if ([string]::IsNullOrEmpty($buildPath)) { $buildPath = (Get-Location).Path }
     $psakeDir = Join-Path $buildPath '.psake'
     $plan.CacheDir = Join-Path $psakeDir 'cache'
     $plan.ValidationErrors = @()
