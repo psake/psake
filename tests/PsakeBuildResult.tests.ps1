@@ -60,6 +60,16 @@ Describe 'PsakeBuildResult' {
         $result.ErrorRecord | Should -Not -BeNullOrEmpty
     }
 
+    It 'Should return a single PsakeBuildResult (not an array) when task writes to pipeline' {
+        # Regression test for issue #370: task output was polluting Invoke-Psake's
+        # return value, causing $result to be an array instead of a PsakeBuildResult.
+        $buildFile = Join-Path $script:specFolder 'task_output_not_suppressed_should_pass.ps1'
+        $result = Invoke-Psake -BuildFile $buildFile -NoLogo -Quiet
+        $result | Should -Not -BeNullOrEmpty
+        $result.GetType().Name | Should -Be 'PsakeBuildResult'
+        $result.Success | Should -BeTrue
+    }
+
     It 'Should include ErrorRecord on ContinueOnError task results' {
         $buildFile = Join-Path $script:specFolder 'invoketask_with_continueonerror_should_pass.ps1'
         $result = Invoke-Psake -BuildFile $buildFile -NoLogo -Quiet

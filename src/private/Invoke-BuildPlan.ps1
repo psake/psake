@@ -52,6 +52,11 @@ function Invoke-BuildPlan {
 
     $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 
+    # In JSON and Quiet modes all task output is suppressed; in all other modes
+    # output is routed directly to the host so it does not pollute the pipeline
+    # (the return value of Invoke-BuildPlan must be a PsakeBuildResult only).
+    $suppressOutput = $script:CurrentOutputFormat -in @('JSON', 'Quiet')
+
     try {
         # Inject parameters
         foreach ($key in $Parameters.Keys) {
@@ -84,7 +89,7 @@ function Invoke-BuildPlan {
         $null = . $Module $Initialization
 
         # Run build setup
-        $null = & $CurrentContext.buildSetupScriptBlock
+        if ($suppressOutput) { $null = & $CurrentContext.buildSetupScriptBlock } else { & $CurrentContext.buildSetupScriptBlock | Out-Host }
 
         try {
             # Execute tasks in plan order
@@ -164,10 +169,10 @@ function Invoke-BuildPlan {
                         $CurrentContext.currentTaskName = $task.Name
 
                         try {
-                            $null = & $CurrentContext.taskSetupScriptBlock @($task)
+                            if ($suppressOutput) { $null = & $CurrentContext.taskSetupScriptBlock @($task) } else { & $CurrentContext.taskSetupScriptBlock @($task) | Out-Host }
                             try {
                                 if ($task.PreAction) {
-                                    $null = & $task.PreAction
+                                    if ($suppressOutput) { $null = & $task.PreAction } else { & $task.PreAction | Out-Host }
                                 }
 
                                 if ($CurrentContext.config.taskNameFormat -is [ScriptBlock]) {
@@ -177,10 +182,10 @@ function Invoke-BuildPlan {
                                 }
                                 Write-BuildMessage $taskHeader "heading"
 
-                                $null = & $task.Action
+                                if ($suppressOutput) { $null = & $task.Action } else { & $task.Action | Out-Host }
                             } finally {
                                 if ($task.PostAction) {
-                                    $null = & $task.PostAction
+                                    if ($suppressOutput) { $null = & $task.PostAction } else { & $task.PostAction | Out-Host }
                                 }
                             }
                         } catch {
@@ -191,7 +196,7 @@ function Invoke-BuildPlan {
                             $task.ErrorRecord = $_
                             throw $_
                         } finally {
-                            $null = & $CurrentContext.taskTearDownScriptBlock $task
+                            if ($suppressOutput) { $null = & $CurrentContext.taskTearDownScriptBlock $task } else { & $CurrentContext.taskTearDownScriptBlock $task | Out-Host }
                         }
                     } catch {
                         # Emit a positioned annotation so VS Code's problem matcher can
@@ -276,7 +281,7 @@ function Invoke-BuildPlan {
                 $buildResult.Tasks += $taskResult
             }
         } finally {
-            $null = & $CurrentContext.buildTearDownScriptBlock
+            if ($suppressOutput) { $null = & $CurrentContext.buildTearDownScriptBlock } else { & $CurrentContext.buildTearDownScriptBlock | Out-Host }
         }
 
     } catch {

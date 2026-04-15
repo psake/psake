@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [5.0.2] - 2026-04-15
+
+### Fixed
+
+- Task action console output was silently suppressed. `Invoke-BuildPlan`
+  used `$null = & $task.Action` (and the same for PreAction, PostAction,
+  and setup/teardown hooks), which discarded the entire pipeline. Output
+  now flows to the host via `Out-Host`, gated so JSON and `-Quiet` modes
+  still stay silent. (issue #370)
+- `Exec` buffered all command output before processing
+  (`$cmdOutput = & $Cmd 2>&1`), preventing real-time display. Replaced
+  with a streaming `ForEach-Object` loop that writes stdout through the
+  pipeline item-by-item while still capturing stderr for error
+  reporting. On failure the error message includes stdout only when
+  output is suppressed, to avoid duplicating already-shown output.
+
 ## [5.0.1] - 2026-04-14
 
 ### Fixed

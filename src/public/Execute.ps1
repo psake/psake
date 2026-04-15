@@ -111,15 +111,28 @@ function Execute {
                 }
                 Write-BuildMessage ($msgs.exec_standard_output -f $process.StandardOutput.ReadToEnd()) "Default"
             } else {
-                $cmdOutput = & $Cmd 2>&1
-                $stdErr = @($cmdOutput | Where-Object { $_ -is [System.Management.Automation.ErrorRecord] })
-                $stdOut = @($cmdOutput | Where-Object { $_ -isnot [System.Management.Automation.ErrorRecord] })
+                # Stream output in real-time: stdout is passed through the pipeline
+                # so Invoke-BuildPlan can route it to the console; stderr is captured
+                # for error reporting on failure.
+                $stdErr = [System.Collections.ArrayList]@()
+                $stdOut = [System.Collections.ArrayList]@()
+                & $Cmd 2>&1 | ForEach-Object {
+                    if ($_ -is [System.Management.Automation.ErrorRecord]) {
+                        [void]$stdErr.Add($_)
+                    } else {
+                        [void]$stdOut.Add($_)
+                        $_  # stream stdout to pipeline for real-time display
+                    }
+                }
                 if ($global:lastexitcode -ne 0) {
                     $errMsg = "Exec: $($ErrorMessage.Trim()) (exit code: $global:lastexitcode)"
-                    # Include all command output — many tools write
-                    # errors to stdout rather than stderr
+                    # In JSON/Quiet mode stdout was suppressed by the caller, so
+                    # include it in the error message for diagnostic visibility.
+                    # In other modes stdout was already streamed to the console, so
+                    # only include stderr to avoid duplicating the output.
+                    $isOutputSuppressed = $script:CurrentOutputFormat -in @('JSON', 'Quiet')
                     $combinedOutput = @()
-                    if ($stdOut.Count -gt 0) {
+                    if ($isOutputSuppressed -and $stdOut.Count -gt 0) {
                         $combinedOutput += ($stdOut | ForEach-Object { $_.ToString() }) -join [Environment]::NewLine
                     }
                     if ($stdErr.Count -gt 0) {
@@ -147,8 +160,7 @@ function Execute {
                     )
                     $PSCmdlet.ThrowTerminatingError($errorRecord)
                 }
-                # Command succeeded — pass stdout through
-                if ($stdOut.Count -gt 0) { $stdOut }
+                # Command succeeded — stdout was already streamed to the pipeline above
             }
             break
         } catch [Exception] {
