@@ -234,8 +234,11 @@ function Invoke-Psake {
                         Properties     = $script:Properties
                         Initialization = $script:Initialization
                     }
-                    $buildResult = Invoke-BuildPlan @invokeBuildPlanSplat
+                    $allOutput = @(Invoke-BuildPlan @invokeBuildPlanSplat)
+                    $buildResult = $allOutput | Where-Object { $_ -is [PsakeBuildResult] } | Select-Object -Last 1
                     $script:buildResultOut = $buildResult
+                    $nonResult = @($allOutput | Where-Object { $_ -isnot [PsakeBuildResult] })
+                    if ($nonResult.Count -gt 0) { $nonResult | Out-Host }
 
                     if ($buildResult.Success) {
                         $successMsg = $msgs.psake_success -f $BuildPlan.BuildFile
@@ -311,9 +314,11 @@ function Invoke-Psake {
                         Properties     = $script:Properties
                         Initialization = $script:Initialization
                     }
-                    $buildResult = Invoke-BuildPlan @invokeBuildPlanSplat
-
+                    $allOutput = @(Invoke-BuildPlan @invokeBuildPlanSplat)
+                    $buildResult = $allOutput | Where-Object { $_ -is [PsakeBuildResult] } | Select-Object -Last 1
                     $script:buildResultOut = $buildResult
+                    $nonResult = @($allOutput | Where-Object { $_ -isnot [PsakeBuildResult] })
+                    if ($nonResult.Count -gt 0) { $nonResult | Out-Host }
 
                     if ($buildResult.Success) {
                         $successMsg = $msgs.psake_success -f $BuildFile

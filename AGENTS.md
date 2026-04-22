@@ -207,6 +207,102 @@ psake configuration is layered:
 
 Key configuration options: `buildFileName`, `framework`, `taskNameFormat`, `verboseError`, `coloredOutput`, `modules`, `moduleScope`, `outputHandler`, `outputHandlers`.
 
+## Output Routing — Patterns and Pitfalls
+
+This section records the trade-offs discovered while fixing ANSI/TTY regressions (issues #370, #372). Read this before touching any code path that calls task actions, `Invoke-BuildPlan`, or `Exec`.
+
+### The ANSI/TTY Problem
+
+External processes (e.g. `dotnet run`, tools using Spectre.Console, Terraform) check whether stdout is connected to a real terminal. When the OS reports that stdout is a **pipe** (not a TTY), these tools disable ANSI color output and emit plain text.
+
+PowerShell creates an OS-level pipe whenever you use the `|` operator. That means:
+
+```powershell
+& $task.Action | Out-Host          # stdout is a PIPE → ANSI broken
+& $task.Action 2>&1 | ForEach-Object { $_ }  # stdout is a PIPE → ANSI broken
+```
+
+These alternatives do NOT create an OS-level stdout pipe:
+
+```powershell
+& $task.Action                     # stdout goes directly to host → ANSI works
+$x = & $task.Action                # PowerShell object stream, not an OS pipe → ANSI works
+$x = @(& $task.Action)            # same
+```
+
+**Rule:** Never put a `|` immediately after invoking an external command if ANSI output matters. Use assignment-collection or redirect only stderr.
+
+---
+
+### Approaches Considered for Task Action Output Routing
+
+#### Option A — `& $task.Action | Out-Host` (v5.0.1, discarded)
+
+Used in psake 5.0.1 to fix issue #370 (pipeline pollution). Breaks ANSI for all external commands in tasks.
+
+#### Option B — `$null = & $task.Action` (suppress mode)
+
+Used in JSON/Quiet modes. Captures and discards all PowerShell success-stream output. Safe for suppress mode because ANSI is irrelevant and pipeline pollution is the primary concern. Does NOT create an OS pipe.
+
+#### Option C — `[ref]$Result` out-parameter on `Invoke-BuildPlan` (discarded)
+
+Attempted as a way to let `Invoke-BuildPlan` return its `PsakeBuildResult` without going through the success stream. Fails because **nested `Invoke-psake` calls inside task actions** still emit `PsakeBuildResult` objects that flow up through `& $task.Action` → `Invoke-BuildPlan`'s success stream → `Invoke-InBuildFileScope` → outer `Invoke-psake`, producing an array even with the ref approach.
+
+#### Option D — `$allOutput = @(Invoke-BuildPlan ...)` + filter (current, v5.0.2)
+
+Collect everything `Invoke-BuildPlan` emits, then split by type:
+
+```powershell
+$allOutput = @(Invoke-BuildPlan @invokeBuildPlanSplat)
+$buildResult = $allOutput | Where-Object { $_ -is [PsakeBuildResult] } | Select-Object -Last 1
+$script:buildResultOut = $buildResult
+$nonResult = @($allOutput | Where-Object { $_ -isnot [PsakeBuildResult] })
+if ($nonResult.Count -gt 0) { $nonResult | Out-Host }
+```
+
+Key points:
+- Assignment collection (`$x = @(...)`) does **not** create an OS pipe — external commands inside `Invoke-BuildPlan` still see a TTY.
+- Non-`PsakeBuildResult` items (task `Write-Output`, nested build output) are routed to `Out-Host` **after** `Invoke-BuildPlan` returns, so no external process is running at that point — the `| Out-Host` pipe doesn't affect any process's ANSI detection.
+- `PsakeBuildResult` objects from nested `Invoke-psake` calls are collected and discarded (the nested builds already wrote their output directly to the host while running).
+
+---
+
+### Exec / Execute.ps1 — Non-Suppress Mode
+
+The original `Exec` implementation used:
+
+```powershell
+& $Cmd 2>&1 | ForEach-Object { ... }
+```
+
+This creates an OS pipe for stdout, breaking ANSI. Fix: in non-suppress mode, redirect only stderr to a temp file and let stdout flow directly to the console:
+
+```powershell
+$stderrPath = [System.IO.Path]::GetTempFileName()
+try {
+    & $Cmd 2>$stderrPath     # stdout → TTY/console (ANSI preserved)
+} finally {
+    $stderrContent = Get-Content $stderrPath -Raw -ErrorAction SilentlyContinue
+    Remove-Item $stderrPath -ErrorAction SilentlyContinue
+}
+```
+
+In **suppress mode** (JSON/Quiet), the original `2>&1 | ForEach-Object` is kept because capturing stdout is intentional — it should appear in error messages since it was never shown on the console.
+
+---
+
+### Summary Table
+
+| Context | Code pattern | ANSI works? | Notes |
+|---------|-------------|-------------|-------|
+| Non-suppress task action | `& $task.Action` | ✅ | Direct to host |
+| Suppress task action | `$null = & $task.Action` | N/A | Output discarded |
+| `Invoke-BuildPlan` result | `$x = @(Invoke-BuildPlan ...)` | ✅ | Assignment, no OS pipe |
+| Exec non-suppress | `& $Cmd 2>$tempFile` | ✅ | stderr captured, stdout direct |
+| Exec suppress | `& $Cmd 2>&1 \| ForEach-Object` | N/A | Full capture intentional |
+| `& $thing \| Out-Host` | — | ❌ | Creates OS pipe for stdout |
+| `& $thing 2>&1 \| ForEach-Object` | — | ❌ | Creates OS pipe for stdout |
+
 ## Conventions
 
 - Public functions go in `src/public/`, private functions in `src/private/`

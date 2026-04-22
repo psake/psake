@@ -89,7 +89,7 @@ function Invoke-BuildPlan {
         $null = . $Module $Initialization
 
         # Run build setup
-        if ($suppressOutput) { $null = & $CurrentContext.buildSetupScriptBlock } else { & $CurrentContext.buildSetupScriptBlock | Out-Host }
+        if ($suppressOutput) { $null = & $CurrentContext.buildSetupScriptBlock } else { & $CurrentContext.buildSetupScriptBlock }
 
         try {
             # Execute tasks in plan order
@@ -169,10 +169,10 @@ function Invoke-BuildPlan {
                         $CurrentContext.currentTaskName = $task.Name
 
                         try {
-                            if ($suppressOutput) { $null = & $CurrentContext.taskSetupScriptBlock @($task) } else { & $CurrentContext.taskSetupScriptBlock @($task) | Out-Host }
+                            if ($suppressOutput) { $null = & $CurrentContext.taskSetupScriptBlock @($task) } else { & $CurrentContext.taskSetupScriptBlock @($task) }
                             try {
                                 if ($task.PreAction) {
-                                    if ($suppressOutput) { $null = & $task.PreAction } else { & $task.PreAction | Out-Host }
+                                    if ($suppressOutput) { $null = & $task.PreAction } else { & $task.PreAction }
                                 }
 
                                 if ($CurrentContext.config.taskNameFormat -is [ScriptBlock]) {
@@ -182,10 +182,10 @@ function Invoke-BuildPlan {
                                 }
                                 Write-BuildMessage $taskHeader "heading"
 
-                                if ($suppressOutput) { $null = & $task.Action } else { & $task.Action | Out-Host }
+                                if ($suppressOutput) { $null = & $task.Action } else { & $task.Action }
                             } finally {
                                 if ($task.PostAction) {
-                                    if ($suppressOutput) { $null = & $task.PostAction } else { & $task.PostAction | Out-Host }
+                                    if ($suppressOutput) { $null = & $task.PostAction } else { & $task.PostAction }
                                 }
                             }
                         } catch {
@@ -196,7 +196,7 @@ function Invoke-BuildPlan {
                             $task.ErrorRecord = $_
                             throw $_
                         } finally {
-                            if ($suppressOutput) { $null = & $CurrentContext.taskTearDownScriptBlock $task } else { & $CurrentContext.taskTearDownScriptBlock $task | Out-Host }
+                            if ($suppressOutput) { $null = & $CurrentContext.taskTearDownScriptBlock $task } else { & $CurrentContext.taskTearDownScriptBlock $task }
                         }
                     } catch {
                         # Emit a positioned annotation so VS Code's problem matcher can
@@ -281,7 +281,7 @@ function Invoke-BuildPlan {
                 $buildResult.Tasks += $taskResult
             }
         } finally {
-            if ($suppressOutput) { $null = & $CurrentContext.buildTearDownScriptBlock } else { & $CurrentContext.buildTearDownScriptBlock | Out-Host }
+            if ($suppressOutput) { $null = & $CurrentContext.buildTearDownScriptBlock } else { & $CurrentContext.buildTearDownScriptBlock }
         }
 
     } catch {
