@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [5.0.3] - 2026-04-22
+
+### Fixed
+
+- ANSI colors and terminal formatting from external commands in task
+  actions were not rendered. Tools such as Spectre.Console, Terraform,
+  and any ANSI-aware CLI check `Console.IsOutputRedirected` and disable
+  colors when stdout is a pipe. psake was inadvertently creating OS-level
+  stdout pipes for external commands via PowerShell's assignment/array
+  operator around the internal build-plan executor. (issue #372)
+- `Exec` in non-suppress mode now redirects only stderr to a temp file
+  and lets stdout flow directly to the console TTY; the prior
+  `2>&1 | ForEach-Object` pattern piped both streams. (issue #372)
+
 ## [5.0.2] - 2026-04-15
 
 ### Fixed
