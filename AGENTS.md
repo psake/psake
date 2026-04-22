@@ -207,6 +207,116 @@ psake configuration is layered:
 
 Key configuration options: `buildFileName`, `framework`, `taskNameFormat`, `verboseError`, `coloredOutput`, `modules`, `moduleScope`, `outputHandler`, `outputHandlers`.
 
+## Output Routing — Patterns and Pitfalls
+
+This section records the trade-offs discovered while fixing ANSI/TTY regressions (issues #370, #372). Read this before touching any code path that calls task actions, `Invoke-BuildPlan`, or `Exec`.
+
+### The ANSI/TTY Problem
+
+External processes (e.g. `dotnet run`, tools using Spectre.Console, Terraform) check whether stdout is connected to a real terminal. When the OS reports that stdout is a **pipe** (not a TTY), these tools disable ANSI color output and emit plain text.
+
+PowerShell creates an OS-level pipe whenever you use the `|` operator **or any capturing expression** around a function call that contains external commands. That means:
+
+```powershell
+& $task.Action | Out-Host                        # stdout is a PIPE → ANSI broken
+& $task.Action 2>&1 | ForEach-Object { $_ }     # stdout is a PIPE → ANSI broken
+$x = @(Invoke-BuildPlan ...)                     # also a PIPE → ANSI broken (confirmed empirically)
+$x = SomeFunctionThatCallsExternalCmd            # also a PIPE → ANSI broken
+```
+
+The only safe pattern is a **completely standalone call** with no capturing context anywhere in the call chain:
+
+```powershell
+& $task.Action                     # stdout goes directly to host → ANSI works ✓
+Invoke-BuildPlan @splat            # standalone, no assignment → ANSI works ✓
+```
+
+**Rule:** Never put any capturing expression (`|`, `$x = @(func)`, `$x = func`) around a call path that executes external commands, if ANSI output matters.
+
+---
+
+### Approaches Considered for Task Action Output Routing
+
+#### Option A — `& $task.Action | Out-Host` (v5.0.1, discarded)
+
+Used in psake 5.0.1 to fix issue #370 (pipeline pollution). Breaks ANSI for all external commands in tasks.
+
+#### Option B — `$null = & $task.Action` (suppress mode)
+
+Used in JSON/Quiet modes. Captures and discards all PowerShell success-stream output. Safe for suppress mode because ANSI is irrelevant and pipeline pollution is the primary concern. Does NOT create an OS pipe.
+
+#### Option C — `[ref]$Result` out-parameter on `Invoke-BuildPlan` (discarded)
+
+Attempted as a way to let `Invoke-BuildPlan` return its `PsakeBuildResult` without going through the success stream. Fails because **nested `Invoke-psake` calls inside task actions** still emit `PsakeBuildResult` objects that flow up through `& $task.Action` → `Invoke-BuildPlan`'s success stream → `Invoke-InBuildFileScope` → outer `Invoke-psake`, producing an array even with the ref approach.
+
+#### Option D — `$allOutput = @(Invoke-BuildPlan ...)` + filter (discarded)
+
+Attempted: collect everything `Invoke-BuildPlan` emits, split by type, route non-results to `Out-Host`.
+
+**Rejected because:** `$x = @(func)` creates OS-level pipes for ALL external commands inside `func`, even though there is no explicit `|`. Assignment-collection in PowerShell captures external command stdout through an OS pipe. Confirmed by checking `Console.IsOutputRedirected` inside a dotnet process — it sees `True` when called from inside `@(...)`, meaning ANSI is broken. This was the approach that shipped in v5.0.2 and is being replaced.
+
+#### Option E — Standalone call + module-level variable + context-level emission (current)
+
+`Invoke-BuildPlan` never emits to its success stream. Result is communicated via `$script:buildResultOut` (set in `finally`). `Invoke-psake` only emits `$buildResult` to callers when at root level (`$psake.Context.Count -eq 0`):
+
+```powershell
+# Invoke-BuildPlan.ps1 — finally block:
+$script:buildResultOut = $buildResult   # no return
+
+# Invoke-psake.ps1 — call site:
+Invoke-BuildPlan @invokeBuildPlanSplat  # standalone — no @(), no assignment
+$buildResult = $script:buildResultOut
+
+# Invoke-psake.ps1 — output section:
+if ($psake.Context.Count -eq 0) {
+    return $buildResult   # only at root level
+}
+```
+
+Key points:
+- No capturing expression around `Invoke-BuildPlan` → external commands see TTY → ANSI works.
+- `$script:buildResultOut` set in `finally` is available even when exceptions are thrown.
+- Nested `Invoke-psake` calls don't emit `PsakeBuildResult` (context count > 0), preventing pollution of the outer return value.
+- Task `Write-Output` flows naturally to the console through the PS success stream.
+
+---
+
+### Exec / Execute.ps1 — Non-Suppress Mode
+
+The original `Exec` implementation used:
+
+```powershell
+& $Cmd 2>&1 | ForEach-Object { ... }
+```
+
+This creates an OS pipe for stdout, breaking ANSI. Fix: in non-suppress mode, redirect only stderr to a temp file and let stdout flow directly to the console:
+
+```powershell
+$stderrPath = [System.IO.Path]::GetTempFileName()
+try {
+    & $Cmd 2>$stderrPath     # stdout → TTY/console (ANSI preserved)
+} finally {
+    $stderrContent = Get-Content $stderrPath -Raw -ErrorAction SilentlyContinue
+    Remove-Item $stderrPath -ErrorAction SilentlyContinue
+}
+```
+
+In **suppress mode** (JSON/Quiet), the original `2>&1 | ForEach-Object` is kept because capturing stdout is intentional — it should appear in error messages since it was never shown on the console.
+
+---
+
+### Summary Table
+
+| Context | Code pattern | ANSI works? | Notes |
+|---------|-------------|-------------|-------|
+| Non-suppress task action | `& $task.Action` | ✅ | Direct to host |
+| Suppress task action | `$null = & $task.Action` | N/A | Output discarded |
+| `Invoke-BuildPlan` result | `Invoke-BuildPlan ...` standalone | ✅ | No capturing context, result via module var |
+| Exec non-suppress | `& $Cmd 2>$tempFile` | ✅ | stderr captured, stdout direct |
+| Exec suppress | `& $Cmd 2>&1 \| ForEach-Object` | N/A | Full capture intentional |
+| `& $thing \| Out-Host` | — | ❌ | Creates OS pipe for stdout |
+| `& $thing 2>&1 \| ForEach-Object` | — | ❌ | Creates OS pipe for stdout |
+
 ## Conventions
 
 - Public functions go in `src/public/`, private functions in `src/private/`

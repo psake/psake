@@ -111,56 +111,79 @@ function Execute {
                 }
                 Write-BuildMessage ($msgs.exec_standard_output -f $process.StandardOutput.ReadToEnd()) "Default"
             } else {
-                # Stream output in real-time: stdout is passed through the pipeline
-                # so Invoke-BuildPlan can route it to the console; stderr is captured
-                # for error reporting on failure.
-                $stdErr = [System.Collections.ArrayList]@()
-                $stdOut = [System.Collections.ArrayList]@()
-                & $Cmd 2>&1 | ForEach-Object {
-                    if ($_ -is [System.Management.Automation.ErrorRecord]) {
-                        [void]$stdErr.Add($_)
-                    } else {
-                        [void]$stdOut.Add($_)
-                        $_  # stream stdout to pipeline for real-time display
+                $isOutputSuppressed = $script:CurrentOutputFormat -in @('JSON', 'Quiet')
+                if ($isOutputSuppressed) {
+                    # Suppress mode: capture stdout and stderr so the caller's $null = context
+                    # can discard them; stdout is included in error messages since it was never shown.
+                    $stdErr = [System.Collections.ArrayList]@()
+                    $stdOut = [System.Collections.ArrayList]@()
+                    & $Cmd 2>&1 | ForEach-Object {
+                        if ($_ -is [System.Management.Automation.ErrorRecord]) {
+                            [void]$stdErr.Add($_)
+                        } else {
+                            [void]$stdOut.Add($_)
+                            $_
+                        }
+                    }
+                    if ($global:lastexitcode -ne 0) {
+                        $errMsg = "Exec: $($ErrorMessage.Trim()) (exit code: $global:lastexitcode)"
+                        $combinedOutput = @()
+                        if ($stdOut.Count -gt 0) {
+                            $combinedOutput += ($stdOut | ForEach-Object { $_.ToString() }) -join [Environment]::NewLine
+                        }
+                        if ($stdErr.Count -gt 0) {
+                            $combinedOutput += ($stdErr | ForEach-Object { $_.ToString() }) -join [Environment]::NewLine
+                        }
+                        if ($combinedOutput.Count -gt 0) {
+                            $outputText = $combinedOutput -join [Environment]::NewLine
+                            Write-BuildMessage ($msgs.exec_standard_error -f $outputText) "Error"
+                            $errMsg += "`n$outputText"
+                        }
+                        $innerException = $null
+                        $innerRecord = $null
+                        if ($stdErr.Count -gt 0) {
+                            $innerRecord = $stdErr[0]
+                            $innerException = $innerRecord.Exception
+                        }
+                        $exception = [System.Management.Automation.RuntimeException]::new(
+                            $errMsg, $innerException, $innerRecord
+                        )
+                        $errorRecord = [System.Management.Automation.ErrorRecord]::new(
+                            $exception,
+                            'ExecCommandFailed',
+                            [System.Management.Automation.ErrorCategory]::InvalidResult,
+                            $Cmd
+                        )
+                        $PSCmdlet.ThrowTerminatingError($errorRecord)
+                    }
+                } else {
+                    # Non-suppress mode: stdout goes directly to the console so external
+                    # processes see a real TTY and ANSI/color output is preserved.
+                    # Only stderr is captured (via temp file) for error messages.
+                    $stderrPath = [System.IO.Path]::GetTempFileName()
+                    $stderrContent = $null
+                    try {
+                        & $Cmd 2>$stderrPath
+                    } finally {
+                        $stderrContent = Get-Content $stderrPath -Raw -ErrorAction SilentlyContinue
+                        Remove-Item $stderrPath -ErrorAction SilentlyContinue
+                    }
+                    if ($global:lastexitcode -ne 0) {
+                        $errMsg = "Exec: $($ErrorMessage.Trim()) (exit code: $global:lastexitcode)"
+                        if ($stderrContent) {
+                            Write-BuildMessage ($msgs.exec_standard_error -f $stderrContent) "Error"
+                            $errMsg += "`n$stderrContent"
+                        }
+                        $exception = [System.Management.Automation.RuntimeException]::new($errMsg)
+                        $errorRecord = [System.Management.Automation.ErrorRecord]::new(
+                            $exception,
+                            'ExecCommandFailed',
+                            [System.Management.Automation.ErrorCategory]::InvalidResult,
+                            $Cmd
+                        )
+                        $PSCmdlet.ThrowTerminatingError($errorRecord)
                     }
                 }
-                if ($global:lastexitcode -ne 0) {
-                    $errMsg = "Exec: $($ErrorMessage.Trim()) (exit code: $global:lastexitcode)"
-                    # In JSON/Quiet mode stdout was suppressed by the caller, so
-                    # include it in the error message for diagnostic visibility.
-                    # In other modes stdout was already streamed to the console, so
-                    # only include stderr to avoid duplicating the output.
-                    $isOutputSuppressed = $script:CurrentOutputFormat -in @('JSON', 'Quiet')
-                    $combinedOutput = @()
-                    if ($isOutputSuppressed -and $stdOut.Count -gt 0) {
-                        $combinedOutput += ($stdOut | ForEach-Object { $_.ToString() }) -join [Environment]::NewLine
-                    }
-                    if ($stdErr.Count -gt 0) {
-                        $combinedOutput += ($stdErr | ForEach-Object { $_.ToString() }) -join [Environment]::NewLine
-                    }
-                    if ($combinedOutput.Count -gt 0) {
-                        $outputText = $combinedOutput -join [Environment]::NewLine
-                        Write-BuildMessage ($msgs.exec_standard_error -f $outputText) "Error"
-                        $errMsg += "`n$outputText"
-                    }
-                    $innerException = $null
-                    $innerRecord = $null
-                    if ($stdErr.Count -gt 0) {
-                        $innerRecord = $stdErr[0]
-                        $innerException = $innerRecord.Exception
-                    }
-                    $exception = [System.Management.Automation.RuntimeException]::new(
-                        $errMsg, $innerException, $innerRecord
-                    )
-                    $errorRecord = [System.Management.Automation.ErrorRecord]::new(
-                        $exception,
-                        'ExecCommandFailed',
-                        [System.Management.Automation.ErrorCategory]::InvalidResult,
-                        $Cmd
-                    )
-                    $PSCmdlet.ThrowTerminatingError($errorRecord)
-                }
-                # Command succeeded — stdout was already streamed to the pipeline above
             }
             break
         } catch [Exception] {
