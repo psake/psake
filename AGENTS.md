@@ -215,22 +215,23 @@ This section records the trade-offs discovered while fixing ANSI/TTY regressions
 
 External processes (e.g. `dotnet run`, tools using Spectre.Console, Terraform) check whether stdout is connected to a real terminal. When the OS reports that stdout is a **pipe** (not a TTY), these tools disable ANSI color output and emit plain text.
 
-PowerShell creates an OS-level pipe whenever you use the `|` operator. That means:
+PowerShell creates an OS-level pipe whenever you use the `|` operator **or any capturing expression** around a function call that contains external commands. That means:
 
 ```powershell
-& $task.Action | Out-Host          # stdout is a PIPE → ANSI broken
-& $task.Action 2>&1 | ForEach-Object { $_ }  # stdout is a PIPE → ANSI broken
+& $task.Action | Out-Host                        # stdout is a PIPE → ANSI broken
+& $task.Action 2>&1 | ForEach-Object { $_ }     # stdout is a PIPE → ANSI broken
+$x = @(Invoke-BuildPlan ...)                     # also a PIPE → ANSI broken (confirmed empirically)
+$x = SomeFunctionThatCallsExternalCmd            # also a PIPE → ANSI broken
 ```
 
-These alternatives do NOT create an OS-level stdout pipe:
+The only safe pattern is a **completely standalone call** with no capturing context anywhere in the call chain:
 
 ```powershell
-& $task.Action                     # stdout goes directly to host → ANSI works
-$x = & $task.Action                # PowerShell object stream, not an OS pipe → ANSI works
-$x = @(& $task.Action)            # same
+& $task.Action                     # stdout goes directly to host → ANSI works ✓
+Invoke-BuildPlan @splat            # standalone, no assignment → ANSI works ✓
 ```
 
-**Rule:** Never put a `|` immediately after invoking an external command if ANSI output matters. Use assignment-collection or redirect only stderr.
+**Rule:** Never put any capturing expression (`|`, `$x = @(func)`, `$x = func`) around a call path that executes external commands, if ANSI output matters.
 
 ---
 
@@ -248,22 +249,35 @@ Used in JSON/Quiet modes. Captures and discards all PowerShell success-stream ou
 
 Attempted as a way to let `Invoke-BuildPlan` return its `PsakeBuildResult` without going through the success stream. Fails because **nested `Invoke-psake` calls inside task actions** still emit `PsakeBuildResult` objects that flow up through `& $task.Action` → `Invoke-BuildPlan`'s success stream → `Invoke-InBuildFileScope` → outer `Invoke-psake`, producing an array even with the ref approach.
 
-#### Option D — `$allOutput = @(Invoke-BuildPlan ...)` + filter (current, v5.0.2)
+#### Option D — `$allOutput = @(Invoke-BuildPlan ...)` + filter (discarded)
 
-Collect everything `Invoke-BuildPlan` emits, then split by type:
+Attempted: collect everything `Invoke-BuildPlan` emits, split by type, route non-results to `Out-Host`.
+
+**Rejected because:** `$x = @(func)` creates OS-level pipes for ALL external commands inside `func`, even though there is no explicit `|`. Assignment-collection in PowerShell captures external command stdout through an OS pipe. Confirmed by checking `Console.IsOutputRedirected` inside a dotnet process — it sees `True` when called from inside `@(...)`, meaning ANSI is broken. This was the approach that shipped in v5.0.2 and is being replaced.
+
+#### Option E — Standalone call + module-level variable + context-level emission (current)
+
+`Invoke-BuildPlan` never emits to its success stream. Result is communicated via `$script:buildResultOut` (set in `finally`). `Invoke-psake` only emits `$buildResult` to callers when at root level (`$psake.Context.Count -eq 0`):
 
 ```powershell
-$allOutput = @(Invoke-BuildPlan @invokeBuildPlanSplat)
-$buildResult = $allOutput | Where-Object { $_ -is [PsakeBuildResult] } | Select-Object -Last 1
-$script:buildResultOut = $buildResult
-$nonResult = @($allOutput | Where-Object { $_ -isnot [PsakeBuildResult] })
-if ($nonResult.Count -gt 0) { $nonResult | Out-Host }
+# Invoke-BuildPlan.ps1 — finally block:
+$script:buildResultOut = $buildResult   # no return
+
+# Invoke-psake.ps1 — call site:
+Invoke-BuildPlan @invokeBuildPlanSplat  # standalone — no @(), no assignment
+$buildResult = $script:buildResultOut
+
+# Invoke-psake.ps1 — output section:
+if ($psake.Context.Count -eq 0) {
+    return $buildResult   # only at root level
+}
 ```
 
 Key points:
-- Assignment collection (`$x = @(...)`) does **not** create an OS pipe — external commands inside `Invoke-BuildPlan` still see a TTY.
-- Non-`PsakeBuildResult` items (task `Write-Output`, nested build output) are routed to `Out-Host` **after** `Invoke-BuildPlan` returns, so no external process is running at that point — the `| Out-Host` pipe doesn't affect any process's ANSI detection.
-- `PsakeBuildResult` objects from nested `Invoke-psake` calls are collected and discarded (the nested builds already wrote their output directly to the host while running).
+- No capturing expression around `Invoke-BuildPlan` → external commands see TTY → ANSI works.
+- `$script:buildResultOut` set in `finally` is available even when exceptions are thrown.
+- Nested `Invoke-psake` calls don't emit `PsakeBuildResult` (context count > 0), preventing pollution of the outer return value.
+- Task `Write-Output` flows naturally to the console through the PS success stream.
 
 ---
 
@@ -297,7 +311,7 @@ In **suppress mode** (JSON/Quiet), the original `2>&1 | ForEach-Object` is kept 
 |---------|-------------|-------------|-------|
 | Non-suppress task action | `& $task.Action` | ✅ | Direct to host |
 | Suppress task action | `$null = & $task.Action` | N/A | Output discarded |
-| `Invoke-BuildPlan` result | `$x = @(Invoke-BuildPlan ...)` | ✅ | Assignment, no OS pipe |
+| `Invoke-BuildPlan` result | `Invoke-BuildPlan ...` standalone | ✅ | No capturing context, result via module var |
 | Exec non-suppress | `& $Cmd 2>$tempFile` | ✅ | stderr captured, stdout direct |
 | Exec suppress | `& $Cmd 2>&1 \| ForEach-Object` | N/A | Full capture intentional |
 | `& $thing \| Out-Host` | — | ❌ | Creates OS pipe for stdout |

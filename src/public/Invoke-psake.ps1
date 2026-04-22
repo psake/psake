@@ -234,11 +234,8 @@ function Invoke-Psake {
                         Properties     = $script:Properties
                         Initialization = $script:Initialization
                     }
-                    $allOutput = @(Invoke-BuildPlan @invokeBuildPlanSplat)
-                    $buildResult = $allOutput | Where-Object { $_ -is [PsakeBuildResult] } | Select-Object -Last 1
-                    $script:buildResultOut = $buildResult
-                    $nonResult = @($allOutput | Where-Object { $_ -isnot [PsakeBuildResult] })
-                    if ($nonResult.Count -gt 0) { $nonResult | Out-Host }
+                    Invoke-BuildPlan @invokeBuildPlanSplat
+                    $buildResult = $script:buildResultOut
 
                     if ($buildResult.Success) {
                         $successMsg = $msgs.psake_success -f $BuildPlan.BuildFile
@@ -314,11 +311,8 @@ function Invoke-Psake {
                         Properties     = $script:Properties
                         Initialization = $script:Initialization
                     }
-                    $allOutput = @(Invoke-BuildPlan @invokeBuildPlanSplat)
-                    $buildResult = $allOutput | Where-Object { $_ -is [PsakeBuildResult] } | Select-Object -Last 1
-                    $script:buildResultOut = $buildResult
-                    $nonResult = @($allOutput | Where-Object { $_ -isnot [PsakeBuildResult] })
-                    if ($nonResult.Count -gt 0) { $nonResult | Out-Host }
+                    Invoke-BuildPlan @invokeBuildPlanSplat
+                    $buildResult = $script:buildResultOut
 
                     if ($buildResult.Success) {
                         $successMsg = $msgs.psake_success -f $BuildFile
@@ -380,11 +374,16 @@ function Invoke-Psake {
             Restore-Environment
         }
 
-        # Output
-        if ($OutputFormat -eq 'JSON' -and $buildResult) {
-            $buildResult | ConvertTo-Json -Depth 3 -WarningAction Ignore
-        } else {
-            return $buildResult
+        # Only emit the result when at the outermost invocation level.
+        # Nested Invoke-psake calls (Context still has the outer entry on the stack
+        # before Restore-Environment popped the inner one) must not emit PsakeBuildResult
+        # into the outer call's success stream — that would pollute the outer $output.
+        if ($psake.Context.Count -eq 0) {
+            if ($OutputFormat -eq 'JSON' -and $buildResult) {
+                $buildResult | ConvertTo-Json -Depth 3 -WarningAction Ignore
+            } else {
+                return $buildResult
+            }
         }
     }
 }

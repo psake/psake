@@ -293,7 +293,6 @@ function Invoke-BuildPlan {
         $stopwatch.Stop()
         $buildResult.Duration = $stopwatch.Elapsed
         $buildResult.CompletedAt = [datetime]::UtcNow
+        $script:buildResultOut = $buildResult
     }
-
-    return $buildResult
 }
