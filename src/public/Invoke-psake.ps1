@@ -20,7 +20,6 @@ function Invoke-Psake {
     A comma-separated list of task names to execute
 
     .PARAMETER Framework
-
     The version of the .NET framework you want to use during build. You can
     append x86 or x64 to force a specific framework. If not specified, x86 or
     x64 will be detected based on the bitness of the PowerShell process.
@@ -54,10 +53,10 @@ function Invoke-Psake {
     Do not display the time report.
 
     .PARAMETER OutputFormat
-    The output format. 'Default' for console output, 'JSON' for JSON to stdout,
-    'GitHubActions' for GitHub Actions workflow annotations (::error::, ::warning::, ::debug::),
-    'Annotated' for colored console output plus annotation lines for errors/warnings (VS Code problem matcher).
-    If not specified, the PSAKE_OUTPUT_FORMAT environment variable is checked as a fallback.
+    Output format. 'Default' for console, 'JSON' for stdout JSON,
+    'GitHubActions' for workflow annotations (::error::, ::warning::,
+    ::debug::), 'Annotated' for console + annotation lines (VS Code
+    problem matcher). Falls back to PSAKE_OUTPUT_FORMAT env variable.
 
     .PARAMETER NoCache
     Bypass task caching. All tasks will execute regardless of cache state.
@@ -74,6 +73,11 @@ function Invoke-Psake {
     via the pipeline. Compile-phase parameters (BuildFile, TaskList, Framework,
     Docs, DetailedDocs, CompileOnly) are ignored when a plan is provided.
     Note: the build file is re-loaded during the execution phase.
+
+    .INPUTS
+    PsakeBuildPlan
+
+    A pre-compiled build plan from Get-PsakeBuildPlan, typically via the pipeline.
 
     .EXAMPLE
     Invoke-psake

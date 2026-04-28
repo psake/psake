@@ -4,13 +4,14 @@ function Get-PSakeScriptTasks {
     Returns meta data about all the tasks defined in the provided psake script.
 
     .DESCRIPTION
-    Returns meta data about all the tasks defined in the provided psake script.
+    Loads the build file and evaluates task definitions without executing
+    any tasks. Useful for tooling, IDE integrations, and tab completion.
 
     .PARAMETER BuildFile
     The path to the psake build script to read the tasks from.
 
     .EXAMPLE
-    PS C:\>Get-PSakeScriptTasks -BuildFile '.\build.ps1'
+    Get-PSakeScriptTasks -BuildFile '.\build.ps1'
 
     DependsOn        Alias Name    Description
     ---------        ----- ----    -----------

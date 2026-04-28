@@ -4,12 +4,8 @@ function Execute {
     Helper function for executing command-line programs.
 
     .DESCRIPTION
-    This is a helper function that runs a scriptblock and checks the PS variable
-    $lastexitcode to see if an error occured.
-
-    If an error is detected then an exception is thrown.
-    This function allows you to run command-line programs without having to
-    explicitly check the $lastexitcode variable.
+    Throws a terminating error if $lastexitcode is non-zero after the
+    command runs, so callers don't need to check it after each invocation.
 
     .PARAMETER Cmd
     The scriptblock to execute. This scriptblock will typically contain the
