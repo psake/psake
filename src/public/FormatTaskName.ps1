@@ -1,35 +1,34 @@
 function FormatTaskName {
     <#
     .SYNOPSIS
-    This function allows you to change how psake renders the task name during a build.
+    This function allows you to change how psake renders the task name during a
+    build.
 
     .DESCRIPTION
-    This function takes either a string which represents a format string (formats using the -f format operator see "help about_operators") or it can accept a script block that has a single parameter that is the name of the task that will be executed.
+    Useful for adding visual separators or color to task names in the
+    build output. Accepts a -f format string or a scriptblock that
+    receives the task name as its only argument.
 
     .PARAMETER Format
     A format string or a scriptblock to execute
 
     .EXAMPLE
-    A sample build script that uses a format string is shown below:
-
     Task default -depends TaskA, TaskB, TaskC
-
     FormatTaskName "-------- {0} --------"
-
     Task TaskA {
-    "TaskA is executing"
+        "TaskA is executing"
     }
-
     Task TaskB {
-    "TaskB is executing"
+        "TaskB is executing"
+    }
+    Task TaskC {
+        "TaskC is executing"
     }
 
-    Task TaskC {
-    "TaskC is executing"
+    A sample build script that uses a format string. The script above produces
+    the following output:
 
-    -----------
-    The script above produces the following output:
-
+    ```
     -------- TaskA --------
     TaskA is executing
     -------- TaskB --------
@@ -38,32 +37,28 @@ function FormatTaskName {
     TaskC is executing
 
     Build Succeeded!
+    ```
     .EXAMPLE
-    A sample build script that uses a ScriptBlock is shown below:
-
     Task default -depends TaskA, TaskB, TaskC
-
     FormatTaskName {
         param($taskName)
-        write-host "Executing Task: $taskName" -foregroundcolor blue
+        write-host "Executing Task: $taskName" -ForegroundColor blue
     }
-
     Task TaskA {
-    "TaskA is executing"
+        "TaskA is executing"
     }
-
     Task TaskB {
-    "TaskB is executing"
+        "TaskB is executing"
     }
-
     Task TaskC {
-    "TaskC is executing"
+        "TaskC is executing"
     }
 
-    -----------
-    The above example uses the scriptblock parameter to the FormatTaskName function to render each task name in the color blue.
+    A sample build script that uses a ScriptBlock. The above example uses the
+    scriptblock parameter to the FormatTaskName function to render each task
+    name in the color blue.
 
-    Note: the $taskName parameter is arbitrary, it could be named anything.
+    Note: the $taskName parameter name is arbitrary, it could be named anything.
     #>
     [CmdletBinding()]
     param(

@@ -4,8 +4,8 @@ function Invoke-Task {
     Executes another task in the current build script.
 
     .DESCRIPTION
-    This is a function that will allow you to invoke a Task from within another
-    Task in the current build script.
+    Use this inside a task's Action when you need to sequence tasks
+    programmatically rather than declaring them with -Depends.
 
     .PARAMETER TaskName
     The name of the task to execute.

@@ -41,7 +41,10 @@ function Test-BuildEnvironment {
     and tested. Ignored when -Framework is also supplied.
 
     .OUTPUTS
-    [bool]
+    System.Boolean
+
+    Returns $true if all required framework directories exist;
+    $false otherwise.
 
     .EXAMPLE
     Test-BuildEnvironment -Framework '4.8'

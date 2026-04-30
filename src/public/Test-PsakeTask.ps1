@@ -28,9 +28,8 @@ function Test-PsakeTask {
     injected into the task's scope. The result object contains details about the
     execution, including success status, duration, and any error messages.
     .NOTES
-    This function is intended for testing purposes and does not execute task
-    dependencies or pre/post actions. It directly invokes the specified task's
-    Action scriptblock in isolation.
+    Dependencies, PreAction, and PostAction are skipped — only the
+    task's Action scriptblock is executed.
     #>
     [CmdletBinding()]
     param(

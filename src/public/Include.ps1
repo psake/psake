@@ -5,18 +5,19 @@ function Include {
     current build script's scope
 
     .DESCRIPTION
-    A build script may declare an "includes" function which allows you to define
-    a file containing powershell code to be included and added to the scope of
-    the currently running build script. Code from such file will be executed
-    after code from build script.
+    Included scripts are dot-sourced into the build script's scope after
+    the build file finishes loading. You can call Include more than once.
 
     .PARAMETER Path
-    A string containing the path and name of the powershell file to include
-    (wildcards can be used)
+    Path to the script file(s) to include. Supports wildcards.
 
     .PARAMETER LiteralPath
-    A string containing the path and name of the powershell file to include (no
-    wildcards)
+    Path to the script file to include. No wildcard expansion.
+
+    .INPUTS
+    System.String
+
+    The path(s) to the script file(s) to include in the build.
 
     .EXAMPLE
     Include ".\build_utils.ps1"
@@ -28,9 +29,8 @@ function Include {
     Task Clean {
     }
 
-    The script above includes all the functions and variables defined in the ".\build_utils.ps1" script into the current build script's scope
-
-    Note: You can have more than 1 "Include" function defined in the build script.
+    Includes all functions and variables from build_utils.ps1 in the
+    build script's scope.
 
     .EXAMPLE
     @("File1.ps1","File2.ps1") | Include

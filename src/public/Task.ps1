@@ -4,9 +4,8 @@ function Task {
     Defines a build task to be executed by psake
 
     .DESCRIPTION
-    This function creates a 'task' object that will be used by the psake engine
-    to execute a build task.
-    Note: There must be at least one task called 'default' in the build script
+    Defines a named task in the build script. Every script must include
+    at least one task named 'default'.
 
     .PARAMETER Name
     The name of the task
@@ -41,16 +40,10 @@ function Task {
     These tasks will be executed before the current task is executed.
 
     .PARAMETER Definition
-    A hashtable that can be used to define a task using a single parameter
-    instead of using multiple parameters. This is an alternative to the normal
-    syntax of Task 'TaskName' -Action { ... } -Depends 'OtherTask' and allows
-    for a more declarative style of task definition. The hashtable can contain
-    the following keys:
-    - Action
-    - PreAction
-    - PostAction
-    - PreCondition
-    - PostCondition
+    Declarative hashtable alternative to named parameters.
+    Supported keys: Action, PreAction, PostAction, PreCondition,
+    PostCondition, ContinueOnError, Description, Alias,
+    RequiredVariables.
 
     .PARAMETER RequiredVariables
     An array of names of variables that must be set to run this task.
@@ -92,43 +85,8 @@ function Task {
         "Clean"
     }
 
-    The 'default' task is required and should not contain an 'Action' parameter.
-    It uses the 'Depends' parameter to specify that 'Test' is a dependency
-
-    The 'Test' task uses the 'Depends' parameter to specify that 'Compile' and
-    'Clean' are dependencies
-    The 'Compile' task depends on the 'Clean' task.
-
-    Note:
-    The 'Action' parameter is defaulted to the script block following the
-    'Clean' task.
-
-    An equivalent 'Test' task is shown below:
-
-    Task Test -Depends Compile, Clean -Action {
-        $testMessage
-    }
-
-    The output for the above sample build script is shown below:
-
-    Executing task, Clean...
-    Clean
-    Executing task, Compile...
-    Compile
-    Executing task, Test...
-    This is a test
-
-    Build Succeeded!
-
-    ----------------------------------------------------------------------
-    Build Time Report
-    ----------------------------------------------------------------------
-    Name    Duration
-    ----    --------
-    Clean   00:00:00.0065614
-    Compile 00:00:00.0133268
-    Test    00:00:00.0225964
-    Total:  00:00:00.0782496
+    The trailing scriptblock is equivalent to -Action { ... }.
+    The 'default' task must exist and should declare no Action of its own.
     #>
     [CmdletBinding(DefaultParameterSetName = 'Normal')]
     param(

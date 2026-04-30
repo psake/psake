@@ -56,27 +56,11 @@ function Properties {
     Variables still work correctly at runtime, but PSScriptAnalyzer cannot detect
     that they will be used in tasks.
     .NOTES
-    This works by defining a script block that is pushed onto the
-    $psake.Context.Peek().properties stack. This allows the properties to be
-    accessed within all tasks in the build script.
-    This means that the variables defined in the script block will be
-    available in the scope of the tasks, but not in the global scope of the
-    build script.
+    Properties scriptblocks are dot-sourced into each task's scope at
+    runtime. Variables are not accessible outside of task scriptblocks.
 
-    PSScriptAnalyzer may warn about variables assigned but not used
-    (PSUseDeclaredVarsMoreThanAssignments) when variables are declared in
-    Properties blocks. This is a false positive - the variables ARE used
-    in tasks when the Properties scriptblock is dot-sourced at runtime.
-
-    To suppress this warning, use script-scoped variables:
-
-    Properties {
-        $script:build_dir = "c:\build"
-        $script:connection_string = "datasource=..."
-    }
-
-    This has identical runtime behavior but satisfies PSScriptAnalyzer's
-    static analysis requirements. See the examples above for more details.
+    PSScriptAnalyzer may flag declared variables as unused — this is a
+    false positive. Use the $script: prefix to suppress it (see examples).
     #>
     [CmdletBinding(DefaultParameterSetName = 'ScriptBlock')]
     param(
