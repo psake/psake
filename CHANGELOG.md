@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [5.0.4] - 2026-04-30
+
+### Added
+
+- New localization strings (`adding_task`, `build_time_report`,
+  `exec_standard_error`, `exec_standard_output`, `loading_task_module`,
+  `retrying_execute`, `task_cached`) across de-DE, es-ES, es-US, and
+  zh-CN locales via Crowdin. (#357)
+- Crowdin localization badge added to README.md. (#357)
+
+### Changed
+
+- Improved comment-based help for all public functions: rewrote
+  `.DESCRIPTION` sections, fixed `.EXAMPLE` formatting, tightened
+  `.PARAMETER` descriptions, fixed typos, and added missing `.INPUTS`
+  blocks. (#375)
+
 ## [5.0.3] - 2026-04-22
 
 ### Fixed

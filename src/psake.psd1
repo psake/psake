@@ -1,6 +1,6 @@
 @{
     RootModule           = 'psake.psm1'
-    ModuleVersion        = '5.0.3'
+    ModuleVersion        = '5.0.4'
     GUID                 = 'cfb53216-072f-4a46-8975-ff7e6bda05a5'
     Author               = 'James Kovacs'
     CompanyName          = 'psake'
