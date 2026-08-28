@@ -182,6 +182,10 @@ the orchestrating psake's `$psake` state variable.
 **CI** runs on GitHub Actions across Windows, Ubuntu, and macOS
 with `./build.ps1 -Task Test -Bootstrap`.
 
+## Publishing Prereleases
+
+PowerShell Gallery's `Prerelease` field is **not** a SemVer prerelease identifier: it accepts only alphanumeric characters, with an optional leading hyphen. Use `beta1` (or `-beta1`), not `beta.1`; dots cause publishing to fail.
+
 ## Testing
 
 - **Unit tests** are in `tests/` and use Pester 5. They validate the manifest, help content, code quality, and v5 features (compile phase, declarative syntax, structured output, testability APIs).
