@@ -186,12 +186,29 @@ function Pester {
 
     Import-Module -Name $outputManifest -Force
 
-    $pesterParams = @{
-        Path     = './tests'
-        Output   = 'Detailed'
-        PassThru = $true
+    # Write the results where continuous integration can find them. The shared module
+    # workflow uploads ./tests/out/testResults.xml as an artifact and publishes it as a
+    # check, and azure-pipelines.yml has been looking for a results file for some time
+    # without one ever being produced.
+    #
+    # Configured through a PesterConfiguration rather than -OutputFile/-OutputFormat:
+    # those belong to Pester 5's Legacy parameter set and cannot be combined with the
+    # Simple set's -Path and -Output.
+    $testResultPath = Join-Path -Path $PSScriptRoot -ChildPath 'tests/out/testResults.xml'
+    $testResultDirectory = Split-Path -Path $testResultPath -Parent
+    if (-not (Test-Path -LiteralPath $testResultDirectory)) {
+        New-Item -Path $testResultDirectory -ItemType Directory -Force > $null
     }
-    $testResults = Invoke-Pester @pesterParams
+
+    $pesterConfiguration = New-PesterConfiguration
+    $pesterConfiguration.Run.Path = './tests'
+    $pesterConfiguration.Run.PassThru = $true
+    $pesterConfiguration.Output.Verbosity = 'Detailed'
+    $pesterConfiguration.TestResult.Enabled = $true
+    $pesterConfiguration.TestResult.OutputPath = $testResultPath
+    $pesterConfiguration.TestResult.OutputFormat = 'NUnitXml'
+
+    $testResults = Invoke-Pester -Configuration $pesterConfiguration
 
     if ($testResults.FailedCount -gt 0) {
         throw "$($testResults.FailedCount) tests failed!"
