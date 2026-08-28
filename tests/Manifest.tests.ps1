@@ -1,4 +1,4 @@
-BeforeAll {
+﻿BeforeAll {
     if ($null -eq $env:BHProjectName) {
         .\build.ps1 -Task Build
     }
@@ -11,8 +11,18 @@ BeforeAll {
     $manifestData = Test-ModuleManifest -Path $outputManifestPath -Verbose:$false -ErrorAction Stop -WarningAction SilentlyContinue
 
     $changelogPath = Join-Path -Path $env:BHProjectPath -Child 'CHANGELOG.md'
-    $changelogVersion = Get-Content $changelogPath | ForEach-Object {
-        if ($_ -match "^##\s\[(?<Version>(\d+\.){1,3}\d+)\]") {
+    # A plain foreach, not Get-Content | ForEach-Object. The break below needs a real
+    # loop to leave: inside ForEach-Object it has none, so it unwinds out of the
+    # pipeline, out of this BeforeAll, and out of the script -- silently, on both
+    # PowerShell 7 and Windows PowerShell 5.1, and try/catch does not stop it because
+    # break is flow control rather than an exception. The assertions still passed only
+    # by accident: ForEach-Object runs its block in the caller scope, so the inner
+    # assignment landed on this variable, and the escaping break then prevented the
+    # outer assignment from overwriting it with the pipeline empty output. Everything
+    # after it here was skipped without a word.
+    $changelogVersion = $null
+    foreach ($changelogLine in (Get-Content -Path $changelogPath)) {
+        if ($changelogLine -match "^##\s\[(?<Version>(\d+\.){1,3}\d+)\]") {
             $changelogVersion = $matches.Version
             break
         }
