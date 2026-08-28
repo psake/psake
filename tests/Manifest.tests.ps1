@@ -1,4 +1,4 @@
-﻿BeforeAll {
+BeforeAll {
     if ($null -eq $env:BHProjectName) {
         .\build.ps1 -Task Build
     }
@@ -22,7 +22,7 @@
     # after it here was skipped without a word.
     $changelogVersion = $null
     foreach ($changelogLine in (Get-Content -Path $changelogPath)) {
-        if ($changelogLine -match "^##\s\[(?<Version>(\d+\.){1,3}\d+)\]") {
+        if ($changelogLine -match '^##\s\[(?<Version>\d+\.\d+\.\d+(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?)\]') {
             $changelogVersion = $matches.Version
             break
         }
@@ -68,11 +68,11 @@ Describe 'Module manifest' {
 
         It 'Has a valid version in the changelog' {
             $changelogVersion | Should -Not -BeNullOrEmpty
-            $changelogVersion -as [Version] | Should -Not -BeNullOrEmpty
+            $changelogVersion | Should -Match '^\d+\.\d+\.\d+(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$'
         }
 
         It 'Changelog and manifest versions are the same' {
-            $changelogVersion -as [Version] | Should -Be ( $manifestData.Version -as [Version] )
+            ($changelogVersion -replace '-.*$') | Should -Be $manifestData.Version.ToString()
         }
     }
 }

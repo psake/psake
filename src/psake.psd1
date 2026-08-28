@@ -1,6 +1,6 @@
 @{
     RootModule           = 'psake.psm1'
-    ModuleVersion        = '5.0.4'
+    ModuleVersion        = '5.0.5'
     GUID                 = 'cfb53216-072f-4a46-8975-ff7e6bda05a5'
     Author               = 'James Kovacs'
     CompanyName          = 'psake'
@@ -48,6 +48,7 @@ structured output for GitHub Actions, and JSON output for tooling integration.
 
     PrivateData          = @{
         PSData = @{
+            Prerelease   = 'beta.1'
             Tags         = @(
                 'Build'
                 'Task'
