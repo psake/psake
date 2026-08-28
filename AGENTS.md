@@ -241,9 +241,11 @@ Invoke-BuildPlan @splat            # standalone, no assignment → ANSI works �
 
 Used in psake 5.0.1 to fix issue #370 (pipeline pollution). Breaks ANSI for all external commands in tasks.
 
-#### Option B — `$null = & $task.Action` (suppress mode)
+#### Option B — `& $task.Action *> $null` (suppress mode)
 
-Used in JSON/Quiet modes. Captures and discards all PowerShell success-stream output. Safe for suppress mode because ANSI is irrelevant and pipeline pollution is the primary concern. Does NOT create an OS pipe.
+JSON/Quiet mode redirects all PowerShell output streams from every build lifecycle scriptblock: property blocks, initialization, build setup/teardown, task setup/teardown, pre/post actions, and task actions. Use `*> $null`, not `$null = & $scriptBlock`; the latter discards only the success stream and leaks host, warning, information, verbose, and debug output.
+
+`*>` redirects streams 1–6 and is available in PowerShell 5.1. `Write-Progress` is not redirectable and is outside this invariant. ANSI output is irrelevant in suppress mode.
 
 #### Option C — `[ref]$Result` out-parameter on `Invoke-BuildPlan` (discarded)
 
@@ -310,7 +312,7 @@ In **suppress mode** (JSON/Quiet), the original `2>&1 | ForEach-Object` is kept 
 | Context | Code pattern | ANSI works? | Notes |
 |---------|-------------|-------------|-------|
 | Non-suppress task action | `& $task.Action` | ✅ | Direct to host |
-| Suppress task action | `$null = & $task.Action` | N/A | Output discarded |
+| Suppress lifecycle scriptblock | `& $scriptBlock *> $null` | N/A | All redirectable streams discarded |
 | `Invoke-BuildPlan` result | `Invoke-BuildPlan ...` standalone | ✅ | No capturing context, result via module var |
 | Exec non-suppress | `& $Cmd 2>$tempFile` | ✅ | stderr captured, stdout direct |
 | Exec suppress | `& $Cmd 2>&1 \| ForEach-Object` | N/A | Full capture intentional |

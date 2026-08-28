@@ -69,6 +69,18 @@ Describe 'PsakeBuildResult' {
         $result.GetType().Name | Should -Be 'PsakeBuildResult'
         $result.Success | Should -BeTrue
     }
+    It 'Should suppress all build lifecycle output streams in quiet mode' {
+        $buildFile = Join-Path $script:specFolder 'quiet_task_output_should_pass.ps1'
+        $output = @(Invoke-Psake -BuildFile $buildFile -NoLogo -Quiet -Initialization {
+                Write-Host 'QUIET_INITIALIZATION_HOST_STREAM_MARKER'
+                Write-Warning 'QUIET_INITIALIZATION_WARNING_STREAM_MARKER'
+            } 3>&1 4>&1 5>&1 6>&1)
+
+        $output | Should -HaveCount 1
+        $output[0].GetType().Name | Should -Be 'PsakeBuildResult'
+        $output[0].Success | Should -BeTrue
+    }
+
 
     It 'Should include ErrorRecord on ContinueOnError task results' {
         $buildFile = Join-Path $script:specFolder 'invoketask_with_continueonerror_should_pass.ps1'
