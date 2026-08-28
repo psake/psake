@@ -1,36 +1,22 @@
 name: CI
 permissions:
+  # A reusable workflow can only narrow the caller's token, never widen it, so every
+  # scope the shared workflow's jobs need has to be granted here. Without
+  # pull-requests/checks/issues the reviewdog suggester and the test-result publisher
+  # fail silently rather than loudly.
   contents: read
+  checks: write
+  pull-requests: write
+  issues: write
 on:
   push:
-    branches:
-      - main
-    paths:
-      - 'src/**'
-      - 'tests/**'
-      - 'specs/**'
-      - 'build.ps1'
-      - 'psakefile.ps1'
-      - 'requirements.psd1'
+    branches: [ main ]
   pull_request:
-    paths:
-      - 'src/**'
-      - 'tests/**'
-      - 'specs/**'
-      - 'build.ps1'
-      - 'psakefile.ps1'
-      - 'requirements.psd1'
   workflow_dispatch:
 jobs:
-  test:
-    name: Run Tests
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest, macOS-latest]
-    steps:
-    - uses: actions/checkout@v4
-    - name: Test
-      shell: pwsh
-      run: ./build.ps1 -Task Test -Bootstrap
+  # Delegate to the psake org's shared module CI workflow. It runs the full build and
+  # test suite on PowerShell 7+ across Linux/Windows/macOS and on the real Windows
+  # PowerShell 5.1 (Desktop) engine, plus linting and changelog format validation.
+  ci:
+    name: CI
+    uses: psake/.github/.github/workflows/ModuleCI.yml@main
