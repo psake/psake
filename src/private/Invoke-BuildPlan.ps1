@@ -75,7 +75,7 @@ function Invoke-BuildPlan {
         # Execute property blocks
         while ($CurrentContext.properties.Count -gt 0) {
             $propertyBlock = $CurrentContext.properties.Pop()
-            $null = . $propertyBlock
+            if ($suppressOutput) { . $propertyBlock *> $null } else { . $propertyBlock }
         }
 
         # Inject command-line properties (override)
@@ -86,10 +86,10 @@ function Invoke-BuildPlan {
         }
 
         # Run initialization
-        $null = . $Module $Initialization
+        if ($suppressOutput) { . $Module $Initialization *> $null } else { . $Module $Initialization }
 
         # Run build setup
-        if ($suppressOutput) { $null = & $CurrentContext.buildSetupScriptBlock } else { & $CurrentContext.buildSetupScriptBlock }
+        if ($suppressOutput) { & $CurrentContext.buildSetupScriptBlock *> $null } else { & $CurrentContext.buildSetupScriptBlock }
 
         try {
             # Execute tasks in plan order
@@ -169,10 +169,10 @@ function Invoke-BuildPlan {
                         $CurrentContext.currentTaskName = $task.Name
 
                         try {
-                            if ($suppressOutput) { $null = & $CurrentContext.taskSetupScriptBlock @($task) } else { & $CurrentContext.taskSetupScriptBlock @($task) }
+                            if ($suppressOutput) { & $CurrentContext.taskSetupScriptBlock @($task) *> $null } else { & $CurrentContext.taskSetupScriptBlock @($task) }
                             try {
                                 if ($task.PreAction) {
-                                    if ($suppressOutput) { $null = & $task.PreAction } else { & $task.PreAction }
+                                    if ($suppressOutput) { & $task.PreAction *> $null } else { & $task.PreAction }
                                 }
 
                                 if ($CurrentContext.config.taskNameFormat -is [ScriptBlock]) {
@@ -182,10 +182,10 @@ function Invoke-BuildPlan {
                                 }
                                 Write-BuildMessage $taskHeader "heading"
 
-                                if ($suppressOutput) { $null = & $task.Action } else { & $task.Action }
+                                if ($suppressOutput) { & $task.Action *> $null } else { & $task.Action }
                             } finally {
                                 if ($task.PostAction) {
-                                    if ($suppressOutput) { $null = & $task.PostAction } else { & $task.PostAction }
+                                    if ($suppressOutput) { & $task.PostAction *> $null } else { & $task.PostAction }
                                 }
                             }
                         } catch {
@@ -196,7 +196,7 @@ function Invoke-BuildPlan {
                             $task.ErrorRecord = $_
                             throw $_
                         } finally {
-                            if ($suppressOutput) { $null = & $CurrentContext.taskTearDownScriptBlock $task } else { & $CurrentContext.taskTearDownScriptBlock $task }
+                            if ($suppressOutput) { & $CurrentContext.taskTearDownScriptBlock $task *> $null } else { & $CurrentContext.taskTearDownScriptBlock $task }
                         }
                     } catch {
                         # Emit a positioned annotation so VS Code's problem matcher can
@@ -281,7 +281,7 @@ function Invoke-BuildPlan {
                 $buildResult.Tasks += $taskResult
             }
         } finally {
-            if ($suppressOutput) { $null = & $CurrentContext.buildTearDownScriptBlock } else { & $CurrentContext.buildTearDownScriptBlock }
+            if ($suppressOutput) { & $CurrentContext.buildTearDownScriptBlock *> $null } else { & $CurrentContext.buildTearDownScriptBlock }
         }
 
     } catch {
