@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+
+## [5.0.5-beta.1] - 2026-08-28
+
+### Fixed
+
+- `-Quiet` now suppresses all redirectable output streams from property
+  blocks, initialization, build hooks, task hooks, and task actions.
+
+
 ## [5.0.4] - 2026-04-30
 
 ### Added
@@ -67,6 +77,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 - Declarative Task syntax: `Task 'Build' @{ DependsOn = 'Clean'; Action = { ... } }` with validated keys (typos throw errors)
+- `Include` accepts piped string and `FileInfo` paths. (#290)
 - `Version` declaration: `Version 5` at the top of a build file enforces the required psake major version
 - Hashtable `Properties` syntax: `Properties @{ Config = 'Release' }` as alternative to scriptblock
 - Two-phase compile/run model: dependency graph is validated via topological sort before any task executes; circular dependencies and missing tasks are caught at compile time
@@ -118,14 +129,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - `Write-PsakeOutput` and `Write-ColoredOutput` internal functions
 - `psake-config.ps1` output handler override examples
 
-## [Unreleased]
-
-### Changed
-
-- [**#290**](https://github.com/psake/psake/pull/290) Enabling String and
-  FileInfo Objects To Be Piped To Include Function
-- [**#301**](https://github.com/psake/psake/pull/301) Add ability to override
-  psake's internal logging.
 
 ## [4.9.1] - 2024-10-06
 
