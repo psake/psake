@@ -1,15 +1,35 @@
 {
     "version": "0.2",
-    "ignorePaths": [],
+    "ignorePaths": [
+        "l10n/**",
+        "src/*-*/Messages.psd1",
+        "build/dotnet-install.sh",
+        "output/**"
+    ],
     "dictionaryDefinitions": [],
     "dictionaries": [
         "powershell"
     ],
     "words": [
+        "Broeglin",
+        "Jaykul",
+        "Kovacs",
+        "Snover",
+        "Thorarin",
+        "bitness",
         "choco",
+        "continueonerror",
+        "dbroeglin",
+        "lastexitcode",
+        "nightroman",
+        "noprofile",
         "psake",
         "psakefile",
-        "timespan"
+        "rkeithhill",
+        "scriptblocks",
+        "tabexpansion",
+        "timespan",
+        "whatif"
     ],
     "ignoreWords": [],
     "import": []
