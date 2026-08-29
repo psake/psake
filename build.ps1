@@ -288,19 +288,6 @@ function PublishChocolatey {
     [CmdletBinding()]
     param()
 
-    # Chocolatey CLI rejects <icon> (CHCU0002); rewrite the staged nuspec to use <iconUrl>.
-    $specPath = "$outputNugetDir\psake.nuspec"
-    $spec = [xml](Get-Content -Raw $specPath)
-    $metadata = $spec.package.metadata
-    $iconNode = $metadata.SelectSingleNode('*[local-name()="icon"]')
-    if ($iconNode) { [void]$metadata.RemoveChild($iconNode) }
-    if (-not $metadata.SelectSingleNode('*[local-name()="iconUrl"]')) {
-        $iconUrl = $spec.CreateElement('iconUrl', $spec.DocumentElement.NamespaceURI)
-        $iconUrl.InnerText = 'https://raw.githubusercontent.com/psake/graphics/main/png/psake-single-icon-teal-bg-256x256.png'
-        [void]$metadata.AppendChild($iconUrl)
-    }
-    $spec.Save($specPath)
-
     try {
         Push-Location $outputNugetDir
         choco pack
