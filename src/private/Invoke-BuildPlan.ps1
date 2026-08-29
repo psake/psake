@@ -175,12 +175,14 @@ function Invoke-BuildPlan {
                                     if ($suppressOutput) { & $task.PreAction *> $null } else { & $task.PreAction }
                                 }
 
-                                if ($CurrentContext.config.taskNameFormat -is [ScriptBlock]) {
-                                    $taskHeader = & $CurrentContext.config.taskNameFormat $task.Name
-                                } else {
-                                    $taskHeader = $CurrentContext.config.taskNameFormat -f $task.Name
+                                if (-not $suppressOutput) {
+                                    if ($CurrentContext.config.taskNameFormat -is [ScriptBlock]) {
+                                        $taskHeader = & $CurrentContext.config.taskNameFormat $task.Name
+                                    } else {
+                                        $taskHeader = $CurrentContext.config.taskNameFormat -f $task.Name
+                                    }
+                                    Write-BuildMessage $taskHeader "heading"
                                 }
-                                Write-BuildMessage $taskHeader "heading"
 
                                 if ($suppressOutput) { & $task.Action *> $null } else { & $task.Action }
                             } finally {
