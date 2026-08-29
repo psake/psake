@@ -2,6 +2,11 @@ Properties {
     Write-Host 'QUIET_PROPERTIES_HOST_STREAM_MARKER'
     Write-Warning 'QUIET_PROPERTIES_WARNING_STREAM_MARKER'
 }
+FormatTaskName {
+    param($taskName)
+    Write-Host "QUIET_TASK_NAME_MARKER_$taskName"
+}
+
 
 Task default -Depends Noisy
 
