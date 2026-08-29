@@ -1,8 +1,26 @@
 name: Publish
+
 permissions:
-  contents: read
+  contents: write
+
 on:
   workflow_dispatch:
+    inputs:
+      publish_module:
+        description: Publish the PowerShell module to PSGallery
+        required: false
+        default: true
+        type: boolean
+      publish_chocolatey:
+        description: Publish the Chocolatey package
+        required: false
+        default: true
+        type: boolean
+      publish_nuget:
+        description: Publish the NuGet package
+        required: false
+        default: true
+        type: boolean
   push:
     branches:
       - main
@@ -12,37 +30,38 @@ on:
 jobs:
   publish_module:
     name: Publish PowerShell Module
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Publish PowerShell Module
-        shell: pwsh
-        env:
-          PSGALLERY_API_KEY: ${{ secrets.PSGALLERY_API_KEY }}
-        run: |
-          ./build.ps1 -Task PublishPSGallery -Bootstrap
+    if: github.event_name == 'push' || inputs.publish_module
+    uses: psake/.github/.github/workflows/PublishModule.yml@main
+    secrets:
+      PS_GALLERY_KEY: ${{ secrets.PSGALLERY_API_KEY }}
+
   publish_chocolatey:
     name: Publish Chocolatey Package
+    needs: publish_module
+    if: >-
+      always() && (github.event_name == 'push' || inputs.publish_chocolatey) &&
+      (github.event_name != 'workflow_dispatch' || !inputs.publish_module || needs.publish_module.result == 'success')
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
       - name: Load Choco API Key
-        shell: powershell
-        run: "choco apikey add -k '${{ secrets.CHOCOAPIKEY }}' -s https://push.chocolatey.org/"
+        shell: pwsh
+        run: choco apikey add -k '${{ secrets.CHOCOAPIKEY }}' -s https://push.chocolatey.org/
       - name: Publish Chocolatey Package
-        shell: powershell
-        run: |
-          ./build.ps1 -Task PublishChocolatey -Bootstrap
+        shell: pwsh
+        run: ./build.ps1 -Task PublishChocolatey -Bootstrap
+
   publish_nuget:
-    name: Publish nuget Package
+    name: Publish NuGet Package
+    needs: publish_module
+    if: >-
+      always() && (github.event_name == 'push' || inputs.publish_nuget) &&
+      (github.event_name != 'workflow_dispatch' || !inputs.publish_module || needs.publish_module.result == 'success')
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Publish Chocolatey Package
+      - name: Publish NuGet Package
+        shell: pwsh
         env:
           NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
-        shell: powershell
-        run: |
-          ./build.ps1 -Task PublishNuget -Bootstrap
-
-
+        run: ./build.ps1 -Task PublishNuget -Bootstrap
