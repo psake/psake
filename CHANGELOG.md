@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [5.0.5-beta.2] - 2026-08-29
+
+### Fixed
+
+- `-Quiet` now suppresses output from `FormatTaskName` scriptblocks.
+
+
 ## [5.0.5-beta.1] - 2026-08-28
 
 ### Fixed
