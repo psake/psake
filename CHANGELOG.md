@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [5.0.5] - 2026-08-29
+
+### Fixed
+
+- `-Quiet` now suppresses all redirectable output from build lifecycle
+  scriptblocks, including custom `FormatTaskName` scriptblocks.
+- NuGet packages now use icon metadata compatible with the current publish
+  tooling.
+
 ## [5.0.5-beta2] - 2026-08-29
 
 ### Fixed
