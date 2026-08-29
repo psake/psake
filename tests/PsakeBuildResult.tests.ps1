@@ -77,7 +77,8 @@ Describe 'PsakeBuildResult' {
             } 3>&1 4>&1 5>&1 6>&1)
 
         $output | Should -HaveCount 1
-        $output | Should -Not -Match 'QUIET_TASK_NAME_MARKER'
+        $nonBuildResultOutput = @($output | Where-Object { $_.GetType().Name -ne 'PsakeBuildResult' })
+        $nonBuildResultOutput | Should -BeNullOrEmpty
         $output[0].GetType().Name | Should -Be 'PsakeBuildResult'
         $output[0].Success | Should -BeTrue
     }
