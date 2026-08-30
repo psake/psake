@@ -21,7 +21,7 @@ in Ruby) and bake (aka make in Boo), but is easier to script because it
 leverages your existing command-line knowledge.
 
 > **Note:** psake is pronounced "sake" – as in Japanese rice wine. It does
-> NOT rhyme with make, bake, or rake.
+> NOT rhyme with make, bake, or rake or shake
 
 ## Installation
 
